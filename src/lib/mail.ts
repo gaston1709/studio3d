@@ -1,12 +1,17 @@
 import nodemailer from "nodemailer";
 
-// Configuración para el Postfix local en THE IRON (Soberano)
+// Configuración de Nodemailer usando variables de entorno
 const transporter = nodemailer.createTransport({
-  host: "localhost",
-  port: 25,
-  secure: false, // TLS no es necesario para localhost:25
+  host: process.env.SMTP_HOST || "localhost",
+  port: parseInt(process.env.SMTP_PORT || "25"),
+  secure: process.env.SMTP_SECURE === "true", // true para 465, false para otros
+  auth: process.env.SMTP_USER ? {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  } : undefined,
   tls: {
-    rejectUnauthorized: false, // Permite la comunicación interna sin certificados
+    // Permite certificados auto-firmados si es necesario en THE IRON
+    rejectUnauthorized: false,
   },
 });
 
