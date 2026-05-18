@@ -2,9 +2,6 @@
   "name": "3d-print-manager",
   "version": "0.1.0",
   "private": true,
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",

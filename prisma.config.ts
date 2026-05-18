@@ -12,3 +12,6 @@ export default defineConfig({
     url: process.env["DATABASE_URL"] || "file:./dev.db",
   },
 });
+
+// The seed command was moved here from package.json
+export const seed = "node prisma/seed.js";
