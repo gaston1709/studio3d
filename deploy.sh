@@ -38,10 +38,15 @@ echo "♻️  Reiniciando proceso en PM2..."
 pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
 
 # 7. Infraestructura (Opcional - Requiere sudo)
-if [ -f "/etc/nginx/sites-available/s3d.conf" ] || [ -f "/etc/nginx/conf.d/s3d.conf" ]; then
-    echo "📂 Actualizando configuración de Nginx..."
-    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/conf.d/s3d.conf 2>/dev/null || \
+if [ -d "/etc/nginx/conf.d" ]; then
+    echo "📂 Actualizando configuración de Nginx en conf.d..."
+    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/conf.d/s3d.conf
+    sudo systemctl reload nginx
+    echo "✅ Nginx recargado."
+elif [ -d "/etc/nginx/sites-available" ]; then
+    echo "📂 Actualizando configuración de Nginx en sites-available..."
     sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/sites-available/s3d.conf
+    sudo ln -sf /etc/nginx/sites-available/s3d.conf /etc/nginx/sites-enabled/s3d.conf 2>/dev/null || true
     sudo systemctl reload nginx
     echo "✅ Nginx recargado."
 fi
