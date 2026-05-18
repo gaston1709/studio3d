@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: SQLite doesn't support enums. Using String for now.
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  phone         String?   
+  password      String?   
+  role          String    @default("CLIENT") 
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Material {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  colors      Color[]
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Color {
+  id         String   @id @default(cuid())
+  name       String
+  hexCode    String   
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id])
+  orders     Order[]
+  isActive   Boolean  @default(true)
+
+  @@unique([name, materialId])
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  userId              String
+  user                User        @relation(fields: [userId], references: [id])
+  filePath            String      
+  fileName            String      
+  receiptPath         String?     
+  shippingMethod      String?     
+  
+  materialId          String?     
+  material            Material?   @relation(fields: [materialId], references: [id])
+  colorId             String?     
+  color               Color?      @relation(fields: [colorId], references: [id])
+  
+  customMaterial      String?     
+  customColor         String?     
+
+  // Technical Specs
+  purpose             String      @default("aesthetic") 
+  infillType          String      @default("auto")      
+  infillPercentage    Int?        
+  layerHeightType     String      @default("standard")  
+  layerHeightManual   Float?      
+
+  // Delivery Preferences
+  desiredDate         DateTime?   // Customer preference
+  deliveryNotes       String?     // Customer notes ("lo necesito antes del viernes")
+
+  status              String      @default("PENDING_QUOTE")
+  price               Float?      
+  printTimeEstimated  Float?      
+  estimatedDelivery   DateTime?   // Admin set (Final date)
+  queuePosition       Int         @default(0) 
+  adminNotes          String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+}

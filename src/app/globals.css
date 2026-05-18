@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground-rgb: 15, 23, 42;
+  --background-rgb: 255, 252, 220; /* #FFFCDC */
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: #FFFCDC;
+  font-family: var(--font-inter), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+/* Custom technical styling */
+.bambu-card {
+  @apply bg-white/50 backdrop-blur-sm border border-black/10 rounded-xl shadow-sm hover:border-black/20 transition-all;
+}
+
+.technical-label {
+  @apply text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em];
+}
+
+/* Smooth transitions */
+* {
+  @apply duration-200;
+}
+
+/* Rebranding Accents */
+.brand-bg {
+  background-color: #FFFCDC;
+}
+
+.brand-border {
+  border-color: rgba(0, 0, 0, 0.1);
 }
