@@ -40,52 +40,63 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User session not found" }, { status: 401 });
     }
 
-    // 2. Save Files
-    const fileNames: string[] = [];
-    const filePaths: string[] = [];
-    const uploadDir = path.join(process.cwd(), "uploads");
+    // 2. Save Files and Configs
+    const fileEntries = files.map((file, index) => {
+        const configStr = formData.get(`config_${index}`) as string;
+        const config = JSON.parse(configStr);
+        return { file, config };
+    });
 
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
+    const uploadDir = path.join(process.cwd(), "uploads");
+    const orderFileData: any[] = [];
+
+    for (const entry of fileEntries) {
+      const bytes = await entry.file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const fileExtension = path.extname(file.name);
+      const fileExtension = path.extname(entry.file.name);
       const uniqueFileName = `${uuidv4()}${fileExtension}`;
       const filePath = path.join(uploadDir, uniqueFileName);
 
       await writeFile(filePath, buffer);
-      fileNames.push(file.name);
-      filePaths.push(uniqueFileName);
+
+      orderFileData.push({
+        fileName: entry.file.name,
+        filePath: uniqueFileName,
+        materialId: entry.config.materialId === "custom" || entry.config.materialId === "multi" ? null : entry.config.materialId,
+        colorId: entry.config.colorId === "custom" || entry.config.colorId === "multi" ? null : entry.config.colorId,
+        customMaterial: entry.config.customMaterial || null,
+        customColor: entry.config.customColor || null,
+      });
     }
 
     // 3. Create Order
     const order = await prisma.order.create({
       data: {
         userId: user.id,
-        materialId: materialId === "custom" ? null : materialId,
-        colorId: (materialId === "custom" || colorId === "custom") ? null : colorId,
-        customMaterial: customMaterial || null,
-        customColor: customColor || null,
-        fileName: fileNames.join(","),
-        filePath: filePaths.join(","),
         status: "PENDING_QUOTE",
-        
-        // Technical Specs
         purpose,
         infillType,
         infillPercentage,
         layerHeightType,
         layerHeightManual,
         scaleFactor,
-
-        // Delivery Prefs
         desiredDate: desiredDate ? new Date(desiredDate) : null,
         deliveryNotes: deliveryNotes || null,
+        files: {
+            create: orderFileData
+        }
       },
+      include: {
+          files: true
+      }
     });
 
     // 4. Send Notification
     try {
-      const template = mailTemplates.orderReceived(order.id, order.fileName);
+      const firstFileName = order.files[0]?.fileName || "archivos";
+      const displayFileName = order.files.length > 1 ? `${firstFileName} (+${order.files.length - 1})` : firstFileName;
+      
+      const template = mailTemplates.orderReceived(order.id, displayFileName);
       await sendEmail({
         to: email,
         subject: template.subject,
@@ -97,8 +108,11 @@ export async function POST(req: NextRequest) {
 
     // 5. Admin Notification
     try {
+      const firstFileName = order.files[0]?.fileName || "archivos";
+      const displayFileName = order.files.length > 1 ? `${firstFileName} (+${order.files.length - 1})` : firstFileName;
+
       const adminEmail = "gastongrasso@sie.com.ar";
-      const adminTemplate = mailTemplates.adminNewOrder(order.id, email, order.fileName);
+      const adminTemplate = mailTemplates.adminNewOrder(order.id, email, displayFileName);
       await sendEmail({
         to: adminEmail,
         subject: adminTemplate.subject,

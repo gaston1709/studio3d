@@ -31,6 +31,7 @@ model Material {
   isActive    Boolean  @default(true)
   colors      Color[]
   orders      Order[]
+  orderFiles  OrderFile[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -42,6 +43,7 @@ model Color {
   materialId String
   material   Material @relation(fields: [materialId], references: [id])
   orders     Order[]
+  orderFiles OrderFile[]
   isActive   Boolean  @default(true)
 
   @@unique([name, materialId])
@@ -51,37 +53,59 @@ model Order {
   id                  String      @id @default(cuid())
   userId              String
   user                User        @relation(fields: [userId], references: [id])
-  filePath            String      
-  fileName            String      
+  files               OrderFile[] 
   receiptPath         String?     
   shippingMethod      String?     
   
+  // These stay as "Legacy" or "Primary" if needed, but we'll prefer OrderFile
   materialId          String?     
   material            Material?   @relation(fields: [materialId], references: [id])
   colorId             String?     
   color               Color?      @relation(fields: [colorId], references: [id])
-  
   customMaterial      String?     
   customColor         String?     
 
-  // Technical Specs
+  // Technical Specs (Common to all files in this quote)
   purpose             String      @default("aesthetic") 
   infillType          String      @default("auto")      
   infillPercentage    Int?        
   layerHeightType     String      @default("standard")  
   layerHeightManual   Float?      
-  scaleFactor         String?     // E.g., "100%", "50%", "Escalar a 15cm"
+  scaleFactor         String?     
 
   // Delivery Preferences
-  desiredDate         DateTime?   // Customer preference
-  deliveryNotes       String?     // Customer notes ("lo necesito antes del viernes")
+  desiredDate         DateTime?   
+  deliveryNotes       String?     
 
   status              String      @default("PENDING_QUOTE")
   price               Float?      
   printTimeEstimated  Float?      
-  estimatedDelivery   DateTime?   // Admin set (Final date)
+  estimatedDelivery   DateTime?   
   queuePosition       Int         @default(0) 
   adminNotes          String?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
+
+  // For backward compatibility during migration
+  fileName            String?      
+  filePath            String?      
+}
+
+model OrderFile {
+  id              String    @id @default(cuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  fileName        String
+  filePath        String
+  
+  materialId      String?
+  material        Material? @relation(fields: [materialId], references: [id])
+  colorId         String?
+  color           Color?    @relation(fields: [colorId], references: [id])
+  
+  customMaterial  String?
+  customColor     String?
+  
+  createdAt       DateTime  @default(now())
 }

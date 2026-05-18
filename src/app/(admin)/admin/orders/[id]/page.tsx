@@ -18,6 +18,12 @@ export default async function OrderDetailPage({
     where: { id },
     include: {
       user: true,
+      files: {
+          include: {
+              material: true,
+              color: true
+          }
+      },
       material: true,
       color: true,
     },
@@ -26,6 +32,25 @@ export default async function OrderDetailPage({
   if (!order) {
     notFound();
   }
+
+  // Helper to render material/color display
+  const renderConfig = (item: { materialId?: string|null, material?: any, color?: any, customMaterial?: string|null, customColor?: string|null }) => {
+    if (item.materialId) {
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 rounded-full border border-slate-900" style={{ backgroundColor: item.color?.hexCode }} />
+            <p className="text-xs font-black text-slate-900 uppercase">{item.material?.name} {item.color?.name}</p>
+          </div>
+        );
+    }
+    return (
+        <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg">
+            <p className="text-[10px] font-black text-amber-700 uppercase tracking-tighter">
+                {item.customMaterial || 'Especial'} • {item.customColor || 'Especial'}
+            </p>
+        </div>
+    );
+  };
 
   const translateShipping = (method: string | null) => {
     switch (method) {
@@ -167,24 +192,30 @@ export default async function OrderDetailPage({
           {/* 3. ARCHIVOS Y PAGO */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-blue-50 border-4 border-slate-900 p-8 rounded-[2rem] space-y-4 shadow-sm">
-              <h2 className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Modelos 3D ({order.fileName.split(',').length})</h2>
+              <h2 className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Modelos 3D ({order.files.length})</h2>
               
-              <div className="space-y-4 max-h-48 overflow-y-auto pr-2">
-                {order.fileName.split(',').map((fName, idx) => (
-                  <div key={idx} className="bg-white p-4 rounded-xl border-2 border-blue-100 flex flex-col gap-3">
+              <div className="space-y-4 max-h-[32rem] overflow-y-auto pr-2">
+                {order.files.map((file, idx) => (
+                  <div key={file.id} className="bg-white p-5 rounded-xl border-2 border-blue-100 flex flex-col gap-4 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="bg-blue-700 p-2 rounded-lg text-white border-2 border-slate-900 shadow-sm shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
                       </div>
-                      <p className="font-black text-slate-900 text-xs truncate" title={fName}>{fName}</p>
+                      <p className="font-black text-slate-900 text-xs truncate" title={file.fileName}>{file.fileName}</p>
                     </div>
+
+                    <div className="border-t border-slate-100 pt-3">
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Configuración</p>
+                        {renderConfig(file)}
+                    </div>
+
                     <a 
                       href={`/api/orders/${order.id}/download?index=${idx}`}
-                      className="block text-center bg-slate-900 text-white py-2 rounded-lg font-black text-[10px] border-2 border-slate-900 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-sm"
+                      className="block text-center bg-slate-900 text-white py-2.5 rounded-lg font-black text-[10px] border-2 border-slate-900 hover:bg-blue-700 transition-all uppercase tracking-widest shadow-md"
                     >
-                      DESCARGAR
+                      DESCARGAR MODELO
                     </a>
                   </div>
                 ))}

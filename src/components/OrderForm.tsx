@@ -3,29 +3,37 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { v4 as uuidv4 } from "uuid";
+
+interface Color {
+  id: string;
+  name: string;
+  hexCode: string;
+}
 
 interface Material {
   id: string;
   name: string;
-  colors: {
-    id: string;
-    name: string;
-    hexCode: string;
-  }[];
+  colors: Color[];
+}
+
+interface FileConfig {
+  id: string;
+  file: File;
+  materialId: string;
+  colorId: string;
+  customMaterial: string;
+  customColor: string;
 }
 
 export default function OrderForm({ materials }: { materials: Material[] }) {
   const { data: session, status } = useSession();
-  const [selectedMaterialId, setSelectedMaterialId] = useState(materials[0]?.id || "custom");
-  const [selectedColorId, setSelectedColorId] = useState("");
-  const [customMaterial, setCustomMaterial] = useState("");
-  const [customColor, setCustomColor] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [fileConfigs, setFilesConfigs] = useState<FileConfig[]>([]);
   const [scaleFactor, setScaleFactor] = useState("100%");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Technical Specs State
+  // Technical Specs State (Global for the quote)
   const [purpose, setPurpose] = useState("aesthetic");
   const [infillType, setInfillType] = useState("auto");
   const [infillPercentage, setInfillPercentage] = useState("15");
@@ -35,10 +43,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   // Delivery Preferences State
   const [desiredDate, setDesiredDate] = useState("");
   const [deliveryNotes, setDeliveryNotes] = useState("");
-
-  const isCustomMaterial = selectedMaterialId === "custom";
-  const selectedMaterial = materials.find((m) => m.id === selectedMaterialId);
-  const availableColors = selectedMaterial?.colors || [];
 
   if (status === "loading") return <div className="text-center py-20 font-black uppercase tracking-[0.4em] text-slate-300 animate-pulse">Sincronizando Terminal...</div>;
 
@@ -67,34 +71,51 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     );
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
+
+    const newConfigs: FileConfig[] = selectedFiles.map(file => ({
+      id: uuidv4(),
+      file,
+      materialId: materials[0]?.id || "custom",
+      colorId: "",
+      customMaterial: "",
+      customColor: ""
+    }));
+
+    setFilesConfigs([...fileConfigs, ...newConfigs]);
+  };
+
+  const removeFile = (id: string) => {
+    setFilesConfigs(fileConfigs.filter(f => f.id !== id));
+  };
+
+  const updateFileConfig = (id: string, updates: Partial<FileConfig>) => {
+    setFilesConfigs(fileConfigs.map(f => f.id === id ? { ...f, ...updates } : f));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isMaterialOk = isCustomMaterial ? customMaterial : selectedMaterialId;
-    const isColorOk = (isCustomMaterial || selectedColorId === "custom") ? customColor : selectedColorId;
-
-    if (files.length === 0 || !isMaterialOk || !isColorOk) {
-      alert("Faltan parámetros de configuración.");
+    if (fileConfigs.length === 0) {
+      alert("Cargue al menos un archivo.");
       return;
+    }
+
+    // Validate that all files have material/color set
+    for (const f of fileConfigs) {
+        const isMatOk = f.materialId === "custom" ? f.customMaterial : f.materialId;
+        const isColOk = (f.materialId === "custom" || f.colorId === "custom") ? f.customColor : f.colorId;
+        if (!isMatOk || !isColOk) {
+            alert(`Faltan parámetros para el archivo: ${f.file.name}`);
+            return;
+        }
     }
 
     setIsSubmitting(true);
     const formData = new FormData();
-    files.forEach((file) => formData.append("file", file));
     formData.append("email", session.user?.email || ""); 
-    formData.append("scaleFactor", scaleFactor); 
-    
-    if (isCustomMaterial) {
-      formData.append("customMaterial", customMaterial);
-      formData.append("customColor", customColor);
-    } else {
-      formData.append("materialId", selectedMaterialId);
-      if (selectedColorId === "custom") {
-        formData.append("customColor", customColor);
-      } else {
-        formData.append("colorId", selectedColorId);
-      }
-    }
-
+    formData.append("scaleFactor", scaleFactor);
     formData.append("purpose", purpose);
     formData.append("infillType", infillType);
     if (infillType === "manual") formData.append("infillPercentage", infillPercentage);
@@ -103,13 +124,23 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     if (desiredDate) formData.append("desiredDate", desiredDate);
     if (deliveryNotes) formData.append("deliveryNotes", deliveryNotes);
 
+    // Append file configs
+    fileConfigs.forEach((f, index) => {
+        formData.append(`file`, f.file);
+        formData.append(`config_${index}`, JSON.stringify({
+            materialId: f.materialId,
+            colorId: f.colorId,
+            customMaterial: f.customMaterial,
+            customColor: f.customColor
+        }));
+    });
+
     try {
       const res = await fetch("/api/orders", { method: "POST", body: formData });
       if (res.ok) {
         setMessage("Configuración enviada correctamente. Procesando cotización...");
-        setFiles([]);
-        setCustomMaterial("");
-        setCustomColor("");
+        setFilesConfigs([]);
+        setScaleFactor("100%");
       } else {
         const data = await res.json();
         setMessage(data.error || "Error en el procesamiento.");
@@ -123,122 +154,138 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-24 max-w-5xl mx-auto mb-32">
-      {/* HEADER SIMPLIFICADO */}
       <div className="border-b-4 border-black pb-8">
         <h1 className="text-4xl font-black text-black tracking-tighter uppercase leading-none">Nueva Cotización</h1>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Complete los parámetros técnicos del componente</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Gestione múltiples activos en una sola terminal</p>
       </div>
 
-      {/* SECCIÓN 1: ARCHIVO Y CUENTA */}
+      {/* SECCIÓN 1: ARCHIVOS Y CONFIGURACIÓN INDIVIDUAL */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-            <span className="w-8 h-[2px] bg-black"></span> 01. Origen
+            <span className="w-8 h-[2px] bg-black"></span> 01. Activos
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Suba el activo digital y verifique los permisos de su terminal de usuario."</p>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Suba sus modelos y asigne la fisicalidad a cada uno."</p>
+          
+          <div className="mt-10 p-6 bg-amber-50 border-2 border-amber-200 rounded-3xl">
+             <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2">⚠️ Límite de Volumen</p>
+             <p className="text-[11px] font-bold text-slate-800 leading-relaxed">Máximo por pieza: <span className="font-black">320x320x325mm</span>. Si supera esto, aclare la escala abajo.</p>
+          </div>
         </div>
+
         <div className="lg:col-span-8 space-y-10">
-          <div className="bg-white/40 backdrop-blur-sm p-8 rounded-2xl border-2 border-black/5 flex justify-between items-center shadow-sm">
-            <div>
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">Usuario Activo</p>
-              <p className="text-sm font-black text-black tracking-tight">{session.user?.email}</p>
-            </div>
-            <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center text-[#FFFCDC] shadow-xl">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>
+          {/* File Upload Box */}
+          <div className="relative border-4 border-dashed border-black/10 rounded-[2.5rem] p-10 hover:border-black hover:bg-white/50 transition-all text-center group bg-white/20">
+            <input type="file" multiple accept=".stl,.3mf,.step" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            <div className="flex items-center justify-center gap-6">
+              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FFFCDC]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+              </div>
+              <div className="text-left">
+                <p className="text-lg font-black text-black uppercase tracking-tighter leading-none">Agregar Modelos 3D</p>
+                <p className="text-[9px] font-black text-slate-400 mt-2 uppercase tracking-[0.3em]">.STL / .STEP / .3MF</p>
+              </div>
             </div>
           </div>
 
-          <div className="relative border-4 border-dashed border-black/10 rounded-[2.5rem] p-16 hover:border-black hover:bg-white/50 transition-all text-center group bg-white/20">
-            <input type="file" multiple required accept=".stl,.3mf,.step" onChange={(e) => setFiles(Array.from(e.target.files || []))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            <div className="space-y-6">
-              <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto shadow-2xl group-hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#FFFCDC]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-              </div>
-              <div>
-                <div className="text-xl font-black text-black uppercase tracking-tighter leading-none mb-4">
-                  {files.length > 0 ? (
-                    <ul className="text-sm space-y-1">
-                      {files.map((f, i) => <li key={i}>{f.name}</li>)}
-                    </ul>
-                  ) : "Cargar Archivos (.STL / .STEP / .3MF)"}
+          {/* Individual File Cards */}
+          <div className="space-y-6">
+            {fileConfigs.map((f, idx) => {
+              const selectedMat = materials.find(m => m.id === f.materialId);
+              const availableColors = selectedMat?.colors || [];
+
+              return (
+                <div key={f.id} className="bg-white border-2 border-black/10 rounded-[2rem] overflow-hidden shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                  <div className="bg-slate-50 px-8 py-4 border-b-2 border-black/5 flex justify-between items-center">
+                     <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black text-slate-400">#{idx + 1}</span>
+                        <p className="text-sm font-black text-black truncate max-w-[200px] uppercase tracking-tight">{f.file.name}</p>
+                     </div>
+                     <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                     </button>
+                  </div>
+                  
+                  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Material</label>
+                      <select 
+                        value={f.materialId} 
+                        onChange={(e) => updateFileConfig(f.id, { materialId: e.target.value, colorId: "" })} 
+                        className="w-full px-4 py-3 border-2 border-black/5 rounded-xl bg-slate-50 font-black text-xs uppercase outline-none focus:border-black transition-all appearance-none cursor-pointer"
+                      >
+                        {materials.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                        <option value="multi">-- VARIOS MATERIALES --</option>
+                        <option value="custom">-- OTRO --</option>
+                      </select>
+                    </div>
+
+                    {f.materialId !== "custom" && f.materialId !== "multi" && (
+                      <div>
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Color</label>
+                        <select 
+                          value={f.colorId} 
+                          required
+                          onChange={(e) => updateFileConfig(f.id, { colorId: e.target.value })} 
+                          className="w-full px-4 py-3 border-2 border-black/5 rounded-xl bg-slate-50 font-black text-xs uppercase outline-none focus:border-black transition-all appearance-none cursor-pointer"
+                        >
+                          <option value="" disabled>Seleccionar...</option>
+                          {availableColors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          <option value="multi">-- VARIOS COLORES --</option>
+                          <option value="custom">-- OTRO --</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {(f.materialId === "custom" || f.materialId === "multi" || f.colorId === "custom" || f.colorId === "multi") && (
+                      <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-2">
+                        {(f.materialId === "custom" || f.materialId === "multi") && (
+                           <input 
+                            type="text" required 
+                            value={f.customMaterial} 
+                            onChange={(e) => updateFileConfig(f.id, { customMaterial: e.target.value })}
+                            placeholder={f.materialId === "multi" ? "Detalle los materiales..." : "Especifique Material..."}
+                            className="w-full px-4 py-3 border-2 border-amber-200 bg-amber-50 rounded-xl font-black text-xs uppercase outline-none focus:border-amber-400"
+                           />
+                        )}
+                        <input 
+                          type="text" required 
+                          value={f.customColor} 
+                          onChange={(e) => updateFileConfig(f.id, { customColor: e.target.value })}
+                          placeholder={(f.colorId === "multi" || f.materialId === "multi") ? "Detalle los colores..." : "Especifique Color..."}
+                          className="w-full px-4 py-3 border-2 border-amber-200 bg-amber-50 rounded-xl font-black text-xs uppercase outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <p className="text-[10px] font-black text-slate-400 mt-4 uppercase tracking-[0.3em]">Se permiten múltiples modelos</p>
-                <div className="mt-6 inline-block bg-amber-50 border-2 border-amber-200 p-4 rounded-xl text-left">
-                   <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2">⚠️ Límite de Volumen</p>
-                   <p className="text-xs font-bold text-slate-800 leading-relaxed">El volumen máximo de impresión por pieza es de <span className="font-black">320x320x325mm</span>. Si tu modelo supera estas dimensiones, por favor indicá el factor de escala deseado a continuación.</p>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
-          <div>
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Factor de Escala</label>
-            <input type="text" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value)} placeholder="Ej: 100%, 50%, Escalar a 15cm" className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm placeholder:text-slate-300 uppercase tracking-widest text-xs" />
+
+          <div className="pt-6 border-t-2 border-black/5">
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Instrucciones de Escala (Global)</label>
+            <input type="text" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value)} placeholder="Ej: 100%, Escalar el archivo 'A' al 50%..." className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm uppercase tracking-widest text-xs" />
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN 2: MATERIAL Y COLOR */}
+      {/* SECCIÓN 2: ESTRUCTURA (Global) */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-20 border-t-2 border-black/5">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-            <span className="w-8 h-[2px] bg-black"></span> 02. Fisicalidad
+            <span className="w-8 h-[2px] bg-black"></span> 02. Estructura
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Defina la composición molecular y la terminación cromática del componente."</p>
-        </div>
-        <div className="lg:col-span-8 space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block text-center md:text-left">Base de Polímero</label>
-              <select value={selectedMaterialId} onChange={(e) => { setSelectedMaterialId(e.target.value); setSelectedColorId(""); }} className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm appearance-none cursor-pointer uppercase tracking-widest text-xs">
-                {materials.map((m) => (<option key={m.id} value={m.id}>{m.name}</option>))}
-                <option value="custom">-- OTRO --</option>
-              </select>
-            </div>
-            {!isCustomMaterial && (
-              <div>
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block text-center md:text-left">Acabado Cromático</label>
-                <select value={selectedColorId} required onChange={(e) => setSelectedColorId(e.target.value)} className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm appearance-none cursor-pointer uppercase tracking-widest text-xs">
-                  <option value="" disabled>Seleccionar...</option>
-                  {availableColors.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                  <option value="custom">-- OTRO --</option>
-                </select>
-              </div>
-            )}
-          </div>
-
-          {(isCustomMaterial || selectedColorId === "custom") && (
-            <div className="p-10 bg-black rounded-[2.5rem] space-y-8 animate-in fade-in slide-in-from-top-4 shadow-2xl">
-              <h4 className="text-[10px] font-black text-[#FFFCDC] uppercase tracking-[0.4em] flex items-center gap-4">
-                <span className="w-4 h-[1px] bg-[#FFFCDC]/30"></span> Pedido Especial
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {isCustomMaterial && (
-                  <input type="text" required value={customMaterial} onChange={(e) => setCustomMaterial(e.target.value)} placeholder="Material (Ej: Carbon Fiber)" className="w-full px-6 py-5 border-2 border-[#FFFCDC]/10 bg-white/5 rounded-2xl focus:border-[#FFFCDC] outline-none font-black text-[#FFFCDC] placeholder:text-slate-700 uppercase tracking-widest text-xs" />
-                )}
-                <input type="text" required value={customColor} onChange={(e) => setCustomColor(e.target.value)} placeholder="Referencia de Color" className="w-full px-6 py-5 border-2 border-[#FFFCDC]/10 bg-white/5 rounded-2xl focus:border-[#FFFCDC] outline-none font-black text-[#FFFCDC] placeholder:text-slate-700 uppercase tracking-widest text-xs" />
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* SECCIÓN 3: ESPECIFICACIONES TÉCNICAS */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-20 border-t-2 border-black/5">
-        <div className="lg:col-span-4">
-          <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-            <span className="w-8 h-[2px] bg-black"></span> 03. Estructura
-          </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Calibre la resolución vertical y la densidad volumétrica interna."</p>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Calibre la resolución y densidad para todo el conjunto."</p>
         </div>
         <div className="lg:col-span-8 space-y-16">
-          {/* Propósito */}
           <div>
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block">Aplicación del Componente</label>
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block">Aplicación del Conjunto</label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { id: "aesthetic", label: "Estético", desc: "Modelado y Visual" },
-                { id: "decorative", label: "Funcional", desc: "Uso cotidiano" },
-                { id: "mechanical", label: "Industrial", desc: "Alta Resistencia" },
+                { id: "aesthetic", label: "Estético", desc: "Visual" },
+                { id: "decorative", label: "Funcional", desc: "Uso diario" },
+                { id: "mechanical", label: "Industrial", desc: "Resistencia" },
               ].map((p) => (
                 <button key={p.id} type="button" onClick={() => setPurpose(p.id)} className={`p-8 rounded-[2rem] border-4 text-left transition-all ${purpose === p.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 hover:border-black/20'}`}>
                   <p className="font-black text-sm uppercase tracking-widest mb-2 leading-none">{p.label}</p>
@@ -248,7 +295,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             </div>
           </div>
 
-          {/* Relleno e Infill */}
           <div className="bg-white/40 backdrop-blur-md p-12 rounded-[3rem] border-2 border-black/10 shadow-sm relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 mb-12 relative z-10">
                <div>
@@ -270,14 +316,10 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 </div>
               </div>
             )}
-            <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none">
-               <span className="text-[12rem] font-black leading-none">V%</span>
-            </div>
           </div>
 
-          {/* Altura de Capa */}
           <div>
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block text-center md:text-left">Resolución Vertical (Z-Pitch)</label>
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block text-center md:text-left">Resolución Vertical</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { id: "fast", label: "Draft", val: "0.28" },
@@ -291,60 +333,42 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 </button>
               ))}
             </div>
-            {layerHeightType === "manual" && (
-              <div className="flex items-center gap-6 mt-10 animate-in fade-in slide-in-from-left-4">
-                <input type="number" step="0.01" min="0.04" max="0.4" value={layerHeightManual} onChange={(e) => setLayerHeightManual(e.target.value)} className="w-32 px-6 py-4 border-4 border-black rounded-2xl font-black text-black outline-none shadow-2xl text-center text-xl tracking-tighter" />
-                <span className="font-black text-slate-400 uppercase tracking-[0.3em] text-[10px]">Micrones específicos</span>
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN 4: LOGÍSTICA */}
+      {/* SECCIÓN 3: LOGÍSTICA */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-20 border-t-2 border-black/5">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-            <span className="w-8 h-[2px] bg-black"></span> 04. Logística
+            <span className="w-8 h-[2px] bg-black"></span> 03. Logística
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Indique sus preferencias de cronograma y cualquier requerimiento adicional."</p>
+          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Cronograma y requerimientos adicionales."</p>
         </div>
         <div className="lg:col-span-8 space-y-12">
           <div>
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Fecha Preferida de Entrega</label>
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
-              <input 
+            <input 
                 type="date" 
                 value={desiredDate} 
                 onChange={(e) => setDesiredDate(e.target.value)}
                 className="w-full md:w-64 px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm uppercase tracking-widest text-xs cursor-pointer"
-              />
-              <div className="flex items-center gap-3 px-6 py-4 bg-black/5 rounded-2xl border-2 border-black/5">
-                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-                <p className="text-[10px] font-black text-black uppercase tracking-widest">Demora estándar: 48 - 72hs hábiles</p>
-              </div>
-            </div>
-            <p className="text-[9px] text-slate-400 mt-4 font-bold uppercase tracking-widest italic leading-relaxed">
-              * El plazo definitivo se confirma tras el análisis técnico y la validación de la seña.
-            </p>
+            />
           </div>
-
           <div>
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Notas Adicionales / Requerimientos</label>
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Notas Adicionales</label>
             <textarea 
               rows={4}
               value={deliveryNotes} 
               onChange={(e) => setDeliveryNotes(e.target.value)}
-              placeholder="Ej: Necesito que sea resistente a la intemperie / Color específico de referencia..." 
-              className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm placeholder:text-slate-300 resize-none uppercase tracking-widest text-xs"
+              placeholder="Ej: Instrucciones específicas de ensamblado / Requerimientos de empaque..." 
+              className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm resize-none uppercase tracking-widest text-xs"
             />
           </div>
         </div>
       </section>
 
-      {/* SECCIÓN FINAL */}
-      <section className="pt-20 border-t-4 border-black flex flex-col md:flex-row gap-16 items-start">
-        <div className="flex-grow w-full">
+      <section className="pt-20 border-t-4 border-black">
           <button type="submit" disabled={isSubmitting} className={`w-full py-8 rounded-[2rem] font-black text-2xl text-[#FFFCDC] transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
             {isSubmitting ? "Procesando Pipeline..." : "Enviar a Producción"}
           </button>
@@ -353,17 +377,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               {message}
             </div>
           )}
-        </div>
-        <div className="md:w-80 space-y-6 pt-2">
-           <p className="text-[10px] font-black text-slate-400 uppercase leading-relaxed tracking-[0.2em] italic">
-            * El cronograma de entrega final será validado post-depósito. S3D garantiza la integridad del activo durante el ciclo de vida del proyecto.
-           </p>
-           <div className="flex gap-3">
-              <div className="w-3 h-3 bg-black rounded-full shadow-lg"></div>
-              <div className="w-3 h-3 bg-black/10 rounded-full"></div>
-              <div className="w-3 h-3 bg-black/10 rounded-full"></div>
-           </div>
-        </div>
       </section>
     </form>
   );
