@@ -42,10 +42,6 @@ export default function Footer() {
 
         <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-8">
           <p className="text-[10px] font-black uppercase tracking-[0.4em]">© 2026 S3D. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-4">
-             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Servicio Activo</span>
-          </div>
         </div>
       </div>
     </footer>
