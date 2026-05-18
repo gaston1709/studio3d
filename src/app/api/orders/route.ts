@@ -8,7 +8,7 @@ import { sendEmail, mailTemplates } from "@/lib/mail";
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const files = formData.getAll("file") as File[];
     const email = formData.get("email") as string;
     const materialId = formData.get("materialId") as string;
     const colorId = formData.get("colorId") as string;
@@ -21,12 +21,13 @@ export async function POST(req: NextRequest) {
     const infillPercentage = formData.get("infillPercentage") ? parseInt(formData.get("infillPercentage") as string) : null;
     const layerHeightType = formData.get("layerHeightType") as string;
     const layerHeightManual = formData.get("layerHeightManual") ? parseFloat(formData.get("layerHeightManual") as string) : null;
+    const scaleFactor = formData.get("scaleFactor") as string;
 
     // Delivery Prefs
     const desiredDate = formData.get("desiredDate") as string;
     const deliveryNotes = formData.get("deliveryNotes") as string;
 
-    if (!file || !email) {
+    if (!files || files.length === 0 || !email) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
@@ -39,16 +40,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User session not found" }, { status: 401 });
     }
 
-    // 2. Save File
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const fileExtension = path.extname(file.name);
-    const uniqueFileName = `${uuidv4()}${fileExtension}`;
+    // 2. Save Files
+    const fileNames: string[] = [];
+    const filePaths: string[] = [];
     const uploadDir = path.join(process.cwd(), "uploads");
-    const filePath = path.join(uploadDir, uniqueFileName);
 
-    await writeFile(filePath, buffer);
+    for (const file of files) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const fileExtension = path.extname(file.name);
+      const uniqueFileName = `${uuidv4()}${fileExtension}`;
+      const filePath = path.join(uploadDir, uniqueFileName);
+
+      await writeFile(filePath, buffer);
+      fileNames.push(file.name);
+      filePaths.push(uniqueFileName);
+    }
 
     // 3. Create Order
     const order = await prisma.order.create({
@@ -58,8 +65,8 @@ export async function POST(req: NextRequest) {
         colorId: (materialId === "custom" || colorId === "custom") ? null : colorId,
         customMaterial: customMaterial || null,
         customColor: customColor || null,
-        fileName: file.name,
-        filePath: uniqueFileName,
+        fileName: fileNames.join(","),
+        filePath: filePaths.join(","),
         status: "PENDING_QUOTE",
         
         // Technical Specs
@@ -68,6 +75,7 @@ export async function POST(req: NextRequest) {
         infillPercentage,
         layerHeightType,
         layerHeightManual,
+        scaleFactor,
 
         // Delivery Prefs
         desiredDate: desiredDate ? new Date(desiredDate) : null,

@@ -70,6 +70,7 @@ model Order {
   infillPercentage    Int?        
   layerHeightType     String      @default("standard")  
   layerHeightManual   Float?      
+  scaleFactor         String?     // E.g., "100%", "50%", "Escalar a 15cm"
 
   // Delivery Preferences
   desiredDate         DateTime?   // Customer preference

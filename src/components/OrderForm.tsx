@@ -20,7 +20,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   const [selectedColorId, setSelectedColorId] = useState("");
   const [customMaterial, setCustomMaterial] = useState("");
   const [customColor, setCustomColor] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [scaleFactor, setScaleFactor] = useState("100%");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -71,15 +72,16 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     const isMaterialOk = isCustomMaterial ? customMaterial : selectedMaterialId;
     const isColorOk = (isCustomMaterial || selectedColorId === "custom") ? customColor : selectedColorId;
 
-    if (!file || !isMaterialOk || !isColorOk) {
+    if (files.length === 0 || !isMaterialOk || !isColorOk) {
       alert("Faltan parámetros de configuración.");
       return;
     }
 
     setIsSubmitting(true);
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach((file) => formData.append("file", file));
     formData.append("email", session.user?.email || ""); 
+    formData.append("scaleFactor", scaleFactor); 
     
     if (isCustomMaterial) {
       formData.append("customMaterial", customMaterial);
@@ -105,7 +107,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       const res = await fetch("/api/orders", { method: "POST", body: formData });
       if (res.ok) {
         setMessage("Configuración enviada correctamente. Procesando cotización...");
-        setFile(null);
+        setFiles([]);
         setCustomMaterial("");
         setCustomColor("");
       } else {
@@ -147,18 +149,30 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           </div>
 
           <div className="relative border-4 border-dashed border-black/10 rounded-[2.5rem] p-16 hover:border-black hover:bg-white/50 transition-all text-center group bg-white/20">
-            <input type="file" required accept=".stl,.3mf,.step" onChange={(e) => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+            <input type="file" multiple required accept=".stl,.3mf,.step" onChange={(e) => setFiles(Array.from(e.target.files || []))} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <div className="space-y-6">
               <div className="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto shadow-2xl group-hover:scale-110 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-[#FFFCDC]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
               </div>
               <div>
-                <p className="text-xl font-black text-black uppercase tracking-tighter leading-none">
-                  {file ? <span className="text-black">{file.name}</span> : "Cargar Archivo (.STL / .STEP / .3MF)"}
-                </p>
-                <p className="text-[10px] font-black text-slate-400 mt-4 uppercase tracking-[0.3em]">Protocolo de transferencia seguro</p>
+                <div className="text-xl font-black text-black uppercase tracking-tighter leading-none mb-4">
+                  {files.length > 0 ? (
+                    <ul className="text-sm space-y-1">
+                      {files.map((f, i) => <li key={i}>{f.name}</li>)}
+                    </ul>
+                  ) : "Cargar Archivos (.STL / .STEP / .3MF)"}
+                </div>
+                <p className="text-[10px] font-black text-slate-400 mt-4 uppercase tracking-[0.3em]">Se permiten múltiples modelos</p>
+                <div className="mt-6 inline-block bg-amber-50 border-2 border-amber-200 p-4 rounded-xl text-left">
+                   <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2">⚠️ Límite de Volumen</p>
+                   <p className="text-xs font-bold text-slate-800 leading-relaxed">El volumen máximo de impresión por pieza es de <span className="font-black">320x320x325mm</span>. Si tu modelo supera estas dimensiones, por favor indicá el factor de escala deseado a continuación.</p>
+                </div>
               </div>
             </div>
+          </div>
+          <div>
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Factor de Escala</label>
+            <input type="text" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value)} placeholder="Ej: 100%, 50%, Escalar a 15cm" className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm placeholder:text-slate-300 uppercase tracking-widest text-xs" />
           </div>
         </div>
       </section>

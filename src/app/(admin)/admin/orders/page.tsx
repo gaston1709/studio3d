@@ -75,8 +75,13 @@ export default async function AdminOrdersPage() {
                   <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-l-2 border-black/5 rounded-l-[2.5rem] shadow-sm">
                     <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
                     <p className="text-lg font-black text-black uppercase tracking-tighter truncate max-w-[200px]" title={order.fileName}>
-                      {order.fileName}
+                      {order.fileName.split(',')[0]}
                     </p>
+                    {order.fileName.split(',').length > 1 && (
+                      <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                        + {order.fileName.split(',').length - 1} archivo(s)
+                      </p>
+                    )}
                   </td>
                   <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
                     <p className="text-sm font-black text-black tracking-tight">{order.user.email}</p>

@@ -17,13 +17,23 @@ export async function GET(
       return new NextResponse("Order not found", { status: 404 });
     }
 
-    const filePath = path.join(process.cwd(), "uploads", order.filePath);
+    const { searchParams } = new URL(req.url);
+    const index = parseInt(searchParams.get("index") || "0", 10);
+
+    const filePaths = order.filePath.split(",");
+    const fileNames = order.fileName.split(",");
+
+    if (index < 0 || index >= filePaths.length) {
+      return new NextResponse("File index out of bounds", { status: 400 });
+    }
+
+    const filePath = path.join(process.cwd(), "uploads", filePaths[index]);
     const fileBuffer = await readFile(filePath);
 
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${order.fileName}"`,
+        "Content-Disposition": `attachment; filename="${fileNames[index]}"`,
       },
     });
   } catch (error) {
