@@ -55,7 +55,7 @@ export default async function Home() {
               <div className="max-w-xl space-y-8">
                 <p className="text-xl md:text-2xl text-slate-600 font-medium leading-relaxed">
                   Manufactura aditiva de alta precisión. <br />
-                  Convertimos activos digitales en piezas físicas industriales con tecnología Bambu Lab.
+                  Convertimos activos digitales en piezas físicas de calidad.
                 </p>
 
                 {!session ? (
@@ -147,7 +147,7 @@ export default async function Home() {
             <div className="relative z-10">
             <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">¿Listo para fabricar?</h2>
             <p className="text-slate-400 font-medium text-xl max-w-xl mx-auto mt-8 leading-relaxed">
-                Subí tus activos digitales y recibí una cotización técnica profesional en el día.
+                Subí tus archivos y recibí una cotización en el día.
             </p>
             <div className="pt-10">
                 <Link 
