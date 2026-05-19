@@ -38,7 +38,7 @@ export default function RootLayout({
       lang="es"
       className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#FFFCDC] font-sans selection:bg-black selection:text-[#FFFCDC]">
+      <body className="min-h-full flex flex-col bg-slate-100 font-sans selection:bg-black selection:text-white">
         <Providers>
           <Navbar />
           <main className="flex-grow container mx-auto px-4 py-8 md:py-12">

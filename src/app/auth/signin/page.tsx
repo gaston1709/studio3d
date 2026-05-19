@@ -31,7 +31,7 @@ function SignInContent() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-[#FFFCDC] px-4 py-12">
+    <div className="min-h-[70vh] flex items-center justify-center bg-slate-100 px-4 py-12">
       <form 
         onSubmit={handleSubmit} 
         className="max-w-md w-full bg-white/60 backdrop-blur-md border-2 border-black/10 rounded-[3rem] p-12 shadow-2xl"
@@ -96,7 +96,7 @@ function SignInContent() {
 
         <button
           type="submit"
-          className="w-full mt-12 bg-black text-[#FFFCDC] py-6 rounded-2xl font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95"
+          className="w-full mt-12 bg-black text-white py-6 rounded-2xl font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95"
         >
           Autenticar
         </button>

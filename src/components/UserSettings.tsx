@@ -146,7 +146,7 @@ export default function UserSettings() {
             <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-6 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl active:scale-[0.98] ${isSubmitting ? 'bg-slate-300' : 'bg-black text-[#FFFCDC] hover:bg-slate-800 shadow-black/20'}`}
+                className={`w-full py-6 rounded-2xl font-black text-xs uppercase tracking-[0.3em] transition-all shadow-xl active:scale-[0.98] ${isSubmitting ? 'bg-slate-300' : 'bg-black text-white hover:bg-slate-800 shadow-black/20'}`}
             >
                 {isSubmitting ? "Sincronizando..." : "Actualizar Perfil"}
             </button>

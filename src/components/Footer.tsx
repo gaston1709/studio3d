@@ -25,7 +25,7 @@ export default function Footer() {
           <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">© 2026 Studio3D. Todos los derechos reservados.</p>
           <div className="flex gap-8">
             <a href="/terms" className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] hover:text-[#FF4F00] transition-colors">Términos de Servicio</a>
-            <a href="#" className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] hover:text-[#FF4F00] transition-colors">Privacidad</a>
+            <a href="/privacy" className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] hover:text-[#FF4F00] transition-colors">Privacidad</a>
           </div>
         </div>
       </div>

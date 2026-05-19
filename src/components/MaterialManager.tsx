@@ -104,12 +104,12 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
     <div className="space-y-16 pb-32">
       <div className="flex flex-col md:flex-row justify-between items-end border-b border-slate-100 pb-10 gap-8">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Inventario de <span className="text-blue-600">Polímeros</span></h1>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Inventario de <span className="text-[#FF4F00]">Polímeros</span></h1>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">Control de Materia Prima y Catálogo</p>
         </div>
         <button 
           onClick={() => { setEditingMaterial({ name: "", description: "", isActive: true }); setIsMaterialModalOpen(true); }}
-          className="bg-[#0F1115] text-white px-8 py-4 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/10 active:scale-95"
+          className="bg-[#0F1115] text-white px-8 py-4 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#FF4F00] transition-all shadow-xl shadow-orange-500/10 active:scale-95"
         >
           + Registrar Material
         </button>
@@ -166,9 +166,9 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                 ))}
                 <button 
                   onClick={() => { setEditingColor({ name: "", hexCode: "#000000", materialId: material.id, isActive: true }); setIsColorModalOpen(true); }}
-                  className="flex flex-col items-center justify-center gap-4 border-2 border-dashed border-slate-200 p-6 rounded-2xl text-slate-400 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50 transition-all group"
+                  className="flex flex-col items-center justify-center gap-4 border-2 border-dashed border-slate-200 p-6 rounded-2xl text-slate-400 hover:border-[#FF4F00] hover:text-[#FF4F00] hover:bg-orange-50 transition-all group"
                 >
-                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center text-2xl group-hover:border-blue-600 transition-colors">+</div>
+                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center text-2xl group-hover:border-[#FF4F00] transition-colors">+</div>
                   <span className="text-[9px] font-black uppercase tracking-widest">Nuevo Color</span>
                 </button>
               </div>
@@ -193,7 +193,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                   value={editingMaterial?.name || ""} 
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, name: e.target.value })}
                   placeholder="Ej: Carbon Fiber Nylon" 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-blue-600 outline-none font-bold text-slate-900" 
+                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900" 
                 />
               </div>
               <div>
@@ -203,7 +203,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                   value={editingMaterial?.description || ""} 
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, description: e.target.value })}
                   placeholder="Propiedades mecánicas y acabado..." 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-blue-600 outline-none font-bold text-slate-900 resize-none" 
+                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900 resize-none" 
                 />
               </div>
               <div className="flex gap-4 pt-4">
@@ -216,7 +216,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                 </button>
                 <button 
                   type="submit" disabled={isLoading}
-                  className="flex-[2] bg-[#0F1115] text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl"
+                  className="flex-[2] bg-[#0F1115] text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#FF4F00] transition-all shadow-xl"
                 >
                   {isLoading ? "Guardando..." : "Guardar Cambios"}
                 </button>
@@ -245,7 +245,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                   value={editingColor?.name || ""} 
                   onChange={(e) => setEditingColor({ ...editingColor, name: e.target.value })}
                   placeholder="Ej: Industrial Grey" 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-blue-600 outline-none font-bold text-slate-900" 
+                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900" 
                 />
               </div>
               <div>
@@ -261,7 +261,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                     type="text" required 
                     value={editingColor?.hexCode || ""} 
                     onChange={(e) => setEditingColor({ ...editingColor, hexCode: e.target.value })}
-                    className="flex-grow px-5 py-4 border border-slate-200 rounded-xl focus:border-blue-600 outline-none font-bold text-slate-900 uppercase" 
+                    className="flex-grow px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900 uppercase" 
                   />
                 </div>
               </div>
@@ -275,7 +275,7 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                 </button>
                 <button 
                   type="submit" disabled={isLoading}
-                  className="flex-[2] bg-blue-600 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20"
+                  className="flex-[2] bg-[#FF4F00] text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-orange-500/20"
                 >
                   {isLoading ? "Guardando..." : "Confirmar"}
                 </button>

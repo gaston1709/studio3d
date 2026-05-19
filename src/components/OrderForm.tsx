@@ -56,13 +56,13 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
         <div className="flex flex-col gap-6">
           <Link 
             href="/auth/signin" 
-            className="bg-black text-[#FFFCDC] py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl active:scale-95"
+            className="bg-black text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-xl active:scale-95"
           >
             Iniciar Sesión
           </Link>
           <Link 
             href="/auth/signup" 
-            className="text-black border-4 border-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-black hover:text-[#FFFCDC] transition-all active:scale-95"
+            className="text-black border-4 border-black py-6 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all active:scale-95"
           >
             Crear Cuenta
           </Link>
@@ -197,7 +197,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             <input type="file" multiple accept=".stl,.3mf,.step" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
             <div className="flex items-center justify-center gap-6">
               <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#FFFCDC]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
               </div>
               <div className="text-left">
                 <p className="text-lg font-black text-black uppercase tracking-tighter leading-none">Agregar Modelos 3D</p>
@@ -320,8 +320,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                   <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mt-2">Densidad de malla interna</p>
                </div>
                <div className="flex bg-black/5 p-1.5 rounded-2xl border-2 border-black/5">
-                  <button type="button" onClick={() => setInfillType("auto")} className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${infillType === "auto" ? 'bg-black text-[#FFFCDC] shadow-2xl' : 'text-slate-400 hover:text-black'}`}>Optimizado</button>
-                  <button type="button" onClick={() => setInfillType("manual")} className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${infillType === "manual" ? 'bg-black text-[#FFFCDC] shadow-2xl' : 'text-slate-400 hover:text-black'}`}>Manual</button>
+                  <button type="button" onClick={() => setInfillType("auto")} className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${infillType === "auto" ? 'bg-black text-white shadow-2xl' : 'text-slate-400 hover:text-black'}`}>Optimizado</button>
+                  <button type="button" onClick={() => setInfillType("manual")} className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${infillType === "manual" ? 'bg-black text-white shadow-2xl' : 'text-slate-400 hover:text-black'}`}>Manual</button>
                </div>
             </div>
             {infillType === "manual" && (
@@ -398,7 +398,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       </section>
 
       <section className="pt-20 border-t-4 border-black">
-          <button type="submit" disabled={isSubmitting} className={`w-full py-8 rounded-[2rem] font-black text-2xl text-[#FFFCDC] transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
+          <button type="submit" disabled={isSubmitting} className={`w-full py-8 rounded-[2rem] font-black text-2xl text-white transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
             {isSubmitting ? "Procesando Pipeline..." : "Enviar a Producción"}
           </button>
           {message && (
