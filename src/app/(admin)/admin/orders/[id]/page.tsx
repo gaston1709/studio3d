@@ -125,26 +125,20 @@ export default async function OrderDetailPage({
                Especificaciones Técnicas
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-5 rounded-2xl border-2 border-slate-200">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uso de la pieza</p>
                 <p className="text-sm font-black text-slate-900 uppercase">{translatePurpose(order.purpose)}</p>
               </div>
               <div className="bg-white p-5 rounded-2xl border-2 border-slate-200">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Relleno (Infill)</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Volumen / Factor de Escala</p>
                 <p className="text-sm font-black text-slate-900 uppercase">
-                  {order.infillType === 'auto' ? 'Optimizado (Auto)' : `${order.infillPercentage}% (Manual)`}
-                </p>
-              </div>
-              <div className="bg-white p-5 rounded-2xl border-2 border-slate-200">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Altura de Capa</p>
-                <p className="text-sm font-black text-slate-900 uppercase">
-                  {translateLayerHeight(order.layerHeightType, order.layerHeightManual)}
+                  {order.scaleFactor || "100%"}
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 border-slate-200">
+            <div className="grid grid-cols-1 gap-6 pt-4 border-t-2 border-slate-200">
               <div className="bg-white p-6 rounded-2xl border-2 border-slate-200">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Material / Color</p>
                 {order.materialId ? (
@@ -179,14 +173,6 @@ export default async function OrderDetailPage({
               </div>
             </div>
             
-            {order.scaleFactor && order.scaleFactor !== "100%" && (
-              <div className="pt-4 border-t-2 border-slate-200">
-                 <div className="bg-amber-50 border-2 border-amber-200 p-4 rounded-xl">
-                    <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-1">🔍 Factor de Escala Solicitado</p>
-                    <p className="text-sm font-black text-slate-900 uppercase">{order.scaleFactor}</p>
-                 </div>
-              </div>
-            )}
           </div>
 
           {/* 3. ARCHIVOS Y PAGO */}
@@ -207,8 +193,23 @@ export default async function OrderDetailPage({
                     </div>
 
                     <div className="border-t border-slate-100 pt-3">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Configuración</p>
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Material & Color</p>
                         {renderConfig(file)}
+                    </div>
+                    
+                    <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Densidad Relleno</p>
+                          <p className="text-[10px] font-black text-slate-900 uppercase">
+                            {file.infillType === 'auto' || !file.infillType ? 'Optimizado (Auto)' : `${file.infillPercentage}% (Manual)`}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Altura de Capa</p>
+                          <p className="text-[10px] font-black text-slate-900 uppercase">
+                            {translateLayerHeight(file.layerHeightType || "standard", file.layerHeightManual)}
+                          </p>
+                        </div>
                     </div>
 
                     <a 

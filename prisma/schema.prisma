@@ -49,6 +49,13 @@ model Color {
   @@unique([name, materialId])
 }
 
+model CarouselImage {
+  id        String   @id @default(cuid())
+  fileName  String
+  caption   String?
+  createdAt DateTime @default(now())
+}
+
 model Order {
   id                  String      @id @default(cuid())
   userId              String
@@ -106,6 +113,11 @@ model OrderFile {
   
   customMaterial  String?
   customColor     String?
+  
+  infillType          String?
+  infillPercentage    Int?
+  layerHeightType     String?
+  layerHeightManual   Float?
   
   createdAt       DateTime  @default(now())
 }

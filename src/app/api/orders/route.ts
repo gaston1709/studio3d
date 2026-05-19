@@ -13,10 +13,6 @@ export async function POST(req: NextRequest) {
 
     // Technical Specs
     const purpose = (formData.get("purpose") as string) || "aesthetic";
-    const infillType = (formData.get("infillType") as string) || "auto";
-    const infillPercentage = formData.get("infillPercentage") ? parseInt(formData.get("infillPercentage") as string) : null;
-    const layerHeightType = (formData.get("layerHeightType") as string) || "standard";
-    const layerHeightManual = formData.get("layerHeightManual") ? parseFloat(formData.get("layerHeightManual") as string) : null;
     const scaleFactor = (formData.get("scaleFactor") as string) || "100%";
 
     // Delivery Prefs
@@ -62,6 +58,10 @@ export async function POST(req: NextRequest) {
         colorId: (entry.config.colorId === "custom" || entry.config.colorId === "multi" || !entry.config.colorId) ? null : entry.config.colorId,
         customMaterial: entry.config.customMaterial || null,
         customColor: entry.config.customColor || null,
+        infillType: entry.config.infillType || "auto",
+        infillPercentage: entry.config.infillPercentage ? parseInt(entry.config.infillPercentage) : null,
+        layerHeightType: entry.config.layerHeightType || "standard",
+        layerHeightManual: entry.config.layerHeightManual ? parseFloat(entry.config.layerHeightManual) : null,
       });
     }
 
@@ -71,10 +71,6 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         status: "PENDING_QUOTE",
         purpose,
-        infillType,
-        infillPercentage,
-        layerHeightType,
-        layerHeightManual,
         scaleFactor,
         desiredDate: desiredDate ? new Date(desiredDate) : null,
         deliveryNotes: deliveryNotes || null,

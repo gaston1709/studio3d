@@ -25,6 +25,10 @@ export default async function Home() {
     take: 3,
   });
 
+  const carouselImages = await prisma.carouselImage.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
     <div className="space-y-40 pb-20 bg-slate-100">
       {/* HERO SECTION - INDUSTRIAL TECH: LOGO LEFT, TEXT RIGHT */}
@@ -102,10 +106,39 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* TECHNICAL SHOWCASE PLACEHOLDER (Future Carousel) */}
-      <section className="container mx-auto px-6 py-10 text-center border-4 border-dashed border-slate-200 rounded-[3rem] bg-slate-100/50">
-         <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Espacio reservado para Showcase / Galería de Trabajos</p>
-      </section>
+      {/* TECHNICAL SHOWCASE CAROUSEL */}
+      {carouselImages.length > 0 && (
+        <section className="container mx-auto px-6">
+          <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8 mb-12">
+            <div>
+              <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Showcase</h2>
+              <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Galería de Manufactura</p>
+            </div>
+          </div>
+          
+          <div className="relative w-full rounded-[3rem] overflow-hidden border-4 border-slate-900 shadow-2xl">
+            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+              {carouselImages.map((img) => (
+                <div key={img.id} className="min-w-full flex-shrink-0 snap-center relative aspect-video bg-black">
+                  <Image
+                    src={`/uploads/carousel/${img.fileName}`}
+                    alt={img.caption || "Showcase"}
+                    fill
+                    className="object-cover"
+                  />
+                  {img.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-12">
+                      <p className="text-white text-xl md:text-3xl font-black tracking-tighter uppercase drop-shadow-lg">
+                        {img.caption}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* MATERIALS PREVIEW */}
       <section className="space-y-16 container mx-auto px-6">

@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -18,6 +19,10 @@ export default function SignUp() {
     e.preventDefault();
     if (!acceptedTerms) {
       setError("Debés aceptar los protocolos de servicio.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
       return;
     }
     setIsSubmitting(true);
@@ -97,16 +102,30 @@ export default function SignUp() {
             />
           </div>
 
-          <div>
-            <label className="block text-[9px] font-black text-slate-400 mb-3 uppercase tracking-[0.3em] ml-2">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-6 py-5 border-2 border-black/5 rounded-2xl focus:border-black outline-none font-black text-black placeholder:text-slate-300 transition-all bg-white/50"
-              placeholder="••••••••"
-              required
-            />
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 mb-3 uppercase tracking-[0.3em] ml-2">Contraseña</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-6 py-5 border-2 border-black/5 rounded-2xl focus:border-black outline-none font-black text-black placeholder:text-slate-300 transition-all bg-white/50"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 mb-3 uppercase tracking-[0.3em] ml-2">Confirmar Contraseña</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-6 py-5 border-2 border-black/5 rounded-2xl focus:border-black outline-none font-black text-black placeholder:text-slate-300 transition-all bg-white/50"
+                placeholder="••••••••"
+                required
+              />
+            </div>
           </div>
         </div>
 

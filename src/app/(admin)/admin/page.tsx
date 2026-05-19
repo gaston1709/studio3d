@@ -38,14 +38,14 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <Link href="/admin/orders" className="p-12 bg-black rounded-[3rem] text-[#FFFCDC] flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl shadow-black/20 group">
+        <Link href="/admin/orders" className="p-12 bg-black rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl shadow-black/20 group">
            <div className="space-y-4">
              <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Gestión de Órdenes</h2>
              <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Revisión técnica y cotización de archivos</p>
            </div>
            <div className="flex justify-between items-center">
              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-[#FFFCDC]/20 rounded-full group-hover:bg-[#FFFCDC] transition-colors"></div>
+             <div className="w-16 h-1.5 bg-white/20 rounded-full group-hover:bg-white transition-colors"></div>
            </div>
         </Link>
 
@@ -57,6 +57,17 @@ export default async function AdminDashboard() {
            <div className="flex justify-between items-center">
              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Acceder al Módulo →</span>
              <div className="w-16 h-1.5 bg-black/10 rounded-full group-hover:bg-black transition-colors"></div>
+           </div>
+        </Link>
+
+        <Link href="/admin/carousel" className="p-12 bg-slate-900 rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl group lg:col-span-2">
+           <div className="space-y-4">
+             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Showcase Gallery</h2>
+             <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Gestor del carrusel de imágenes de la Home</p>
+           </div>
+           <div className="flex justify-between items-center">
+             <span className="text-[10px] font-black text-[#FF4F00] uppercase tracking-[0.4em]">Acceder al Módulo →</span>
+             <div className="w-16 h-1.5 bg-white/20 rounded-full group-hover:bg-[#FF4F00] transition-colors"></div>
            </div>
         </Link>
       </div>
