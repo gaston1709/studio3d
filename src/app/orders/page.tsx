@@ -47,10 +47,10 @@ export default async function OrdersPage() {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "PRINTING": return "bg-black text-white border-black";
-      case "QUOTED": return "bg-white text-black border-black";
+      case "QUOTED": return "bg-white text-[#FF4F00] border-[#FF4F00]";
       case "SHIPPED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
-      case "PENDING_QUOTE": return "bg-white/50 text-slate-400 border-black/10";
-      default: return "bg-white text-slate-700 border-black/10";
+      case "PENDING_QUOTE": return "bg-white text-slate-400 border-slate-200";
+      default: return "bg-white text-slate-700 border-slate-200";
     }
   };
 
@@ -67,7 +67,7 @@ export default async function OrdersPage() {
     
     return (
       <div className="flex flex-col">
-        <span className="text-sm font-black text-black uppercase tracking-tighter">{range}</span>
+        <span className="text-sm font-black text-slate-900 uppercase tracking-tighter">{range}</span>
         <span className={`text-[8px] font-black uppercase tracking-widest mt-1 ${isConfirmed ? 'text-emerald-500' : 'text-amber-500'}`}>
           {isConfirmed ? '● Confirmada' : '○ Tentativa'}
         </span>
@@ -76,29 +76,29 @@ export default async function OrdersPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-12">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 border-b-4 border-black pb-12">
+    <div className="max-w-5xl mx-auto py-12 px-4 bg-slate-50 min-h-screen">
+      <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 border-b-4 border-slate-900 pb-12">
         <div className="space-y-2">
-          <h1 className="text-6xl font-black text-black tracking-tighter uppercase leading-none">Mis Pedidos</h1>
+          <h1 className="text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mis Pedidos</h1>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
-            Sesión: <span className="text-black">{email}</span>
+            Sesión activa: <span className="text-[#FF4F00]">{email}</span>
           </p>
         </div>
         <Link 
           href="/orders/new" 
-          className="bg-black text-[#FFFCDC] px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/10 active:scale-95"
+          className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95"
         >
           + Nuevo Pedido
         </Link>
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-8">
         {orders.length === 0 ? (
-          <div className="py-40 text-center bg-white/40 backdrop-blur-sm rounded-[3rem] border-2 border-black/10 shadow-sm">
-            <p className="text-slate-400 font-black uppercase tracking-[0.4em] mb-10">Historial vacío</p>
+          <div className="py-40 text-center bg-white rounded-[3rem] border-2 border-slate-200 shadow-sm">
+            <p className="text-slate-300 font-black uppercase tracking-[0.4em] mb-10 text-sm">Historial de manufactura vacío</p>
             <Link 
               href="/orders/new" 
-              className="inline-block bg-black text-[#FFFCDC] px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all"
+              className="inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-[#FF4F00] transition-all"
             >
               Iniciar primer pedido
             </Link>
@@ -110,29 +110,29 @@ export default async function OrdersPage() {
                 : (order.fileName || "Sin archivo");
 
             return (
-              <div key={order.id} className="bg-white/60 backdrop-blur-md p-10 rounded-[2.5rem] border-2 border-black/10 shadow-sm hover:border-black transition-all group overflow-hidden relative">
-                {/* Top Accent Line */}
-                <div className={`absolute top-0 left-0 w-full h-1.5 ${order.status === 'PRINTING' ? 'bg-emerald-400' : 'bg-black/5'}`}></div>
+              <div key={order.id} className="bg-white p-10 rounded-[2.5rem] border-2 border-slate-100 shadow-sm hover:border-[#FF4F00] transition-all group overflow-hidden relative">
+                {/* Status Indicator Bar */}
+                <div className={`absolute top-0 left-0 w-full h-1.5 ${order.status === 'PRINTING' ? 'bg-black' : 'bg-slate-50'}`}></div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                   <div className="lg:col-span-5 space-y-8">
                     <div>
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Archivo Digital</span>
-                      <p className="text-2xl font-black text-black tracking-tighter group-hover:text-black transition-colors truncate" title={displayFileName}>{displayFileName}</p>
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Activo Digital</span>
+                      <p className="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-[#FF4F00] transition-colors truncate" title={displayFileName}>{displayFileName}</p>
                     </div>
                     
                     <div className="flex gap-16">
                       <div>
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Material</span>
-                        <p className="text-xs font-black text-black uppercase tracking-widest">{order.material?.name || order.customMaterial || "Varios"}</p>
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Polímero</span>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{order.material?.name || order.customMaterial || "Varios"}</p>
                       </div>
                       <div>
-                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Color</span>
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Cromática</span>
                         <div className="flex items-center gap-3">
                           {order.color && (
-                            <div className="w-3 h-3 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: order.color.hexCode }} />
+                            <div className="w-3 h-3 rounded-full border border-slate-200 shadow-inner" style={{ backgroundColor: order.color.hexCode }} />
                           )}
-                          <p className="text-xs font-black text-black uppercase tracking-widest">{order.color?.name || order.customColor || "Varios"}</p>
+                          <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{order.color?.name || order.customColor || "Varios"}</p>
                         </div>
                       </div>
                     </div>
@@ -141,7 +141,7 @@ export default async function OrdersPage() {
                   <div className="lg:col-span-3">
                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Ciclo de Entrega</span>
                      {order.status === 'PENDING_QUOTE' ? (
-                       <p className="text-[10px] font-black text-slate-300 uppercase italic">Pendiente de Análisis...</p>
+                       <p className="text-[10px] font-black text-slate-300 uppercase italic">Análisis Técnico en curso...</p>
                      ) : (
                        getDeliveryRange(order.estimatedDelivery, order.status)
                      )}
@@ -150,7 +150,7 @@ export default async function OrdersPage() {
                   <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
                     <div className="text-left lg:text-right">
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Estado</span>
-                      <span className={`inline-block px-4 py-1.5 rounded-lg border-2 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${getStatusStyle(order.status)}`}>
+                      <span className={`inline-block px-4 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${getStatusStyle(order.status)}`}>
                         {translateStatus(order.status)}
                       </span>
                     </div>
@@ -158,16 +158,16 @@ export default async function OrdersPage() {
                     {order.status === 'QUOTED' && (
                       <Link 
                         href={`/orders/${order.id}/pay`}
-                        className="bg-black text-[#FFFCDC] px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95"
+                        className="bg-[#FF4F00] text-white px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95"
                       >
-                        Pagar Seña
+                        Confirmar Pedido
                       </Link>
                     )}
 
                     {order.price && order.status !== 'QUOTED' && (
                       <div className="text-right">
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-1 block leading-none">Inversión</span>
-                        <p className="text-2xl font-black text-black tracking-tighter">${order.price.toFixed(2)}</p>
+                        <p className="text-2xl font-black text-slate-900 tracking-tighter">${order.price.toFixed(2)}</p>
                       </div>
                     )}
                   </div>

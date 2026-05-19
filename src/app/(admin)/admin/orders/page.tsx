@@ -18,11 +18,11 @@ export default async function AdminOrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "PENDING_QUOTE": return "bg-white text-slate-400 border-black/10";
-      case "QUOTED": return "bg-white text-black border-black";
-      case "ACCEPTED": return "bg-black text-[#FFFCDC] border-black";
-      case "PRINTING": return "bg-emerald-500 text-white border-emerald-600";
-      case "SHIPPED": return "bg-slate-100 text-slate-600 border-slate-200";
+      case "PENDING_QUOTE": return "bg-white text-slate-400 border-slate-200";
+      case "QUOTED": return "bg-white text-slate-900 border-slate-900";
+      case "ACCEPTED": return "bg-[#FF4F00] text-white border-[#FF4F00]";
+      case "PRINTING": return "bg-black text-white border-black";
+      case "SHIPPED": return "bg-emerald-500 text-white border-emerald-600";
       default: return "bg-slate-50 text-slate-400 border-slate-200";
     }
   };
@@ -40,20 +40,20 @@ export default async function AdminOrdersPage() {
   };
 
   return (
-    <div className="space-y-12">
-      <div className="flex justify-between items-end border-b-4 border-black pb-8">
+    <div className="space-y-12 bg-slate-50 min-h-screen pb-20">
+      <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
         <div>
-          <h1 className="text-5xl font-black text-black tracking-tighter uppercase leading-none">Log de Producción</h1>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-4">Historial Maestro de Órdenes</p>
+          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Log de Producción</h1>
+          <p className="text-[10px] font-black text-[#FF4F00] uppercase tracking-[0.4em] mt-4">Sistema de Gestión de Activos</p>
         </div>
-        <div className="bg-white/60 backdrop-blur-sm px-8 py-4 rounded-2xl border-2 border-black/10 text-right">
+        <div className="bg-white px-8 py-4 rounded-2xl border-2 border-slate-200 text-right shadow-sm">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Registros</p>
-          <p className="text-3xl font-black text-black leading-none">{orders.length}</p>
+          <p className="text-3xl font-black text-slate-900 leading-none">{orders.length}</p>
         </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-6">
+        <table className="w-full text-left border-separate border-spacing-y-4">
           <thead>
             <tr className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
               <th className="pb-2 px-8">Registro</th>
@@ -66,7 +66,7 @@ export default async function AdminOrdersPage() {
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-40 text-center bg-white/40 backdrop-blur-sm rounded-[3rem] border-4 border-dashed border-black/10">
+                <td colSpan={5} className="py-40 text-center bg-white rounded-[3rem] border-4 border-dashed border-slate-200">
                   <p className="text-slate-300 font-black uppercase tracking-[0.5em] italic">Cero registros encontrados</p>
                 </td>
               </tr>
@@ -76,51 +76,51 @@ export default async function AdminOrdersPage() {
                 const totalFiles = order.files.length || (order.fileName ? order.fileName.split(',').length : 0);
 
                 return (
-                  <tr key={order.id} className="group hover:translate-x-2 transition-transform duration-300">
-                    <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-l-2 border-black/5 rounded-l-[2.5rem] shadow-sm">
+                  <tr key={order.id} className="group hover:translate-x-1 transition-transform duration-300">
+                    <td className="py-8 px-8 bg-white border-y border-l border-slate-200 rounded-l-3xl shadow-sm">
                       <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
-                      <p className="text-lg font-black text-black uppercase tracking-tighter truncate max-w-[200px]" title={firstFile}>
+                      <p className="text-lg font-black text-slate-900 uppercase tracking-tighter truncate max-w-[200px]" title={firstFile}>
                         {firstFile}
                       </p>
                       {totalFiles > 1 && (
-                        <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                        <p className="text-[9px] font-black text-[#FF4F00] uppercase tracking-widest mt-1">
                           + {totalFiles - 1} archivo(s)
                         </p>
                       )}
                     </td>
-                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
-                      <p className="text-sm font-black text-black tracking-tight">{order.user.email}</p>
-                      <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2">{order.user.phone || "---"}</p>
+                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
+                      <p className="text-sm font-black text-slate-900 tracking-tight">{order.user.email}</p>
+                      <p className="text-[10px] font-bold text-slate-400 tracking-widest mt-2">{order.user.phone || "---"}</p>
                     </td>
-                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
+                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
                       {order.materialId ? (
                         <div className="flex items-center gap-4">
                           <div 
-                            className="w-4 h-4 rounded-full border-2 border-black/10 shadow-inner" 
+                            className="w-4 h-4 rounded-full border border-slate-200 shadow-inner" 
                             style={{ backgroundColor: order.color?.hexCode }}
                           />
-                          <span className="text-[11px] font-black text-black uppercase tracking-widest">
+                          <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">
                             {order.material?.name}
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                          <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest italic">
+                          <span className="w-2 h-2 bg-[#FF4F00] rounded-full animate-pulse"></span>
+                          <span className="text-[11px] font-black text-[#FF4F00] uppercase tracking-widest italic">
                             Especial
                           </span>
                         </div>
                       )}
                     </td>
-                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
-                      <span className={`text-[9px] font-black px-4 py-1.5 rounded-lg border-2 uppercase tracking-[0.2em] shadow-sm ${getStatusColor(order.status)}`}>
+                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
+                      <span className={`text-[9px] font-black px-4 py-1.5 rounded-lg border uppercase tracking-[0.2em] shadow-sm ${getStatusColor(order.status)}`}>
                         {translateStatus(order.status)}
                       </span>
                     </td>
-                    <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-r-2 border-black/5 rounded-r-[2.5rem] shadow-sm text-right">
+                    <td className="py-8 px-8 bg-white border-y border-r border-slate-200 rounded-r-3xl shadow-sm text-right">
                       <Link 
                         href={`/admin/orders/${order.id}`}
-                        className="inline-block bg-black text-[#FFFCDC] px-6 py-3 rounded-xl text-[10px] font-black hover:bg-slate-800 transition-all uppercase tracking-widest shadow-xl shadow-black/10"
+                        className="inline-block bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black hover:bg-[#FF4F00] transition-all uppercase tracking-widest shadow-lg shadow-slate-900/10"
                       >
                         Gestionar
                       </Link>

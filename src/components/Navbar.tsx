@@ -11,7 +11,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-[#FFFCDC] text-black border-b border-black/10 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
+    <nav className="bg-white/80 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center group">
           <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Botón Hamburguesa Celu */}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 text-black"
+          className="md:hidden p-2 text-slate-900"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {isMenuOpen ? (
@@ -53,17 +53,17 @@ export default function Navbar() {
           )}
           
           {status === "authenticated" ? (
-            <div className="flex items-center gap-8 border-l border-black/10 pl-8">
+            <div className="flex items-center gap-8 border-l border-slate-200 pl-8">
               <Link href="/profile" className="text-right group/user">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 group-hover/user:text-black">Mi Perfil</p>
-                <p className="text-[11px] font-black text-black leading-none">{session.user?.email}</p>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 group-hover/user:text-[#FF4F00]">Mi Perfil</p>
+                <p className="text-[11px] font-black text-slate-900 leading-none">{session.user?.email}</p>
               </Link>
 
               {isAdmin && (
                 <Link 
                   prefetch={false}
                   href="/admin" 
-                  className="bg-black text-[#FFFCDC] text-[9px] font-black px-4 py-2.5 rounded-lg hover:bg-slate-800 transition-all uppercase tracking-widest"
+                  className="bg-[#FF4F00] text-white text-[9px] font-black px-4 py-2.5 rounded-lg hover:bg-black transition-all uppercase tracking-widest"
                 >
                   Admin Panel
                 </Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
               </Link>
               <Link 
                 href="/auth/signin" 
-                className="text-[10px] font-black uppercase tracking-widest bg-black text-[#FFFCDC] px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-black/10"
+                className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-3 rounded-xl hover:bg-[#FF4F00] transition-all shadow-lg shadow-black/10"
               >
                 Ingresar
               </Link>
@@ -97,24 +97,24 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#FFFCDC] border-b border-black/10 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
           {!isAdmin && (
             <>
-              <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Mis Pedidos</Link>
-              <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Cotizar Pieza</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Mis Pedidos</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Cotizar Pieza</Link>
             </>
           )}
           
-          <div className="h-px bg-black/10 w-full"></div>
+          <div className="h-px bg-slate-100 w-full"></div>
 
           {status === "authenticated" ? (
             <div className="space-y-6">
               <Link onClick={() => setIsMenuOpen(false)} href="/profile" className="block">
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Mi Perfil</p>
-                <p className="text-xs font-black text-black">{session.user?.email}</p>
+                <p className="text-xs font-black text-slate-900">{session.user?.email}</p>
               </Link>
               {isAdmin && (
-                <Link onClick={() => setIsMenuOpen(false)} href="/admin" className="block bg-black text-[#FFFCDC] text-[10px] font-black py-4 rounded-xl text-center uppercase tracking-widest">Admin Panel</Link>
+                <Link onClick={() => setIsMenuOpen(false)} href="/admin" className="block bg-[#FF4F00] text-white text-[10px] font-black py-4 rounded-xl text-center uppercase tracking-widest">Admin Panel</Link>
               )}
               <button 
                 onClick={() => signOut({ callbackUrl: "/" })}
@@ -125,8 +125,8 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signin" className="bg-black text-[#FFFCDC] py-5 rounded-xl font-black text-center uppercase tracking-widest text-xs">Ingresar</Link>
-              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signup" className="border-4 border-black py-4 rounded-xl font-black text-center uppercase tracking-widest text-xs text-black">Crear Cuenta</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signin" className="bg-black text-white py-5 rounded-xl font-black text-center uppercase tracking-widest text-xs">Ingresar</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signup" className="border-4 border-slate-900 py-4 rounded-xl font-black text-center uppercase tracking-widest text-xs text-slate-900">Crear Cuenta</Link>
             </div>
           )}
         </div>

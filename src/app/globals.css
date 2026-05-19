@@ -2,12 +2,13 @@
 
 :root {
   --foreground-rgb: 15, 23, 42;
-  --background-rgb: 255, 252, 220; /* #FFFCDC */
+  --background-rgb: 248, 250, 252; /* Slate 50: #F8FAFC */
+  --accent-orange: #FF4F00;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #FFFCDC;
+  background: #F8FAFC;
   font-family: var(--font-inter), sans-serif;
 }
 
@@ -17,23 +18,42 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Custom technical styling */
 .bambu-card {
-  @apply bg-white/50 backdrop-blur-sm border border-black/10 rounded-xl shadow-sm hover:border-black/20 transition-all;
+  @apply bg-white border border-slate-200 rounded-3xl shadow-sm hover:border-slate-300 transition-all;
 }
 
 .technical-label {
-  @apply text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em];
+  @apply text-[10px] font-black text-slate-400 uppercase tracking-[0.2em];
 }
 
 /* Smooth transitions */
 * {
-  @apply duration-200;
+  @apply duration-300;
 }
 
-/* Rebranding Accents */
+/* Industrial Tech Accents */
 .brand-bg {
-  background-color: #FFFCDC;
+  background-color: #F8FAFC;
+}
+
+.brand-accent {
+  background-color: #FF4F00;
+}
+
+.brand-text-accent {
+  color: #FF4F00;
 }
 
 .brand-border {
-  border-color: rgba(0, 0, 0, 0.1);
+  @apply border-slate-200;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }

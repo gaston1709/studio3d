@@ -26,8 +26,8 @@ export default async function Home() {
   });
 
   return (
-    <div className="space-y-40 pb-20">
-      {/* HERO SECTION - RESTRUCTURED: LOGO LEFT, TEXT RIGHT */}
+    <div className="space-y-40 pb-20 bg-slate-50">
+      {/* HERO SECTION - INDUSTRIAL TECH: LOGO LEFT, TEXT RIGHT */}
       <section className="relative pt-12 md:pt-24 min-h-[70vh] flex items-center overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
@@ -45,32 +45,32 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* RIGHT: BEAUTIFUL PALABRERIO */}
+            {/* RIGHT: INDUSTRIAL TECH MESSAGING */}
             <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-10 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-              <h1 className="text-6xl md:text-8xl xl:text-[10rem] font-black text-black tracking-tighter leading-[0.85] uppercase">
+              <h1 className="text-6xl md:text-8xl xl:text-[10rem] font-black text-slate-900 tracking-tighter leading-[0.85] uppercase">
                 IMPRIMÍ <br />
-                <span className="italic opacity-20">TUS</span> IDEAS.
+                <span className="italic text-[#FF4F00]">TUS</span> IDEAS.
               </h1>
               
               <div className="max-w-xl space-y-8">
-                <p className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed">
-                  Servicio profesional de impresión 3D y prototipado rápido con calidad industrial. 
-                  Hacemos que tus archivos digitales se vuelvan realidad.
+                <p className="text-xl md:text-2xl text-slate-600 font-medium leading-relaxed">
+                  Manufactura aditiva de alta precisión. <br />
+                  Convertimos activos digitales en piezas físicas industriales con tecnología Bambu Lab.
                 </p>
 
                 {!session ? (
                   <div className="flex flex-col sm:flex-row gap-6 pt-4">
                     <Link 
                       href="/auth/signin" 
-                      className="bg-black text-[#FFFCDC] px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-2xl shadow-black/20 active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-2xl shadow-orange-900/20 active:scale-95 text-center"
                     >
-                      Ingresar
+                      Iniciar Terminal
                     </Link>
                     <Link 
                       href="/auth/signup" 
-                      className="bg-transparent text-black border-4 border-black px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black hover:text-[#FFFCDC] transition-all active:scale-95 text-center"
+                      className="bg-transparent text-slate-900 border-4 border-slate-900 px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all active:scale-95 text-center"
                     >
-                      Crear Cuenta
+                      Registrar Nodo
                     </Link>
                   </div>
                 ) : (
@@ -78,14 +78,14 @@ export default async function Home() {
                     <Link 
                       prefetch={false}
                       href="/orders/new" 
-                      className="bg-black text-[#FFFCDC] px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-2xl shadow-black/20 active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-2xl shadow-orange-900/20 active:scale-95 text-center"
                     >
                       Nueva Cotización
                     </Link>
                     <Link 
                       prefetch={false}
                       href="/orders" 
-                      className="bg-white/50 backdrop-blur-sm text-black border-4 border-black px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black hover:text-[#FFFCDC] transition-all active:scale-95 text-center"
+                      className="bg-white text-slate-900 border-4 border-slate-200 px-12 py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-slate-900 transition-all active:scale-95 text-center"
                     >
                       Mis Pedidos
                     </Link>
@@ -97,50 +97,50 @@ export default async function Home() {
         </div>
 
         {/* Technical Grid Background Decor */}
-        <div className="absolute top-0 left-0 w-full h-full -z-0 opacity-[0.05] pointer-events-none" 
+        <div className="absolute top-0 left-0 w-full h-full -z-0 opacity-[0.03] pointer-events-none" 
              style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
         </div>
       </section>
 
       {/* SPECS GRID */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-10 container mx-auto px-6">
         {[
-          { label: "01. TECNOLOGÍA", title: "Máxima Precisión", desc: "Utilizamos tecnología Bambu Lab para garantizar piezas con tolerancias mínimas y acabados impecables." },
-          { label: "02. MATERIALES", title: "Gama Profesional", desc: "Desde prototipos estéticos en PLA hasta piezas funcionales cargadas con Fibra de Carbono." },
-          { label: "03. VELOCIDAD", title: "Listo para usar", desc: "Piezas mecánicas funcionales listas para ser instaladas. Rapidez y calidad garantizada en cada entrega." },
+          { label: "01. PRECISIÓN", title: "Core Tecnológico", desc: "Sistemas Bambu Lab de última generación para tolerancias mecánicas mínimas y repetibilidad absoluta." },
+          { label: "02. MATERIALES", title: "Grado Ingeniería", desc: "Desde prototipado rápido en PLA hasta polímeros técnicos con carga de fibra de carbono para uso final." },
+          { label: "03. AGILIDAD", title: "Ready-to-Use", desc: "Optimización de tiempos de entrega para que tus proyectos no se detengan. Calidad certificada en cada capa." },
         ].map((item, i) => (
-          <div key={i} className="p-12 rounded-[2.5rem] border-2 border-black/10 bg-white/40 backdrop-blur-sm hover:border-black transition-all group">
-            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-8">{item.label}</p>
-            <h3 className="text-3xl font-black text-black mb-6 tracking-tighter uppercase">{item.title}</h3>
-            <p className="text-base text-slate-700 font-medium leading-relaxed">{item.desc}</p>
+          <div key={i} className="p-12 rounded-[2.5rem] border-2 border-slate-200 bg-white hover:border-[#FF4F00] transition-all group shadow-sm">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 group-hover:text-[#FF4F00]">{item.label}</p>
+            <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tighter uppercase">{item.title}</h3>
+            <p className="text-base text-slate-600 font-medium leading-relaxed">{item.desc}</p>
           </div>
         ))}
       </section>
 
       {/* MATERIALS PREVIEW */}
-      <section className="space-y-16">
-        <div className="flex justify-between items-end border-b-4 border-black pb-8">
+      <section className="space-y-16 container mx-auto px-6">
+        <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
           <div>
-            <h2 className="text-5xl font-black text-black tracking-tighter uppercase leading-none">Catálogo de Materiales</h2>
-            <p className="text-slate-500 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Stock disponible para entrega inmediata</p>
+            <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Biblioteca de Polímeros</h2>
+            <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Inventario técnico disponible</p>
           </div>
-          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-black uppercase tracking-widest hover:opacity-50 mb-1">Ver todos →</Link>
+          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mb-1">Ver todos →</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {materials.map((m) => (
-            <div key={m.id} className="bg-white/60 backdrop-blur-md border-2 border-black/10 rounded-[2.5rem] overflow-hidden hover:border-black transition-all group">
-              <div className="p-10 border-b border-black/5">
-                <h3 className="text-2xl font-black text-black uppercase tracking-tighter leading-none">{m.name}</h3>
-                <p className="text-[9px] text-slate-400 mt-3 font-black uppercase tracking-[0.2em]">Base de Polímero</p>
+            <div key={m.id} className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all group shadow-sm">
+              <div className="p-10 border-b border-slate-50">
+                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
+                <p className="text-[9px] text-[#FF4F00] mt-3 font-black uppercase tracking-[0.2em]">Material Industrial</p>
               </div>
               <div className="p-10 space-y-8">
-                <p className="text-sm text-slate-600 font-medium leading-relaxed line-clamp-3 italic">"{m.description}"</p>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed line-clamp-3 italic">"{m.description}"</p>
                 <div className="flex flex-wrap gap-3">
                   {m.colors.map((c) => (
                     <div 
                       key={c.id} 
-                      className="w-8 h-8 rounded-full border-2 border-black/10 shadow-lg group-hover:scale-110 transition-transform" 
+                      className="w-8 h-8 rounded-full border-2 border-slate-200 shadow-inner group-hover:scale-110 transition-transform" 
                       style={{ backgroundColor: c.hexCode }}
                       title={c.name}
                     />
@@ -153,26 +153,28 @@ export default async function Home() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="bg-black rounded-[4rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-2xl">
-        <div className="relative z-10">
-          <h2 className="text-5xl md:text-8xl font-black text-[#FFFCDC] tracking-tighter uppercase leading-none">¿Tenés un diseño?</h2>
-          <p className="text-slate-400 font-medium text-xl max-w-xl mx-auto mt-8">
-            Subí tu pieza ahora y recibí una cotización personalizada en el día.
-          </p>
-          <div className="pt-10">
-            <Link 
-              prefetch={false}
-              href="/orders/new" 
-              className="inline-block bg-[#FFFCDC] text-black px-16 py-8 rounded-3xl font-black text-sm uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl shadow-black active:scale-95"
-            >
-              Cargar Modelo 3D
-            </Link>
-          </div>
-        </div>
-        
-        {/* Background Graphic */}
-        <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none select-none">
-           <span className="text-[25rem] font-black tracking-tighter text-white/5">S3D</span>
+      <section className="container mx-auto px-6">
+        <div className="bg-slate-900 rounded-[4rem] p-16 md:p-32 text-center space-y-12 relative overflow-hidden shadow-2xl border-b-8 border-[#FF4F00]">
+            <div className="relative z-10">
+            <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">¿Listo para fabricar?</h2>
+            <p className="text-slate-400 font-medium text-xl max-w-xl mx-auto mt-8 leading-relaxed">
+                Subí tus activos digitales y recibí una cotización técnica profesional en el día.
+            </p>
+            <div className="pt-10">
+                <Link 
+                prefetch={false}
+                href="/orders/new" 
+                className="inline-block bg-[#FF4F00] text-white px-16 py-8 rounded-3xl font-black text-sm uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl shadow-orange-950/40 active:scale-95"
+                >
+                Nueva Cotización
+                </Link>
+            </div>
+            </div>
+            
+            {/* Background Graphic */}
+            <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none select-none">
+            <span className="text-[25rem] font-black tracking-tighter text-white/5">S3D</span>
+            </div>
         </div>
       </section>
     </div>
