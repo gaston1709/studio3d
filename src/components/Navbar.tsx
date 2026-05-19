@@ -41,12 +41,16 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-10">
-          <Link prefetch={false} href="/orders" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
-            Mis Pedidos
-          </Link>
-          <Link prefetch={false} href="/orders/new" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
-            Cotizar Pieza
-          </Link>
+          {!isAdmin && (
+            <>
+              <Link prefetch={false} href="/orders" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
+                Mis Pedidos
+              </Link>
+              <Link prefetch={false} href="/orders/new" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
+                Cotizar Pieza
+              </Link>
+            </>
+          )}
           
           {status === "authenticated" ? (
             <div className="flex items-center gap-8 border-l border-black/10 pl-8">
@@ -94,8 +98,12 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-[#FFFCDC] border-b border-black/10 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
-          <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Mis Pedidos</Link>
-          <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Cotizar Pieza</Link>
+          {!isAdmin && (
+            <>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Mis Pedidos</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-sm font-black text-black uppercase tracking-[0.2em]">Cotizar Pieza</Link>
+            </>
+          )}
           
           <div className="h-px bg-black/10 w-full"></div>
 

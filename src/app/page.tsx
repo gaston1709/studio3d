@@ -3,12 +3,18 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
   
+  // If user is admin, redirect to admin dashboard directly
+  if ((session?.user as any)?.role === "ADMIN") {
+    redirect("/admin");
+  }
+
   const materials = await prisma.material.findMany({
     where: { isActive: true },
     include: { 
