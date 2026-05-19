@@ -9,6 +9,7 @@ export default async function AdminOrdersPage() {
       user: true,
       material: true,
       color: true,
+      files: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -70,58 +71,63 @@ export default async function AdminOrdersPage() {
                 </td>
               </tr>
             ) : (
-              orders.map((order) => (
-                <tr key={order.id} className="group hover:translate-x-2 transition-transform duration-300">
-                  <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-l-2 border-black/5 rounded-l-[2.5rem] shadow-sm">
-                    <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
-                    <p className="text-lg font-black text-black uppercase tracking-tighter truncate max-w-[200px]" title={order.fileName}>
-                      {order.fileName.split(',')[0]}
-                    </p>
-                    {order.fileName.split(',').length > 1 && (
-                      <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
-                        + {order.fileName.split(',').length - 1} archivo(s)
+              orders.map((order) => {
+                const firstFile = order.files[0]?.fileName || order.fileName || "Sin archivo";
+                const totalFiles = order.files.length || (order.fileName ? order.fileName.split(',').length : 0);
+
+                return (
+                  <tr key={order.id} className="group hover:translate-x-2 transition-transform duration-300">
+                    <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-l-2 border-black/5 rounded-l-[2.5rem] shadow-sm">
+                      <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
+                      <p className="text-lg font-black text-black uppercase tracking-tighter truncate max-w-[200px]" title={firstFile}>
+                        {firstFile}
                       </p>
-                    )}
-                  </td>
-                  <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
-                    <p className="text-sm font-black text-black tracking-tight">{order.user.email}</p>
-                    <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2">{order.user.phone || "---"}</p>
-                  </td>
-                  <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
-                    {order.materialId ? (
-                      <div className="flex items-center gap-4">
-                        <div 
-                          className="w-4 h-4 rounded-full border-2 border-black/10 shadow-inner" 
-                          style={{ backgroundColor: order.color?.hexCode }}
-                        />
-                        <span className="text-[11px] font-black text-black uppercase tracking-widest">
-                          {order.material?.name}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                        <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest italic">
-                          Especial
-                        </span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
-                    <span className={`text-[9px] font-black px-4 py-1.5 rounded-lg border-2 uppercase tracking-[0.2em] shadow-sm ${getStatusColor(order.status)}`}>
-                      {translateStatus(order.status)}
-                    </span>
-                  </td>
-                  <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-r-2 border-black/5 rounded-r-[2.5rem] shadow-sm text-right">
-                    <Link 
-                      href={`/admin/orders/${order.id}`}
-                      className="inline-block bg-black text-[#FFFCDC] px-6 py-3 rounded-xl text-[10px] font-black hover:bg-slate-800 transition-all uppercase tracking-widest shadow-xl shadow-black/10"
-                    >
-                      Gestionar
-                    </Link>
-                  </td>
-                </tr>
-              ))
+                      {totalFiles > 1 && (
+                        <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                          + {totalFiles - 1} archivo(s)
+                        </p>
+                      )}
+                    </td>
+                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
+                      <p className="text-sm font-black text-black tracking-tight">{order.user.email}</p>
+                      <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-2">{order.user.phone || "---"}</p>
+                    </td>
+                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
+                      {order.materialId ? (
+                        <div className="flex items-center gap-4">
+                          <div 
+                            className="w-4 h-4 rounded-full border-2 border-black/10 shadow-inner" 
+                            style={{ backgroundColor: order.color?.hexCode }}
+                          />
+                          <span className="text-[11px] font-black text-black uppercase tracking-widest">
+                            {order.material?.name}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                          <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest italic">
+                            Especial
+                          </span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-8 px-6 bg-white/80 backdrop-blur-md border-y-2 border-black/5 shadow-sm">
+                      <span className={`text-[9px] font-black px-4 py-1.5 rounded-lg border-2 uppercase tracking-[0.2em] shadow-sm ${getStatusColor(order.status)}`}>
+                        {translateStatus(order.status)}
+                      </span>
+                    </td>
+                    <td className="py-8 px-8 bg-white/80 backdrop-blur-md border-y-2 border-r-2 border-black/5 rounded-r-[2.5rem] shadow-sm text-right">
+                      <Link 
+                        href={`/admin/orders/${order.id}`}
+                        className="inline-block bg-black text-[#FFFCDC] px-6 py-3 rounded-xl text-[10px] font-black hover:bg-slate-800 transition-all uppercase tracking-widest shadow-xl shadow-black/10"
+                      >
+                        Gestionar
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
