@@ -116,25 +116,29 @@ export default async function Home() {
             </div>
           </div>
           
-          <div className="relative w-full rounded-[3rem] overflow-hidden border-4 border-slate-900 shadow-2xl group/carousel">
+          <div className="relative w-full group/carousel">
             <div 
               id="showcase-scroll"
-              className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
+              className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth gap-8 pb-10"
             >
               {carouselImages.map((img) => (
-                <div key={img.id} className="min-w-full md:min-w-[50%] lg:min-w-[33.333%] flex-shrink-0 snap-center relative aspect-square md:aspect-[4/5] bg-black border-r-2 border-slate-900/20 last:border-r-0">
-                  <img
-                    src={`/uploads/carousel/${img.fileName}`}
-                    alt={img.caption || "Showcase"}
-                    className="w-full h-full object-cover"
-                  />
-                  {img.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8">
-                      <p className="text-white text-sm md:text-base font-black tracking-tighter uppercase drop-shadow-lg leading-tight">
-                        {img.caption}
-                      </p>
+                <div key={img.id} className="min-w-full md:min-w-[45%] lg:min-w-[30%] flex-shrink-0 snap-center">
+                  <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all shadow-sm h-full flex flex-col">
+                    <div className="aspect-square bg-slate-50 relative overflow-hidden">
+                      <img
+                        src={`/uploads/carousel/${img.fileName}`}
+                        alt={img.caption || "Showcase"}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  )}
+                    {img.caption && (
+                      <div className="p-8 flex-grow flex items-center justify-center border-t border-slate-50">
+                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed italic text-center">
+                          "{img.caption}"
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -146,10 +150,13 @@ export default async function Home() {
                 let direction = 1;
                 setInterval(() => {
                   if (!el) return;
-                  if (el.scrollLeft + el.offsetWidth >= el.scrollWidth - 10) direction = -1;
-                  if (el.scrollLeft <= 0) direction = 1;
-                  el.scrollBy({ left: 300 * direction, behavior: 'smooth' });
-                }, 4000);
+                  // Si llegamos al final, volvemos al principio suavemente
+                  if (el.scrollLeft + el.offsetWidth >= el.scrollWidth - 50) {
+                    el.scrollTo({ left: 0, behavior: 'smooth' });
+                    return;
+                  }
+                  el.scrollBy({ left: el.offsetWidth * 0.4, behavior: 'smooth' });
+                }, 5000);
               })();
             `}} />
           </div>
