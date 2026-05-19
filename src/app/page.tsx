@@ -122,13 +122,13 @@ export default async function Home() {
               className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth gap-8 pb-10"
             >
               {carouselImages.map((img) => (
-                <div key={img.id} className="min-w-full md:min-w-[45%] lg:min-w-[30%] flex-shrink-0 snap-center">
+                <div key={img.id} className="w-[85vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
                   <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all shadow-sm h-full flex flex-col">
                     <div className="aspect-square bg-slate-50 relative overflow-hidden">
                       <img
                         src={`/uploads/carousel/${img.fileName}`}
                         alt={img.caption || "Showcase"}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     </div>
                     {img.caption && (
