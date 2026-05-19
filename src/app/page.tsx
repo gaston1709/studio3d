@@ -36,7 +36,7 @@ export default async function Home() {
             <div className="lg:col-span-5 flex justify-center lg:justify-end animate-in fade-in slide-in-from-left-8 duration-1000">
               <div className="relative w-72 h-72 md:w-[450px] md:h-[450px]">
                 <Image 
-                  src="/logo.png?v=2" 
+                  src="/logo.png" 
                   alt="S3D Logo" 
                   fill 
                   className="object-contain"
@@ -102,19 +102,9 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* SPECS GRID */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10 container mx-auto px-6">
-        {[
-          { label: "01. PRECISIÓN", title: "Core Tecnológico", desc: "Sistemas Bambu Lab de última generación para tolerancias mecánicas mínimas y repetibilidad absoluta." },
-          { label: "02. MATERIALES", title: "Grado Ingeniería", desc: "Desde prototipado rápido en PLA hasta polímeros técnicos con carga de fibra de carbono para uso final." },
-          { label: "03. AGILIDAD", title: "Ready-to-Use", desc: "Optimización de tiempos de entrega para que tus proyectos no se detengan. Calidad certificada en cada capa." },
-        ].map((item, i) => (
-          <div key={i} className="p-12 rounded-[2.5rem] border-2 border-slate-200 bg-white hover:border-[#FF4F00] transition-all group shadow-sm">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 group-hover:text-[#FF4F00]">{item.label}</p>
-            <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tighter uppercase">{item.title}</h3>
-            <p className="text-base text-slate-600 font-medium leading-relaxed">{item.desc}</p>
-          </div>
-        ))}
+      {/* TECHNICAL SHOWCASE PLACEHOLDER (Future Carousel) */}
+      <section className="container mx-auto px-6 py-10 text-center border-4 border-dashed border-slate-200 rounded-[3rem] bg-slate-100/50">
+         <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Espacio reservado para Showcase / Galería de Trabajos</p>
       </section>
 
       {/* MATERIALS PREVIEW */}
@@ -122,7 +112,7 @@ export default async function Home() {
         <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
           <div>
             <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Biblioteca de Polímeros</h2>
-            <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Inventario técnico disponible</p>
+            <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Inventario disponible</p>
           </div>
           <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mb-1">Ver todos →</Link>
         </div>
@@ -132,7 +122,6 @@ export default async function Home() {
             <div key={m.id} className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all group shadow-sm">
               <div className="p-10 border-b border-slate-50">
                 <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
-                <p className="text-[9px] text-[#FF4F00] mt-3 font-black uppercase tracking-[0.2em]">Material Industrial</p>
               </div>
               <div className="p-10 space-y-8">
                 <p className="text-sm text-slate-500 font-medium leading-relaxed line-clamp-3 italic">"{m.description}"</p>
