@@ -75,7 +75,22 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    const newConfigs: FileConfig[] = selectedFiles.map(file => ({
+    const allowedExtensions = ['.stl', '.3mf', '.step'];
+    const filteredFiles = selectedFiles.filter(file => {
+      const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+      return allowedExtensions.includes(ext);
+    });
+
+    if (filteredFiles.length !== selectedFiles.length) {
+      alert("Algunos archivos fueron descartados. Solo se permiten formatos .STL, .3MF y .STEP");
+    }
+
+    if (filteredFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
+    const newConfigs: FileConfig[] = filteredFiles.map(file => ({
       id: uuidv4(),
       file,
       materialId: materials[0]?.id || "custom",

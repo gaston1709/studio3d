@@ -103,8 +103,21 @@ export default function PaymentAndShippingForm({
           <input
             type="file"
             required
-            accept="image/*,.pdf"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            accept=".png,.jpg,.jpeg,.pdf"
+            onChange={(e) => {
+              const selectedFile = e.target.files?.[0] || null;
+              if (selectedFile) {
+                const ext = selectedFile.name.slice(selectedFile.name.lastIndexOf('.')).toLowerCase();
+                const allowed = ['.png', '.jpg', '.jpeg', '.pdf'];
+                if (!allowed.includes(ext)) {
+                  alert("Formato no válido. Solo se permiten archivos PNG, JPG o PDF.");
+                  e.target.value = "";
+                  setFile(null);
+                  return;
+                }
+              }
+              setFile(selectedFile);
+            }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           <div className="space-y-2">
