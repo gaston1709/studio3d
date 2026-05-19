@@ -9,7 +9,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from "@nd-kit/core";
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
