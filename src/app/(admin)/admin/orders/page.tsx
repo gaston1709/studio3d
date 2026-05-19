@@ -40,7 +40,7 @@ export default async function AdminOrdersPage() {
   };
 
   return (
-    <div className="space-y-12 bg-slate-50 min-h-screen pb-20">
+    <div className="space-y-12 bg-slate-100 min-h-screen pb-20">
       <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
         <div>
           <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Log de Producción</h1>

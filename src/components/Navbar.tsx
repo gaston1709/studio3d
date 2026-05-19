@@ -11,7 +11,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white/80 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
+    <nav className="bg-slate-100/90 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center group">
           <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
@@ -97,7 +97,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
+        <div className="md:hidden absolute top-full left-0 w-full bg-slate-100 border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
           {!isAdmin && (
             <>
               <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Mis Pedidos</Link>

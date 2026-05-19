@@ -26,7 +26,7 @@ export default async function Home() {
   });
 
   return (
-    <div className="space-y-40 pb-20 bg-slate-50">
+    <div className="space-y-40 pb-20 bg-slate-100">
       {/* HERO SECTION - INDUSTRIAL TECH: LOGO LEFT, TEXT RIGHT */}
       <section className="relative pt-12 md:pt-24 min-h-[70vh] flex items-center overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">

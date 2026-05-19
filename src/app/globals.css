@@ -2,13 +2,13 @@
 
 :root {
   --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252; /* Slate 50: #F8FAFC */
+  --background-rgb: 241, 245, 249; /* Slate 100: #F1F5F9 */
   --accent-orange: #FF4F00;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F8FAFC;
+  background: #F1F5F9;
   font-family: var(--font-inter), sans-serif;
 }
 
@@ -32,7 +32,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Industrial Tech Accents */
 .brand-bg {
-  background-color: #F8FAFC;
+  background-color: #F1F5F9;
 }
 
 .brand-accent {
