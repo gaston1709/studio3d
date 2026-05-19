@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
            </div>
         </Link>
 
-        <Link href="/admin/carousel" className="p-12 bg-slate-900 rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl group lg:col-span-2">
+        <Link href="/admin/carousel" className="p-12 bg-slate-900 rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl group">
            <div className="space-y-4">
              <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Showcase Gallery</h2>
              <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Gestor del carrusel de imágenes de la Home</p>
@@ -79,6 +79,17 @@ export default async function AdminDashboard() {
            <div className="flex justify-between items-center">
              <span className="text-[10px] font-black text-[#FF4F00] uppercase tracking-[0.4em]">Acceder al Módulo →</span>
              <div className="w-16 h-1.5 bg-white/20 rounded-full group-hover:bg-[#FF4F00] transition-colors"></div>
+           </div>
+        </Link>
+
+        <Link href="/admin/settings" className="p-12 bg-blue-50 rounded-[3rem] border-4 border-blue-200 text-slate-900 flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all group">
+           <div className="space-y-4">
+             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Datos de Pago</h2>
+             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.2em]">CBU, Alias y configuraciones globales</p>
+           </div>
+           <div className="flex justify-between items-center">
+             <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Acceder al Módulo →</span>
+             <div className="w-16 h-1.5 bg-blue-200 rounded-full group-hover:bg-blue-400 transition-colors"></div>
            </div>
         </Link>
       </div>

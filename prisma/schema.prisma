@@ -121,3 +121,10 @@ model OrderFile {
   
   createdAt       DateTime  @default(now())
 }
+
+model AppSettings {
+  id              String    @id @default("singleton")
+  paymentAlias    String    @default("3D.PRINT.HUB.CBA")
+  paymentCbu      String    @default("0000000000000000000000")
+  updatedAt       DateTime  @updatedAt
+}

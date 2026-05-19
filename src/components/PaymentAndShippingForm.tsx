@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function PaymentAndShippingForm({ 
@@ -17,6 +17,18 @@ export default function PaymentAndShippingForm({
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [paymentInfo, setPaymentInfo] = useState({ alias: "3D.PRINT.HUB.CBA", cbu: "0000000000000000000000" });
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then(res => res.json())
+      .then(data => {
+        if (data.paymentAlias) {
+          setPaymentInfo({ alias: data.paymentAlias, cbu: data.paymentCbu });
+        }
+      })
+      .catch(err => console.error("Error loading payment info:", err));
+  }, []);
 
   const shippingOptions = [
     { id: "local", label: "Retiro en local (CBA Capital)", desc: "Sin costo adicional" },
@@ -94,8 +106,8 @@ export default function PaymentAndShippingForm({
         <div className="bg-slate-50 border-2 border-slate-100 p-6 rounded-2xl mb-4">
           <p className="text-xs font-bold text-slate-600 mb-2">Datos para transferencia:</p>
           <div className="space-y-1">
-            <p className="text-sm font-black text-slate-900 uppercase tracking-tighter">Alias: <span className="text-blue-600">3D.PRINT.HUB.CBA</span></p>
-            <p className="text-sm font-black text-slate-900 uppercase tracking-tighter">CBU: <span className="text-blue-600">0000000000000000000000</span></p>
+            <p className="text-sm font-black text-slate-900 uppercase tracking-tighter">Alias: <span className="text-blue-600">{paymentInfo.alias}</span></p>
+            <p className="text-sm font-black text-slate-900 uppercase tracking-tighter">CBU: <span className="text-blue-600">{paymentInfo.cbu}</span></p>
           </div>
         </div>
 
