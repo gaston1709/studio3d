@@ -340,7 +340,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               <div className="flex flex-col gap-6 mt-10 animate-in fade-in slide-in-from-left-4">
                 <div className="flex items-center gap-6">
                   <input type="number" step="0.01" min="0.08" max="0.28" value={layerHeightManual} onChange={(e) => setLayerHeightManual(e.target.value)} className="w-32 px-6 py-4 border-4 border-black rounded-2xl font-black text-black outline-none shadow-2xl text-center text-xl tracking-tighter" />
-                  <span className="font-black text-slate-400 uppercase tracking-[0.3em] text-[10px]">Micrones específicos</span>
+                  <span className="font-black text-slate-400 uppercase tracking-[0.3em] text-[10px]">Milímetros</span>
                 </div>
                 <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic">
                   * Rango permitido: 0.08mm a 0.28mm para asegurar calidad industrial.

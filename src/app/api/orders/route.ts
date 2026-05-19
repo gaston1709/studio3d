@@ -10,18 +10,14 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const files = formData.getAll("file") as File[];
     const email = formData.get("email") as string;
-    const materialId = formData.get("materialId") as string;
-    const colorId = formData.get("colorId") as string;
-    const customMaterial = formData.get("customMaterial") as string;
-    const customColor = formData.get("customColor") as string;
 
     // Technical Specs
-    const purpose = formData.get("purpose") as string;
-    const infillType = formData.get("infillType") as string;
+    const purpose = (formData.get("purpose") as string) || "aesthetic";
+    const infillType = (formData.get("infillType") as string) || "auto";
     const infillPercentage = formData.get("infillPercentage") ? parseInt(formData.get("infillPercentage") as string) : null;
-    const layerHeightType = formData.get("layerHeightType") as string;
+    const layerHeightType = (formData.get("layerHeightType") as string) || "standard";
     const layerHeightManual = formData.get("layerHeightManual") ? parseFloat(formData.get("layerHeightManual") as string) : null;
-    const scaleFactor = formData.get("scaleFactor") as string;
+    const scaleFactor = (formData.get("scaleFactor") as string) || "100%";
 
     // Delivery Prefs
     const desiredDate = formData.get("desiredDate") as string;
@@ -43,7 +39,7 @@ export async function POST(req: NextRequest) {
     // 2. Save Files and Configs
     const fileEntries = files.map((file, index) => {
         const configStr = formData.get(`config_${index}`) as string;
-        const config = JSON.parse(configStr);
+        const config = JSON.parse(configStr || "{}");
         return { file, config };
     });
 
@@ -62,8 +58,8 @@ export async function POST(req: NextRequest) {
       orderFileData.push({
         fileName: entry.file.name,
         filePath: uniqueFileName,
-        materialId: entry.config.materialId === "custom" || entry.config.materialId === "multi" ? null : entry.config.materialId,
-        colorId: entry.config.colorId === "custom" || entry.config.colorId === "multi" ? null : entry.config.colorId,
+        materialId: (entry.config.materialId === "custom" || entry.config.materialId === "multi" || !entry.config.materialId) ? null : entry.config.materialId,
+        colorId: (entry.config.colorId === "custom" || entry.config.colorId === "multi" || !entry.config.colorId) ? null : entry.config.colorId,
         customMaterial: entry.config.customMaterial || null,
         customColor: entry.config.customColor || null,
       });
