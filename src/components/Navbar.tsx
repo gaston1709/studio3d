@@ -50,10 +50,10 @@ export default function Navbar() {
           
           {status === "authenticated" ? (
             <div className="flex items-center gap-8 border-l border-black/10 pl-8">
-              <div className="text-right">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Usuario</p>
+              <Link href="/profile" className="text-right group/user">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 group-hover/user:text-black">Mi Perfil</p>
                 <p className="text-[11px] font-black text-black leading-none">{session.user?.email}</p>
-              </div>
+              </Link>
 
               {isAdmin && (
                 <Link 
@@ -101,10 +101,10 @@ export default function Navbar() {
 
           {status === "authenticated" ? (
             <div className="space-y-6">
-              <div>
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Usuario</p>
+              <Link onClick={() => setIsMenuOpen(false)} href="/profile" className="block">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Mi Perfil</p>
                 <p className="text-xs font-black text-black">{session.user?.email}</p>
-              </div>
+              </Link>
               {isAdmin && (
                 <Link onClick={() => setIsMenuOpen(false)} href="/admin" className="block bg-black text-[#FFFCDC] text-[10px] font-black py-4 rounded-xl text-center uppercase tracking-widest">Admin Panel</Link>
               )}
