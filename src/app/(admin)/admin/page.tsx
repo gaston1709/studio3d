@@ -60,6 +60,17 @@ export default async function AdminDashboard() {
            </div>
         </Link>
 
+        <Link href="/admin/users" className="p-12 bg-amber-50 rounded-[3rem] border-4 border-amber-200 text-slate-900 flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all group">
+           <div className="space-y-4">
+             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Usuarios</h2>
+             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.2em]">Gestión de permisos y terminales activas</p>
+           </div>
+           <div className="flex justify-between items-center">
+             <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em]">Acceder al Módulo →</span>
+             <div className="w-16 h-1.5 bg-amber-200 rounded-full group-hover:bg-amber-400 transition-colors"></div>
+           </div>
+        </Link>
+
         <Link href="/admin/carousel" className="p-12 bg-slate-900 rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl group lg:col-span-2">
            <div className="space-y-4">
              <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Showcase Gallery</h2>
