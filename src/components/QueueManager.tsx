@@ -9,7 +9,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from "@dnd-kit/core";
+} from "@nd-kit/core";
 import {
   arrayMove,
   SortableContext,
@@ -21,7 +21,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface Order {
   id: string;
-  fileName: string;
+  fileName: string | null;
   status: string;
   printTimeEstimated: number | null;
   user: { email: string };
@@ -29,6 +29,7 @@ interface Order {
   color: { name: string; hexCode: string } | null;
   customMaterial?: string | null;
   customColor?: string | null;
+  files?: { fileName: string }[];
 }
 
 function SortableItem({ order, index }: { order: Order; index: number }) {
@@ -47,6 +48,10 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
     zIndex: isDragging ? 50 : "auto",
     opacity: isDragging ? 0.5 : 1,
   };
+
+  const displayFileName = order.files && order.files.length > 0 
+    ? (order.files.length > 1 ? `${order.files[0].fileName} (+${order.files.length - 1})` : order.files[0].fileName)
+    : (order.fileName || "Sin archivo");
 
   return (
     <div
@@ -76,7 +81,7 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
 
       <div className="flex-grow">
         <div className="flex items-center gap-3">
-          <p className={`font-bold tracking-tight ${order.status === 'PRINTING' ? 'text-white text-lg' : 'text-slate-900'}`}>{order.fileName}</p>
+          <p className={`font-bold tracking-tight ${order.status === 'PRINTING' ? 'text-white text-lg' : 'text-slate-900'}`}>{displayFileName}</p>
           <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-widest ${
             order.status === "PRINTING" ? "bg-white/20 text-white border-white/30" : "bg-blue-50 text-blue-600 border-blue-100"
           }`}>

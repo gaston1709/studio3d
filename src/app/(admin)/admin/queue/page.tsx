@@ -12,6 +12,7 @@ export default async function QueuePage() {
       user: true,
       material: true,
       color: true,
+      files: true,
     },
     orderBy: [
       { queuePosition: "asc" },
