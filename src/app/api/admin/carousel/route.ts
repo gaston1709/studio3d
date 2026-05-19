@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
+import fs from "fs";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,13 +35,12 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const fileExtension = path.extname(file.name);
-    const uniqueFileName = `carousel_${uuidv4()}${fileExtension}`;
+    const uniqueFileName = `carousel_${crypto.randomUUID()}${fileExtension}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", "carousel");
     
     // Ensure directory exists
-    const fs = require('fs');
     if (!fs.existsSync(uploadDir)){
-        fs.mkdirSync(uploadDir, { recursive: true });
+        await mkdir(uploadDir, { recursive: true });
     }
 
     const filePath = path.join(uploadDir, uniqueFileName);

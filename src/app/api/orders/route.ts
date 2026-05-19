@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
         infillPercentage: entry.config.infillPercentage ? parseInt(entry.config.infillPercentage) : null,
         layerHeightType: entry.config.layerHeightType || "standard",
         layerHeightManual: entry.config.layerHeightManual ? parseFloat(entry.config.layerHeightManual) : null,
+        scaleFactor: entry.config.scaleFactor || "100%",
       });
     }
 
@@ -71,7 +72,6 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         status: "PENDING_QUOTE",
         purpose,
-        scaleFactor,
         desiredDate: desiredDate ? new Date(desiredDate) : null,
         deliveryNotes: deliveryNotes || null,
         files: {

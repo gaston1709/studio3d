@@ -130,12 +130,6 @@ export default async function OrderDetailPage({
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uso de la pieza</p>
                 <p className="text-sm font-black text-slate-900 uppercase">{translatePurpose(order.purpose)}</p>
               </div>
-              <div className="bg-white p-5 rounded-2xl border-2 border-slate-200">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Volumen / Factor de Escala</p>
-                <p className="text-sm font-black text-slate-900 uppercase">
-                  {order.scaleFactor || "100%"}
-                </p>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6 pt-4 border-t-2 border-slate-200">
@@ -197,17 +191,23 @@ export default async function OrderDetailPage({
                         {renderConfig(file)}
                     </div>
                     
-                    <div className="border-t border-slate-100 pt-3 grid grid-cols-2 gap-2">
+                    <div className="border-t border-slate-100 pt-3 grid grid-cols-3 gap-2">
                         <div>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Densidad Relleno</p>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Densidad</p>
                           <p className="text-[10px] font-black text-slate-900 uppercase">
-                            {file.infillType === 'auto' || !file.infillType ? 'Optimizado (Auto)' : `${file.infillPercentage}% (Manual)`}
+                            {file.infillType === 'auto' || !file.infillType ? 'Auto' : `${file.infillPercentage}%`}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Altura de Capa</p>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Resolución</p>
                           <p className="text-[10px] font-black text-slate-900 uppercase">
-                            {translateLayerHeight(file.layerHeightType || "standard", file.layerHeightManual)}
+                            {file.layerHeightType === "manual" ? `${file.layerHeightManual}mm` : file.layerHeightType}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Escala</p>
+                          <p className="text-[10px] font-black text-slate-900 uppercase">
+                            {file.scaleFactor || "100%"}
                           </p>
                         </div>
                     </div>

@@ -28,12 +28,12 @@ interface FileConfig {
   infillPercentage: string;
   layerHeightType: string;
   layerHeightManual: string;
+  scaleFactor: string;
 }
 
 export default function OrderForm({ materials }: { materials: Material[] }) {
   const { data: session, status } = useSession();
   const [fileConfigs, setFilesConfigs] = useState<FileConfig[]>([]);
-  const [scaleFactor, setScaleFactor] = useState("100%");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -100,7 +100,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       infillType: "auto",
       infillPercentage: "15",
       layerHeightType: "standard",
-      layerHeightManual: "0.2"
+      layerHeightManual: "0.2",
+      scaleFactor: "100%"
     }));
 
     setFilesConfigs([...fileConfigs, ...newConfigs]);
@@ -137,7 +138,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("email", session.user?.email || ""); 
-    formData.append("scaleFactor", scaleFactor);
     formData.append("purpose", purpose);
     if (desiredDate) formData.append("desiredDate", desiredDate);
     if (deliveryNotes) formData.append("deliveryNotes", deliveryNotes);
@@ -153,7 +153,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             infillType: f.infillType,
             infillPercentage: f.infillPercentage,
             layerHeightType: f.layerHeightType,
-            layerHeightManual: f.layerHeightManual
+            layerHeightManual: f.layerHeightManual,
+            scaleFactor: f.scaleFactor
         }));
     });
 
@@ -162,7 +163,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       if (res.ok) {
         setMessage("Configuración enviada correctamente. Procesando cotización...");
         setFilesConfigs([]);
-        setScaleFactor("100%");
       } else {
         const data = await res.json();
         setMessage(data.error || "Error en el procesamiento.");
@@ -185,9 +185,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-            <span className="w-8 h-[2px] bg-black"></span> 01. Activos
+            <span className="w-8 h-[2px] bg-black"></span> 01. Archivos
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Suba sus modelos y asigne la fisicalidad a cada uno."</p>
           
           <div className="mt-10 p-6 bg-amber-50 border-2 border-amber-200 rounded-3xl">
              <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2">⚠️ Límite de Volumen</p>
@@ -319,16 +318,23 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                           </div>
                         )}
                       </div>
+
+                      {/* Scale Factor */}
+                      <div className="md:col-span-2">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Factor de Escala</label>
+                        <input 
+                          type="text" 
+                          value={f.scaleFactor} 
+                          onChange={(e) => updateFileConfig(f.id, { scaleFactor: e.target.value })} 
+                          placeholder="100%" 
+                          className="w-full px-4 py-3 border-2 border-black/5 rounded-xl bg-slate-50 font-black text-xs uppercase outline-none focus:border-black transition-all" 
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
-
-          <div className="pt-6 border-t-2 border-black/5">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Instrucciones de Escala (Global)</label>
-            <input type="text" value={scaleFactor} onChange={(e) => setScaleFactor(e.target.value)} placeholder="Ej: 100%, Escalar el archivo 'A' al 50%..." className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm uppercase tracking-widest text-xs" />
           </div>
         </div>
       </section>
@@ -339,7 +345,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span className="w-8 h-[2px] bg-black"></span> 02. Aplicación
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Determine el esfuerzo mecánico del conjunto."</p>
         </div>
         <div className="lg:col-span-8 space-y-16">
           <div>
@@ -366,7 +371,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span className="w-8 h-[2px] bg-black"></span> 03. Logística
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"Cronograma y requerimientos adicionales."</p>
         </div>
         <div className="lg:col-span-8 space-y-12">
           <div>
