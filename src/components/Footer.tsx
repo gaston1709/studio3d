@@ -6,8 +6,7 @@ export default function Footer() {
           <div className="space-y-8">
             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none italic">Studio <span className="text-[#FF4F00]">3D</span></h2>
             <p className="text-slate-400 font-medium max-w-sm leading-relaxed">
-              Laboratorio de manufactura aditiva y prototipado rápido de alta fidelidad. 
-              Especialistas en materiales técnicos para aplicaciones industriales y finales.
+              Servicio de manufactura aditiva y optimización de piezas. Desde prototipos visuales hasta componentes funcionales y técnicos listos para usar.
             </p>
           </div>
 
@@ -23,7 +22,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">© 2026 S3D Industrial Solutions. Todos los derechos reservados.</p>
+          <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">© 2026 Studio3D. Todos los derechos reservados.</p>
           <div className="flex gap-8">
             <a href="/terms" className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] hover:text-[#FF4F00] transition-colors">Términos de Servicio</a>
             <a href="#" className="text-[9px] font-black text-slate-600 uppercase tracking-[0.3em] hover:text-[#FF4F00] transition-colors">Privacidad</a>
