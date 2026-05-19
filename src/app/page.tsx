@@ -116,19 +116,21 @@ export default async function Home() {
             </div>
           </div>
           
-          <div className="relative w-full rounded-[3rem] overflow-hidden border-4 border-slate-900 shadow-2xl">
-            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+          <div className="relative w-full rounded-[3rem] overflow-hidden border-4 border-slate-900 shadow-2xl group/carousel">
+            <div 
+              id="showcase-scroll"
+              className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth"
+            >
               {carouselImages.map((img) => (
-                <div key={img.id} className="min-w-full flex-shrink-0 snap-center relative aspect-video bg-black">
-                  <Image
+                <div key={img.id} className="min-w-full md:min-w-[50%] lg:min-w-[33.333%] flex-shrink-0 snap-center relative aspect-square md:aspect-[4/5] bg-black border-r-2 border-slate-900/20 last:border-r-0">
+                  <img
                     src={`/uploads/carousel/${img.fileName}`}
                     alt={img.caption || "Showcase"}
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                   {img.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-12">
-                      <p className="text-white text-xl md:text-3xl font-black tracking-tighter uppercase drop-shadow-lg">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8">
+                      <p className="text-white text-sm md:text-base font-black tracking-tighter uppercase drop-shadow-lg leading-tight">
                         {img.caption}
                       </p>
                     </div>
@@ -136,6 +138,20 @@ export default async function Home() {
                 </div>
               ))}
             </div>
+
+            {/* Auto-scroll script */}
+            <script dangerouslySetInnerHTML={{ __html: `
+              (function() {
+                const el = document.getElementById('showcase-scroll');
+                let direction = 1;
+                setInterval(() => {
+                  if (!el) return;
+                  if (el.scrollLeft + el.offsetWidth >= el.scrollWidth - 10) direction = -1;
+                  if (el.scrollLeft <= 0) direction = 1;
+                  el.scrollBy({ left: 300 * direction, behavior: 'smooth' });
+                }, 4000);
+              })();
+            `}} />
           </div>
         </section>
       )}
