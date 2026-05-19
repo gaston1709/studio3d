@@ -16,7 +16,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center group">
           <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
             <Image 
-              src="/logo.png" 
+              src="/logo.png?v=2" 
               alt="S3D Logo" 
               fill 
               className="object-contain transition-transform group-hover:scale-105"

@@ -36,8 +36,8 @@ export default async function Home() {
             <div className="lg:col-span-5 flex justify-center lg:justify-end animate-in fade-in slide-in-from-left-8 duration-1000">
               <div className="relative w-72 h-72 md:w-[450px] md:h-[450px]">
                 <Image 
-                  src="/logo.png" 
-                  alt="S3D Big Logo" 
+                  src="/logo.png?v=2" 
+                  alt="S3D Logo" 
                   fill 
                   className="object-contain"
                   priority
