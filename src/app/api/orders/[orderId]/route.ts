@@ -12,7 +12,7 @@ export async function PATCH(
     // Fetch current order to check for status transitions
     const currentOrder = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { user: true },
+      include: { user: true, files: true },
     });
 
     if (!currentOrder) {
@@ -30,26 +30,28 @@ export async function PATCH(
         status,
         estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : null,
       },
+      include: { files: true }
     });
 
     // Email Triggers based on status transitions
     if (status && status !== currentOrder.status) {
       let template;
+      const displayFileName = updatedOrder.files[0]?.fileName || updatedOrder.fileName || "archivos";
       
       switch (status) {
         case "QUOTED":
           if (price) {
-            template = mailTemplates.orderQuoted(orderId, updatedOrder.fileName, price);
+            template = mailTemplates.orderQuoted(orderId, displayFileName, price);
           }
           break;
         case "ACCEPTED":
-          template = mailTemplates.orderInQueue(orderId, updatedOrder.fileName);
+          template = mailTemplates.orderInQueue(orderId, displayFileName);
           break;
         case "PRINTING":
-          template = mailTemplates.orderPrinting(orderId, updatedOrder.fileName);
+          template = mailTemplates.orderPrinting(orderId, displayFileName);
           break;
         case "SHIPPED":
-          template = mailTemplates.orderReady(orderId, updatedOrder.fileName);
+          template = mailTemplates.orderReady(orderId, displayFileName);
           break;
       }
 

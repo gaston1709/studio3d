@@ -15,7 +15,7 @@ export async function POST(
     // Fetch order and user for notification
     const orderBefore = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { user: true }
+      include: { user: true, files: true }
     });
 
     if (!orderBefore) {
@@ -55,7 +55,8 @@ export async function POST(
     // Notify Admin
     try {
       const adminEmail = "gastongrasso@sie.com.ar";
-      const template = mailTemplates.adminPaymentUploaded(orderId, orderBefore.user.email, orderBefore.fileName);
+      const displayFileName = orderBefore.files[0]?.fileName || orderBefore.fileName || "archivos";
+      const template = mailTemplates.adminPaymentUploaded(orderId, orderBefore.user.email, displayFileName);
       await sendEmail({
         to: adminEmail,
         subject: template.subject,

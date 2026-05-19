@@ -24,6 +24,7 @@ export default async function OrdersPage() {
     include: {
       material: true,
       color: true,
+      files: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -103,71 +104,77 @@ export default async function OrdersPage() {
             </Link>
           </div>
         ) : (
-          orders.map((order) => (
-            <div key={order.id} className="bg-white/60 backdrop-blur-md p-10 rounded-[2.5rem] border-2 border-black/10 shadow-sm hover:border-black transition-all group overflow-hidden relative">
-              {/* Top Accent Line */}
-              <div className={`absolute top-0 left-0 w-full h-1.5 ${order.status === 'PRINTING' ? 'bg-emerald-400' : 'bg-black/5'}`}></div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                <div className="lg:col-span-5 space-y-8">
-                  <div>
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Archivo Digital</span>
-                    <p className="text-2xl font-black text-black tracking-tighter group-hover:text-black transition-colors truncate" title={order.fileName}>{order.fileName}</p>
-                  </div>
-                  
-                  <div className="flex gap-16">
+          orders.map((order) => {
+            const displayFileName = order.files && order.files.length > 0 
+                ? (order.files.length > 1 ? `${order.files[0].fileName} (+${order.files.length - 1})` : order.files[0].fileName)
+                : (order.fileName || "Sin archivo");
+
+            return (
+              <div key={order.id} className="bg-white/60 backdrop-blur-md p-10 rounded-[2.5rem] border-2 border-black/10 shadow-sm hover:border-black transition-all group overflow-hidden relative">
+                {/* Top Accent Line */}
+                <div className={`absolute top-0 left-0 w-full h-1.5 ${order.status === 'PRINTING' ? 'bg-emerald-400' : 'bg-black/5'}`}></div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                  <div className="lg:col-span-5 space-y-8">
                     <div>
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Material</span>
-                      <p className="text-xs font-black text-black uppercase tracking-widest">{order.material?.name || order.customMaterial}</p>
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Archivo Digital</span>
+                      <p className="text-2xl font-black text-black tracking-tighter group-hover:text-black transition-colors truncate" title={displayFileName}>{displayFileName}</p>
                     </div>
-                    <div>
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Color</span>
-                      <div className="flex items-center gap-3">
-                        {order.color && (
-                          <div className="w-3 h-3 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: order.color.hexCode }} />
-                        )}
-                        <p className="text-xs font-black text-black uppercase tracking-widest">{order.color?.name || order.customColor}</p>
+                    
+                    <div className="flex gap-16">
+                      <div>
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Material</span>
+                        <p className="text-xs font-black text-black uppercase tracking-widest">{order.material?.name || order.customMaterial || "Varios"}</p>
+                      </div>
+                      <div>
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Color</span>
+                        <div className="flex items-center gap-3">
+                          {order.color && (
+                            <div className="w-3 h-3 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: order.color.hexCode }} />
+                          )}
+                          <p className="text-xs font-black text-black uppercase tracking-widest">{order.color?.name || order.customColor || "Varios"}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="lg:col-span-3">
-                   <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Ciclo de Entrega</span>
-                   {order.status === 'PENDING_QUOTE' ? (
-                     <p className="text-[10px] font-black text-slate-300 uppercase italic">Pendiente de Análisis...</p>
-                   ) : (
-                     getDeliveryRange(order.estimatedDelivery, order.status)
-                   )}
-                </div>
-
-                <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
-                  <div className="text-left lg:text-right">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Estado</span>
-                    <span className={`inline-block px-4 py-1.5 rounded-lg border-2 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${getStatusStyle(order.status)}`}>
-                      {translateStatus(order.status)}
-                    </span>
+                  <div className="lg:col-span-3">
+                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Ciclo de Entrega</span>
+                     {order.status === 'PENDING_QUOTE' ? (
+                       <p className="text-[10px] font-black text-slate-300 uppercase italic">Pendiente de Análisis...</p>
+                     ) : (
+                       getDeliveryRange(order.estimatedDelivery, order.status)
+                     )}
                   </div>
 
-                  {order.status === 'QUOTED' && (
-                    <Link 
-                      href={`/orders/${order.id}/pay`}
-                      className="bg-black text-[#FFFCDC] px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95"
-                    >
-                      Pagar Seña
-                    </Link>
-                  )}
-
-                  {order.price && order.status !== 'QUOTED' && (
-                    <div className="text-right">
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-1 block leading-none">Inversión</span>
-                      <p className="text-2xl font-black text-black tracking-tighter">${order.price.toFixed(2)}</p>
+                  <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
+                    <div className="text-left lg:text-right">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Estado</span>
+                      <span className={`inline-block px-4 py-1.5 rounded-lg border-2 text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${getStatusStyle(order.status)}`}>
+                        {translateStatus(order.status)}
+                      </span>
                     </div>
-                  )}
+
+                    {order.status === 'QUOTED' && (
+                      <Link 
+                        href={`/orders/${order.id}/pay`}
+                        className="bg-black text-[#FFFCDC] px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95"
+                      >
+                        Pagar Seña
+                      </Link>
+                    )}
+
+                    {order.price && order.status !== 'QUOTED' && (
+                      <div className="text-right">
+                        <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-1 block leading-none">Inversión</span>
+                        <p className="text-2xl font-black text-black tracking-tighter">${order.price.toFixed(2)}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
