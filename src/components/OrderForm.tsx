@@ -102,12 +102,15 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       return;
     }
 
-    // Validate that all files have material/color set
+    // Validate that all files have material/color set correctly
     for (const f of fileConfigs) {
-        const isMatOk = f.materialId === "custom" ? f.customMaterial : f.materialId;
-        const isColOk = (f.materialId === "custom" || f.colorId === "custom") ? f.customColor : f.colorId;
+        // Material is OK if it's a known ID OR if it's 'custom'/'multi' AND customMaterial has text
+        const isMatOk = (f.materialId !== "custom" && f.materialId !== "multi" && f.materialId !== "") || f.customMaterial.trim() !== "";
+        // Color is OK if it's a known ID OR if it's 'custom'/'multi' AND customColor has text
+        const isColOk = (f.colorId !== "custom" && f.colorId !== "multi" && f.colorId !== "") || f.customColor.trim() !== "";
+        
         if (!isMatOk || !isColOk) {
-            alert(`Faltan parámetros para el archivo: ${f.file.name}`);
+            alert(`Faltan parámetros para el archivo: ${f.file.name}. Asegúrese de especificar material y color.`);
             return;
         }
     }
@@ -298,7 +301,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           <div className="bg-white/40 backdrop-blur-md p-12 rounded-[3rem] border-2 border-black/10 shadow-sm relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 mb-12 relative z-10">
                <div>
-                  <label className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-2 block leading-none">Infill Density</label>
+                  <label className="text-[10px] font-black text-black uppercase tracking-[0.3em] mb-2 block leading-none">Densidad de Relleno</label>
                   <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest leading-none mt-2">Densidad de malla interna</p>
                </div>
                <div className="flex bg-black/5 p-1.5 rounded-2xl border-2 border-black/5">
@@ -310,9 +313,9 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
                 <input type="range" min="0" max="100" step="5" value={infillPercentage} onChange={(e) => setInfillPercentage(e.target.value)} className="w-full h-2 bg-black/10 rounded-full appearance-none cursor-pointer accent-black" />
                 <div className="flex justify-between mt-10 items-end">
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Hollow</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Hueco</span>
                   <span className="text-7xl font-black text-black tracking-tighter leading-none">{infillPercentage}<span className="text-2xl opacity-20">%</span></span>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Solid</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Sólido</span>
                 </div>
               </div>
             )}
@@ -322,10 +325,10 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block text-center md:text-left">Resolución Vertical</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { id: "fast", label: "Draft", val: "0.28" },
-                { id: "standard", label: "Std", val: "0.20" },
-                { id: "detailed", label: "High", val: "0.12" },
-                { id: "manual", label: "Libre", val: "..." },
+                { id: "fast", label: "Borrador (0.28)", val: "0.28" },
+                { id: "standard", label: "Estándar (0.20)", val: "0.20" },
+                { id: "detailed", label: "Detalle (0.12)", val: "0.12" },
+                { id: "manual", label: "Personalizado", val: "..." },
               ].map((l) => (
                 <button key={l.id} type="button" onClick={() => setLayerHeightType(l.id)} className={`p-6 rounded-2xl border-4 text-center transition-all ${layerHeightType === l.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 text-slate-400 hover:border-black/20'}`}>
                   <p className="font-black text-[9px] uppercase tracking-[0.2em] mb-2 leading-none">{l.label}</p>
@@ -333,6 +336,17 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 </button>
               ))}
             </div>
+            {layerHeightType === "manual" && (
+              <div className="flex flex-col gap-6 mt-10 animate-in fade-in slide-in-from-left-4">
+                <div className="flex items-center gap-6">
+                  <input type="number" step="0.01" min="0.08" max="0.28" value={layerHeightManual} onChange={(e) => setLayerHeightManual(e.target.value)} className="w-32 px-6 py-4 border-4 border-black rounded-2xl font-black text-black outline-none shadow-2xl text-center text-xl tracking-tighter" />
+                  <span className="font-black text-slate-400 uppercase tracking-[0.3em] text-[10px]">Micrones específicos</span>
+                </div>
+                <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest italic">
+                  * Rango permitido: 0.08mm a 0.28mm para asegurar calidad industrial.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
