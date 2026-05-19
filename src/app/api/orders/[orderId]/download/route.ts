@@ -11,6 +11,7 @@ export async function GET(
     const { orderId } = await params;
     const order = await prisma.order.findUnique({
       where: { id: orderId },
+      include: { files: true }
     });
 
     if (!order) {
@@ -20,20 +21,37 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const index = parseInt(searchParams.get("index") || "0", 10);
 
-    const filePaths = order.filePath.split(",");
-    const fileNames = order.fileName.split(",");
+    let targetFilePath: string | null = null;
+    let targetFileName: string | null = null;
 
-    if (index < 0 || index >= filePaths.length) {
-      return new NextResponse("File index out of bounds", { status: 400 });
+    // 1. Try modern OrderFile relation
+    if (order.files.length > 0) {
+        if (index >= 0 && index < order.files.length) {
+            targetFilePath = order.files[index].filePath;
+            targetFileName = order.files[index].fileName;
+        }
+    } 
+    // 2. Fallback to legacy comma-separated fields
+    else if (order.filePath && order.fileName) {
+        const filePaths = order.filePath.split(",");
+        const fileNames = order.fileName.split(",");
+        if (index >= 0 && index < filePaths.length) {
+            targetFilePath = filePaths[index];
+            targetFileName = fileNames[index];
+        }
     }
 
-    const filePath = path.join(process.cwd(), "uploads", filePaths[index]);
+    if (!targetFilePath || !targetFileName) {
+      return new NextResponse("File not found or index out of bounds", { status: 400 });
+    }
+
+    const filePath = path.join(process.cwd(), "uploads", targetFilePath);
     const fileBuffer = await readFile(filePath);
 
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${fileNames[index]}"`,
+        "Content-Disposition": `attachment; filename="${targetFileName}"`,
       },
     });
   } catch (error) {
