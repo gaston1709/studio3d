@@ -157,7 +157,7 @@ export default async function Home() {
                 <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
               </div>
               <div className="p-10 space-y-8">
-                <p className="text-sm text-slate-500 font-medium leading-relaxed line-clamp-3 italic">"{m.description}"</p>
+                <p className="text-[13px] text-slate-500 font-medium leading-relaxed line-clamp-5 italic">"{m.description}"</p>
                 <div className="flex flex-wrap gap-3">
                   {m.colors.map((c) => (
                     <div 
