@@ -2,20 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "fs/promises";
 import path from "path";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
     const { orderId } = await params;
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { files: true }
+      include: { user: true, files: true }
     });
 
     if (!order) {
       return new NextResponse("Order not found", { status: 404 });
+    }
+
+    const isAdmin = (session.user as any).role === "ADMIN";
+    const isOwner = order.user.email === session.user.email;
+
+    if (!isAdmin && !isOwner) {
+      return new NextResponse("Forbidden", { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -31,15 +45,6 @@ export async function GET(
             targetFileName = order.files[index].fileName;
         }
     } 
-    // 2. Fallback to legacy comma-separated fields
-    else if (order.filePath && order.fileName) {
-        const filePaths = order.filePath.split(",");
-        const fileNames = order.fileName.split(",");
-        if (index >= 0 && index < filePaths.length) {
-            targetFilePath = filePaths[index];
-            targetFileName = fileNames[index];
-        }
-    }
 
     if (!targetFilePath || !targetFileName) {
       return new NextResponse("File not found or index out of bounds", { status: 400 });

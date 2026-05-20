@@ -7,9 +7,12 @@ export default async function AdminOrdersPage() {
   const orders = await prisma.order.findMany({
     include: {
       user: true,
-      material: true,
-      color: true,
-      files: true,
+      files: {
+        include: {
+          material: true,
+          color: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -22,7 +25,7 @@ export default async function AdminOrdersPage() {
       case "QUOTED": return "bg-white text-slate-900 border-slate-900";
       case "ACCEPTED": return "bg-[#FF4F00] text-white border-[#FF4F00]";
       case "PRINTING": return "bg-black text-white border-black";
-      case "SHIPPED": return "bg-emerald-500 text-white border-emerald-600";
+      case "SHIPPED": return "bg-emerald-50 text-white border-emerald-600";
       default: return "bg-slate-50 text-slate-400 border-slate-200";
     }
   };
@@ -72,15 +75,21 @@ export default async function AdminOrdersPage() {
               </tr>
             ) : (
               orders.map((order) => {
-                const firstFile = order.files[0]?.fileName || order.fileName || "Sin archivo";
-                const totalFiles = order.files.length || (order.fileName ? order.fileName.split(',').length : 0);
+                const firstFile = order.files[0];
+                const totalFiles = order.files.length;
+                const firstFileName = firstFile?.fileName || "Sin archivo";
+
+                // Resolve Material and Color dynamically
+                const materialsList = order.files.map(f => f.material?.name || f.customMaterial).filter(Boolean);
+                const uniqueMaterials = Array.from(new Set(materialsList));
+                const isMultiMaterial = uniqueMaterials.length > 1;
 
                 return (
                   <tr key={order.id} className="group hover:translate-x-1 transition-transform duration-300">
                     <td className="py-8 px-8 bg-white border-y border-l border-slate-200 rounded-l-3xl shadow-sm">
                       <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
-                      <p className="text-lg font-black text-slate-900 uppercase tracking-tighter truncate max-w-[200px]" title={firstFile}>
-                        {firstFile}
+                      <p className="text-lg font-black text-slate-900 uppercase tracking-tighter truncate max-w-[200px]" title={firstFileName}>
+                        {firstFileName}
                       </p>
                       {totalFiles > 1 && (
                         <p className="text-[9px] font-black text-[#FF4F00] uppercase tracking-widest mt-1">
@@ -93,21 +102,30 @@ export default async function AdminOrdersPage() {
                       <p className="text-[10px] font-bold text-slate-400 tracking-widest mt-2">{order.user.phone || "---"}</p>
                     </td>
                     <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
-                      {order.materialId ? (
+                      {isMultiMaterial ? (
+                        <div className="flex items-center gap-3">
+                          <span className="w-2 h-2 bg-[#FF4F00] rounded-full animate-pulse"></span>
+                          <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest italic font-bold">
+                            Varios
+                          </span>
+                        </div>
+                      ) : firstFile?.materialId ? (
                         <div className="flex items-center gap-4">
-                          <div 
-                            className="w-4 h-4 rounded-full border border-slate-200 shadow-inner" 
-                            style={{ backgroundColor: order.color?.hexCode }}
-                          />
+                          {firstFile.color?.hexCode && (
+                            <div 
+                              className="w-4 h-4 rounded-full border border-slate-200 shadow-inner" 
+                              style={{ backgroundColor: firstFile.color.hexCode }}
+                            />
+                          )}
                           <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">
-                            {order.material?.name}
+                            {firstFile.material?.name}
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-3">
-                          <span className="w-2 h-2 bg-[#FF4F00] rounded-full animate-pulse"></span>
-                          <span className="text-[11px] font-black text-[#FF4F00] uppercase tracking-widest italic">
-                            Especial
+                          <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                          <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest italic">
+                            {firstFile?.customMaterial || "Especial"}
                           </span>
                         </div>
                       )}

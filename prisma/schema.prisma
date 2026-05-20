@@ -30,7 +30,6 @@ model Material {
   description String?
   isActive    Boolean  @default(true)
   colors      Color[]
-  orders      Order[]
   orderFiles  OrderFile[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -42,7 +41,6 @@ model Color {
   hexCode    String   
   materialId String
   material   Material @relation(fields: [materialId], references: [id])
-  orders     Order[]
   orderFiles OrderFile[]
   isActive   Boolean  @default(true)
 
@@ -63,14 +61,6 @@ model Order {
   files               OrderFile[] 
   receiptPath         String?     
   shippingMethod      String?     
-  
-  // These stay as "Legacy" or "Primary" if needed, but we'll prefer OrderFile
-  materialId          String?     
-  material            Material?   @relation(fields: [materialId], references: [id])
-  colorId             String?     
-  color               Color?      @relation(fields: [colorId], references: [id])
-  customMaterial      String?     
-  customColor         String?     
 
   // Technical Specs (Common to all files in this quote)
   purpose             String      @default("aesthetic") 
@@ -91,10 +81,6 @@ model Order {
   adminNotes          String?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
-
-  // For backward compatibility during migration
-  fileName            String?      
-  filePath            String?      
 }
 
 model OrderFile {

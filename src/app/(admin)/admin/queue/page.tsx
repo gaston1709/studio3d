@@ -10,9 +10,12 @@ export default async function QueuePage() {
     },
     include: {
       user: true,
-      material: true,
-      color: true,
-      files: true,
+      files: {
+        include: {
+          material: true,
+          color: true
+        }
+      },
     },
     orderBy: [
       { queuePosition: "asc" },

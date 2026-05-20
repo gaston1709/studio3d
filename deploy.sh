@@ -19,9 +19,6 @@ echo "📦 Instalando dependencias (incluyendo nodemailer)..."
 npm install
 
 # 3. Base de Datos
-echo "🔄 Sincronizando Esquema Prisma..."
-npx prisma db push
-
 echo "💎 Regenerando Prisma Client..."
 npx prisma generate
 

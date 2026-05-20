@@ -4,12 +4,23 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { sendEmail, mailTemplates } from "@/lib/mail";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const files = formData.getAll("file") as File[];
     const email = formData.get("email") as string;
+
+    if (session.user.email !== email) {
+      return NextResponse.json({ error: "Forbidden: Session email mismatch" }, { status: 403 });
+    }
 
     // Technical Specs
     const purpose = (formData.get("purpose") as string) || "aesthetic";
@@ -38,6 +49,26 @@ export async function POST(req: NextRequest) {
         const config = JSON.parse(configStr || "{}");
         return { file, config };
     });
+
+    // Validate files size and extensions
+    const ALLOWED_3D_EXTENSIONS = [".stl", ".obj", ".3mf", ".step", ".stp"];
+    const MAX_3D_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+    for (const entry of fileEntries) {
+      const ext = path.extname(entry.file.name).toLowerCase();
+      if (!ALLOWED_3D_EXTENSIONS.includes(ext)) {
+        return NextResponse.json(
+          { error: `Formato de archivo no permitido: ${ext}. Solo se admiten: ${ALLOWED_3D_EXTENSIONS.join(", ")}` },
+          { status: 400 }
+        );
+      }
+      if (entry.file.size > MAX_3D_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `El archivo ${entry.file.name} supera el límite de 50MB.` },
+          { status: 400 }
+        );
+      }
+    }
 
     const uploadDir = path.join(process.cwd(), "uploads");
     const orderFileData: any[] = [];

@@ -20,8 +20,6 @@ export default async function OrderPaymentPage({
     where: { id },
     include: {
       user: true,
-      material: true,
-      color: true,
     },
   });
 

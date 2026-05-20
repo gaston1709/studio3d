@@ -24,8 +24,6 @@ export default async function OrderDetailPage({
               color: true
           }
       },
-      material: true,
-      color: true,
     },
   });
 
@@ -130,32 +128,8 @@ export default async function OrderDetailPage({
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Uso de la pieza</p>
                 <p className="text-sm font-black text-slate-900 uppercase">{translatePurpose(order.purpose)}</p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 pt-4 border-t-2 border-slate-200">
-              <div className="bg-white p-6 rounded-2xl border-2 border-slate-200">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Material / Color</p>
-                {order.materialId ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-900 shadow-sm" style={{ backgroundColor: order.color?.hexCode }} />
-                    <p className="text-sm font-black text-slate-900 uppercase">{order.material?.name} {order.color?.name}</p>
-                  </div>
-                ) : (
-                  <div className="bg-amber-50 border-2 border-amber-200 p-3 rounded-xl">
-                    <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-1">✨ Pedido Especial</p>
-                    <p className="text-sm font-black text-slate-900 uppercase">{order.customMaterial} • {order.customColor}</p>
-                  </div>
-                )}
-                {/* FIX: Handle case where only color is custom */}
-                {order.materialId && !order.colorId && (
-                   <div className="mt-2 bg-amber-50 border-2 border-amber-200 p-3 rounded-xl">
-                    <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-1">✨ Color Especial</p>
-                    <p className="text-sm font-black text-slate-900 uppercase">{order.customColor}</p>
-                  </div>
-                )}
-              </div>
-              <div className="bg-white p-6 rounded-2xl border-2 border-slate-200">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Preferencia de Entrega</p>
+              <div className="bg-white p-5 rounded-2xl border-2 border-slate-200">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Preferencia de Entrega</p>
                 <div className="space-y-1">
                   <p className="text-sm font-black text-slate-900 uppercase">
                     📅 {order.desiredDate ? new Date(order.desiredDate).toLocaleDateString() : "Sin fecha preferida"}

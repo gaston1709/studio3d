@@ -22,9 +22,12 @@ export default async function OrdersPage() {
       },
     },
     include: {
-      material: true,
-      color: true,
-      files: true,
+      files: {
+        include: {
+          material: true,
+          color: true
+        }
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -107,7 +110,17 @@ export default async function OrdersPage() {
           orders.map((order) => {
             const displayFileName = order.files && order.files.length > 0 
                 ? (order.files.length > 1 ? `${order.files[0].fileName} (+${order.files.length - 1})` : order.files[0].fileName)
-                : (order.fileName || "Sin archivo");
+                : "Sin archivo";
+
+            const fileMaterials = order.files.map(f => f.material?.name || f.customMaterial).filter((m): m is string => !!m);
+            const uniqueMaterials = Array.from(new Set(fileMaterials));
+            const displayPolymer = uniqueMaterials.length === 1 ? uniqueMaterials[0] : uniqueMaterials.length > 1 ? "Varios" : "Especial";
+
+            const fileColors = order.files.map(f => f.color || (f.customColor ? { name: f.customColor, hexCode: null } : null)).filter((c): c is NonNullable<typeof c> => !!c);
+            const uniqueColorNames = Array.from(new Set(fileColors.map(c => c.name)));
+            const isSingleColor = uniqueColorNames.length === 1;
+            const displayColor = isSingleColor ? uniqueColorNames[0] : uniqueColorNames.length > 1 ? "Varios" : "Especial";
+            const colorObject = isSingleColor ? fileColors[0] : null;
 
             return (
               <div key={order.id} className="bg-white p-10 rounded-[2.5rem] border-2 border-slate-100 shadow-sm hover:border-[#FF4F00] transition-all group overflow-hidden relative">
@@ -124,15 +137,15 @@ export default async function OrdersPage() {
                     <div className="flex gap-16">
                       <div>
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Polímero</span>
-                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{order.material?.name || order.customMaterial || "Varios"}</p>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{displayPolymer}</p>
                       </div>
                       <div>
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Cromática</span>
                         <div className="flex items-center gap-3">
-                          {order.color && (
-                            <div className="w-3 h-3 rounded-full border border-slate-200 shadow-inner" style={{ backgroundColor: order.color.hexCode }} />
+                          {colorObject?.hexCode && (
+                            <div className="w-3 h-3 rounded-full border border-slate-200 shadow-inner" style={{ backgroundColor: colorObject.hexCode }} />
                           )}
-                          <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{order.color?.name || order.customColor || "Varios"}</p>
+                          <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{displayColor}</p>
                         </div>
                       </div>
                     </div>

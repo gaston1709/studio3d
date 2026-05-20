@@ -19,17 +19,22 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+interface OrderFile {
+  id: string;
+  fileName: string;
+  filePath: string;
+  material: { name: string } | null;
+  color: { name: string; hexCode: string } | null;
+  customMaterial: string | null;
+  customColor: string | null;
+}
+
 interface Order {
   id: string;
-  fileName: string | null;
   status: string;
   printTimeEstimated: number | null;
   user: { email: string };
-  material: { name: string } | null;
-  color: { name: string; hexCode: string } | null;
-  customMaterial?: string | null;
-  customColor?: string | null;
-  files?: { fileName: string }[];
+  files: OrderFile[];
 }
 
 function SortableItem({ order, index }: { order: Order; index: number }) {
@@ -51,7 +56,7 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
 
   const displayFileName = order.files && order.files.length > 0 
     ? (order.files.length > 1 ? `${order.files[0].fileName} (+${order.files.length - 1})` : order.files[0].fileName)
-    : (order.fileName || "Sin archivo");
+    : "Sin archivo";
 
   return (
     <div
@@ -89,7 +94,12 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
           </span>
         </div>
         <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${order.status === 'PRINTING' ? 'text-white/70' : 'text-slate-400'}`}>
-          {order.user.email} • {order.material?.name || order.customMaterial} {order.color?.name || order.customColor}
+          {order.user.email} • {order.files && order.files.length > 0
+            ? (order.files.length > 1 
+                ? "Varios" 
+                : `${order.files[0].material?.name || order.files[0].customMaterial || 'Especial'} ${order.files[0].color?.name || order.files[0].customColor || 'Especial'}`)
+            : "Especial"
+          }
         </p>
       </div>
 
