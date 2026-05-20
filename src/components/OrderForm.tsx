@@ -4,6 +4,17 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
+import dynamic from "next/dynamic";
+
+const ThreeDViewer = dynamic(() => import("./ThreeDViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[300px] sm:h-[450px] bg-slate-50 rounded-3xl flex flex-col items-center justify-center border-2 border-slate-900/5 shadow-inner">
+      <div className="w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full animate-spin mb-3"></div>
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Iniciando motor 3D...</p>
+    </div>
+  ),
+});
 
 interface Color {
   id: string;
@@ -36,6 +47,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   const [fileConfigs, setFilesConfigs] = useState<FileConfig[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
+  const [viewingFileId, setViewingFileId] = useState<string | null>(null);
 
   // Technical Specs State (Global for the quote)
   const [purpose, setPurpose] = useState("aesthetic");
@@ -218,13 +230,28 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               return (
                 <div key={f.id} className="bg-white border-2 border-black/10 rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm animate-in fade-in zoom-in-95 duration-300">
                   <div className="bg-slate-50 px-4 sm:px-8 py-4 border-b-2 border-black/5 flex justify-between items-center">
-                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black text-slate-400">#{idx + 1}</span>
-                        <p className="text-sm font-black text-black truncate max-w-[180px] sm:max-w-[300px] uppercase tracking-tight">{f.file.name}</p>
+                     <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-[10px] font-black text-slate-400 flex-shrink-0">#{idx + 1}</span>
+                        <p className="text-sm font-black text-black truncate max-w-[100px] sm:max-w-[240px] uppercase tracking-tight" title={f.file.name}>{f.file.name}</p>
                      </div>
-                     <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                     </button>
+                     <div className="flex items-center gap-4 flex-shrink-0">
+                       {f.file.name.toLowerCase().endsWith(".stl") && (
+                         <button 
+                           type="button" 
+                           onClick={() => setViewingFileId(viewingFileId === f.id ? null : f.id)} 
+                           className={`px-3 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-widest border transition-all active:scale-95 flex items-center gap-1.5 ${
+                             viewingFileId === f.id
+                               ? "bg-black text-white border-black"
+                               : "bg-white text-slate-600 hover:text-black border-slate-200 hover:border-slate-300"
+                           }`}
+                         >
+                           {viewingFileId === f.id ? "✕ Cerrar" : "👁️ Vista 3D"}
+                         </button>
+                       )}
+                       <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                       </button>
+                     </div>
                   </div>
                   
                   <div className="p-4 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -331,6 +358,14 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                         />
                       </div>
                     </div>
+
+                    {/* 3D Viewer Area */}
+                    {viewingFileId === f.id && (
+                      <div className="md:col-span-2 pt-6 border-t-2 border-black/5 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Inspección de Malla 3D (STL)</label>
+                        <ThreeDViewer file={f.file} />
+                      </div>
+                    )}
                   </div>
                 </div>
               );
