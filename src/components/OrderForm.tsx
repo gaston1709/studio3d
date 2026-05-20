@@ -175,14 +175,14 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-24 max-w-5xl mx-auto mb-32">
+    <form onSubmit={handleSubmit} className="space-y-12 sm:space-y-24 max-w-5xl mx-auto mb-32">
       <div className="border-b-4 border-black pb-8">
-        <h1 className="text-4xl font-black text-black tracking-tighter uppercase leading-none">Nueva Cotización</h1>
+        <h1 className="text-3xl sm:text-4xl font-black text-black tracking-tighter uppercase leading-none">Nueva Cotización</h1>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Gestione múltiples activos en una sola terminal</p>
       </div>
 
       {/* SECCIÓN 1: ARCHIVOS Y CONFIGURACIÓN INDIVIDUAL */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span className="w-8 h-[2px] bg-black"></span> 01. Archivos
@@ -196,14 +196,14 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
 
         <div className="lg:col-span-8 space-y-10">
           {/* File Upload Box */}
-          <div className="relative border-4 border-dashed border-black/10 rounded-[2.5rem] p-10 hover:border-black hover:bg-white/50 transition-all text-center group bg-white/20">
+          <div className="relative border-4 border-dashed border-black/10 rounded-3xl sm:rounded-[2.5rem] p-6 sm:p-10 hover:border-black hover:bg-white/50 transition-all text-center group bg-white/20">
             <input type="file" multiple accept=".stl,.3mf,.step" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            <div className="flex items-center justify-center gap-6">
-              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-black rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
               </div>
-              <div className="text-left">
-                <p className="text-lg font-black text-black uppercase tracking-tighter leading-none">Agregar Modelos 3D</p>
+              <div className="text-center sm:text-left">
+                <p className="text-base sm:text-lg font-black text-black uppercase tracking-tighter leading-none">Agregar Modelos 3D</p>
                 <p className="text-[9px] font-black text-slate-400 mt-2 uppercase tracking-[0.3em]">.STL / .STEP / .3MF</p>
               </div>
             </div>
@@ -216,18 +216,18 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               const availableColors = selectedMat?.colors || [];
 
               return (
-                <div key={f.id} className="bg-white border-2 border-black/10 rounded-[2rem] overflow-hidden shadow-sm animate-in fade-in zoom-in-95 duration-300">
-                  <div className="bg-slate-50 px-8 py-4 border-b-2 border-black/5 flex justify-between items-center">
+                <div key={f.id} className="bg-white border-2 border-black/10 rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                  <div className="bg-slate-50 px-4 sm:px-8 py-4 border-b-2 border-black/5 flex justify-between items-center">
                      <div className="flex items-center gap-3">
                         <span className="text-[10px] font-black text-slate-400">#{idx + 1}</span>
-                        <p className="text-sm font-black text-black truncate max-w-[200px] uppercase tracking-tight">{f.file.name}</p>
+                        <p className="text-sm font-black text-black truncate max-w-[180px] sm:max-w-[300px] uppercase tracking-tight">{f.file.name}</p>
                      </div>
                      <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                      </button>
                   </div>
                   
-                  <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-4 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Material</label>
                       <select 
@@ -340,22 +340,22 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       </section>
 
       {/* SECCIÓN 2: ESTRUCTURA (Global) */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-20 border-t-2 border-black/5">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 pt-12 sm:pt-20 border-t-2 border-black/5">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span className="w-8 h-[2px] bg-black"></span> 02. Aplicación
           </h3>
         </div>
-        <div className="lg:col-span-8 space-y-16">
+        <div className="lg:col-span-8 space-y-8 sm:space-y-16">
           <div>
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 block">Aplicación del Conjunto</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               {[
                 { id: "aesthetic", label: "Estético", desc: "Visual" },
                 { id: "decorative", label: "Funcional", desc: "Uso diario" },
                 { id: "mechanical", label: "Industrial", desc: "Resistencia" },
               ].map((p) => (
-                <button key={p.id} type="button" onClick={() => setPurpose(p.id)} className={`p-8 rounded-[2rem] border-4 text-left transition-all ${purpose === p.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 hover:border-black/20'}`}>
+                <button key={p.id} type="button" onClick={() => setPurpose(p.id)} className={`p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border-4 text-left transition-all ${purpose === p.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 hover:border-black/20'}`}>
                   <p className="font-black text-sm uppercase tracking-widest mb-2 leading-none">{p.label}</p>
                   <p className="text-[9px] font-black text-slate-500 leading-tight uppercase tracking-tighter opacity-60">{p.desc}</p>
                 </button>
@@ -366,20 +366,20 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       </section>
 
       {/* SECCIÓN 3: LOGÍSTICA */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-20 border-t-2 border-black/5">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 pt-12 sm:pt-20 border-t-2 border-black/5">
         <div className="lg:col-span-4">
           <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
             <span className="w-8 h-[2px] bg-black"></span> 03. Logística
           </h3>
         </div>
-        <div className="lg:col-span-8 space-y-12">
+        <div className="lg:col-span-8 space-y-6 sm:space-y-12">
           <div>
             <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 block">Fecha Preferida de Entrega</label>
             <input 
                 type="date" 
                 value={desiredDate} 
                 onChange={(e) => setDesiredDate(e.target.value)}
-                className="w-full md:w-64 px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm uppercase tracking-widest text-xs cursor-pointer"
+                className="w-full md:w-64 px-4 py-3 sm:px-6 sm:py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm uppercase tracking-widest text-xs cursor-pointer"
             />
           </div>
           <div>
@@ -389,18 +389,18 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               value={deliveryNotes} 
               onChange={(e) => setDeliveryNotes(e.target.value)}
               placeholder="Ej: Instrucciones específicas de ensamblado / Requerimientos de empaque..." 
-              className="w-full px-6 py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm resize-none uppercase tracking-widest text-xs"
+              className="w-full px-4 py-3 sm:px-6 sm:py-5 border-2 border-black/10 rounded-2xl focus:border-black outline-none bg-white/80 font-black text-black shadow-sm resize-none uppercase tracking-widest text-xs"
             />
           </div>
         </div>
       </section>
 
-      <section className="pt-20 border-t-4 border-black">
-          <button type="submit" disabled={isSubmitting} className={`w-full py-8 rounded-[2rem] font-black text-2xl text-white transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
+      <section className="pt-12 sm:pt-20 border-t-4 border-black">
+          <button type="submit" disabled={isSubmitting} className={`w-full py-5 sm:py-8 rounded-2xl sm:rounded-[2rem] font-black text-xl sm:text-2xl text-white transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
             {isSubmitting ? "Procesando Pipeline..." : "Enviar a Producción"}
           </button>
           {message && (
-            <div className={`mt-10 p-8 rounded-2xl text-center font-black text-xs border-4 uppercase tracking-[0.3em] animate-in zoom-in-95 ${message.includes("correctamente") ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-red-50 text-red-800 border-red-200"}`}>
+            <div className={`mt-6 sm:mt-10 p-5 sm:p-8 rounded-2xl text-center font-black text-xs border-4 uppercase tracking-[0.3em] animate-in zoom-in-95 ${message.includes("correctamente") ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-red-50 text-red-800 border-red-200"}`}>
               {message}
             </div>
           )}

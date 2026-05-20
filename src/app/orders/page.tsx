@@ -79,17 +79,17 @@ export default async function OrdersPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-12 px-4 bg-slate-100 min-h-screen">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8 border-b-4 border-slate-900 pb-12">
+    <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 bg-slate-100 min-h-screen">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8 border-b-4 border-slate-900 pb-8 sm:pb-12">
         <div className="space-y-2">
-          <h1 className="text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mis Pedidos</h1>
+          <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mis Pedidos</h1>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
             Sesión activa: <span className="text-[#FF4F00]">{email}</span>
           </p>
         </div>
         <Link 
           href="/orders/new" 
-          className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95"
+          className="bg-[#FF4F00] text-white px-6 py-4 sm:px-10 sm:py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95 w-full md:w-auto text-center"
         >
           + Nuevo Pedido
         </Link>
@@ -97,11 +97,11 @@ export default async function OrdersPage() {
 
       <div className="space-y-8">
         {orders.length === 0 ? (
-          <div className="py-40 text-center bg-white rounded-[3rem] border-2 border-slate-200 shadow-sm">
-            <p className="text-slate-300 font-black uppercase tracking-[0.4em] mb-10 text-sm">Historial de manufactura vacío</p>
+          <div className="py-20 sm:py-40 px-4 text-center bg-white rounded-3xl sm:rounded-[3rem] border-2 border-slate-200 shadow-sm">
+            <p className="text-slate-300 font-black uppercase tracking-[0.4em] mb-8 sm:mb-10 text-sm">Historial de manufactura vacío</p>
             <Link 
               href="/orders/new" 
-              className="inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-[#FF4F00] transition-all"
+              className="inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-[#FF4F00] transition-all w-full sm:w-auto text-center"
             >
               Iniciar primer pedido
             </Link>
@@ -123,18 +123,18 @@ export default async function OrdersPage() {
             const colorObject = isSingleColor ? fileColors[0] : null;
 
             return (
-              <div key={order.id} className="bg-white p-10 rounded-[2.5rem] border-2 border-slate-100 shadow-sm hover:border-[#FF4F00] transition-all group overflow-hidden relative">
+              <div key={order.id} className="bg-white p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border-2 border-slate-100 shadow-sm hover:border-[#FF4F00] transition-all group overflow-hidden relative">
                 {/* Status Indicator Bar */}
                 <div className={`absolute top-0 left-0 w-full h-1.5 ${order.status === 'PRINTING' ? 'bg-black' : 'bg-slate-50'}`}></div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                  <div className="lg:col-span-5 space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start lg:items-center">
+                  <div className="lg:col-span-5 space-y-6 sm:space-y-8 w-full min-w-0">
                     <div>
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-3 block leading-none">Activo Digital</span>
-                      <p className="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-[#FF4F00] transition-colors truncate" title={displayFileName}>{displayFileName}</p>
+                      <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter group-hover:text-[#FF4F00] transition-colors truncate" title={displayFileName}>{displayFileName}</p>
                     </div>
                     
-                    <div className="flex gap-16">
+                    <div className="flex flex-wrap gap-6 sm:gap-16">
                       <div>
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Polímero</span>
                         <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{displayPolymer}</p>
@@ -143,7 +143,7 @@ export default async function OrdersPage() {
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Cromática</span>
                         <div className="flex items-center gap-3">
                           {colorObject?.hexCode && (
-                            <div className="w-3 h-3 rounded-full border border-slate-200 shadow-inner" style={{ backgroundColor: colorObject.hexCode }} />
+                            <div className="w-3 h-3 rounded-full border border-slate-200 shadow-inner flex-shrink-0" style={{ backgroundColor: colorObject.hexCode }} />
                           )}
                           <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{displayColor}</p>
                         </div>
@@ -160,7 +160,7 @@ export default async function OrdersPage() {
                      )}
                   </div>
 
-                  <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
+                  <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-6 sm:gap-8 w-full">
                     <div className="text-left lg:text-right">
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2 block leading-none">Estado</span>
                       <span className={`inline-block px-4 py-1.5 rounded-lg border text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${getStatusStyle(order.status)}`}>
@@ -171,14 +171,14 @@ export default async function OrdersPage() {
                     {order.status === 'QUOTED' && (
                       <Link 
                         href={`/orders/${order.id}/pay`}
-                        className="bg-[#FF4F00] text-white px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95"
+                        className="bg-[#FF4F00] text-white px-8 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all shadow-xl shadow-orange-900/20 active:scale-95 w-full lg:w-auto text-center"
                       >
                         Confirmar Pedido
                       </Link>
                     )}
 
                     {order.price && order.status !== 'QUOTED' && (
-                      <div className="text-right">
+                      <div className="text-left lg:text-right">
                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mb-1 block leading-none">Inversión</span>
                         <p className="text-2xl font-black text-slate-900 tracking-tighter">${order.price.toFixed(2)}</p>
                       </div>

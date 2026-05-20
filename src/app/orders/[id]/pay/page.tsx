@@ -36,16 +36,16 @@ export default async function OrderPaymentPage({
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
-      <h1 className="text-4xl font-black text-slate-900 mb-8 tracking-tighter uppercase">Confirmar y <span className="text-blue-600">Pagar</span></h1>
+      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-8 tracking-tighter uppercase">Confirmar y <span className="text-blue-600">Pagar</span></h1>
 
-      <div className="bg-white border-4 border-slate-900 rounded-[2.5rem] p-10 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] space-y-10">
+      <div className="bg-white border-4 border-slate-900 rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] space-y-10">
         {/* Resumen */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b-4 border-slate-100 pb-8">
           <div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Costo Total</p>
             <p className="text-4xl font-black text-slate-900">${order.price.toFixed(2)}</p>
           </div>
-          <div className="md:text-right bg-blue-50 border-2 border-blue-100 px-6 py-4 rounded-2xl">
+          <div className="md:text-right bg-blue-50 border-2 border-blue-100 px-6 py-4 rounded-2xl w-full md:w-auto">
             <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 italic">Seña del 50% ✨</p>
             <p className="text-4xl font-black text-blue-600">${depositAmount.toFixed(2)}</p>
           </div>
