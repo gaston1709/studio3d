@@ -235,7 +235,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                         <p className="text-sm font-black text-black truncate max-w-[100px] sm:max-w-[240px] uppercase tracking-tight" title={f.file.name}>{f.file.name}</p>
                      </div>
                      <div className="flex items-center gap-4 flex-shrink-0">
-                       {f.file.name.toLowerCase().endsWith(".stl") && (
+                       {/\.(stl|obj)$/i.test(f.file.name) && (
                          <button 
                            type="button" 
                            onClick={() => setViewingFileId(viewingFileId === f.id ? null : f.id)} 
@@ -362,7 +362,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                     {/* 3D Viewer Area */}
                     {viewingFileId === f.id && (
                       <div className="md:col-span-2 pt-6 border-t-2 border-black/5 animate-in fade-in slide-in-from-top-4 duration-300">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Inspección de Malla 3D (STL)</label>
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Inspección de Malla 3D (STL / OBJ)</label>
                         <ThreeDViewer file={f.file} />
                       </div>
                     )}

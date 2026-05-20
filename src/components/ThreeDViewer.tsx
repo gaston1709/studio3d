@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 interface ThreeDViewerProps {
@@ -69,65 +70,83 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
-    // STL loader
-    const loader = new STLLoader();
+    // Material matching Studio3D brand accent (#FF4F00)
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xff4f00,
+      roughness: 0.4,
+      metalness: 0.1,
+    });
 
-    const loadGeometry = (geometry: THREE.BufferGeometry) => {
-      // Create material matching Studio3D brand accent (#FF4F00)
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xff4f00,
-        roughness: 0.4,
-        metalness: 0.1,
-      });
-
-      const mesh = new THREE.Mesh(geometry, material);
-
-      // Center the geometry
-      geometry.center();
-
+    const processLoadedObject = (object: THREE.Object3D) => {
       // Compute bounding box for dimensions
-      geometry.computeBoundingBox();
-      const box = geometry.boundingBox;
-      if (box) {
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const dims = {
-          x: Math.round(size.x * 10) / 10,
-          y: Math.round(size.y * 10) / 10,
-          z: Math.round(size.z * 10) / 10,
-        };
-        setDimensions(dims);
-        if (onDimensionsComputed) {
-          onDimensionsComputed(dims);
-        }
+      const box = new THREE.Box3().setFromObject(object);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      
+      const dims = {
+        x: Math.round(size.x * 10) / 10,
+        y: Math.round(size.y * 10) / 10,
+        z: Math.round(size.z * 10) / 10,
+      };
+      setDimensions(dims);
+      if (onDimensionsComputed) {
+        onDimensionsComputed(dims);
       }
 
-      scene.add(mesh);
+      // Center the object
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      object.position.sub(center);
 
-      // Adjust camera to fit geometry
-      geometry.computeBoundingSphere();
-      const sphere = geometry.boundingSphere;
-      if (sphere) {
-        const radius = sphere.radius;
-        camera.position.set(radius * 2, radius * 1.5, radius * 2);
-        camera.lookAt(mesh.position);
-        controls.target.copy(mesh.position);
-      }
+      scene.add(object);
+
+      // Adjust camera to fit
+      const sphere = new THREE.Sphere();
+      box.getBoundingSphere(sphere);
+      const radius = sphere.radius;
+      camera.position.set(radius * 2, radius * 1.5, radius * 2);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+      controls.target.set(0, 0, 0);
 
       setLoading(false);
     };
+
+    const loadSTLGeometry = (geometry: THREE.BufferGeometry) => {
+      const mesh = new THREE.Mesh(geometry, material);
+      processLoadedObject(mesh);
+    };
+
+    const loadOBJObject = (group: THREE.Group) => {
+      group.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = material;
+        }
+      });
+      processLoadedObject(group);
+    };
+
+    const fileName = file?.name || filePath || "";
+    const isOBJ = fileName.toLowerCase().endsWith(".obj");
 
     // Load file from File object or filePath string
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const buffer = e.target?.result as ArrayBuffer;
         try {
-          const geometry = loader.parse(buffer);
-          loadGeometry(geometry);
+          if (isOBJ) {
+            const text = e.target?.result as string;
+            const objLoader = new OBJLoader();
+            const group = objLoader.parse(text);
+            loadOBJObject(group);
+          } else {
+            const buffer = e.target?.result as ArrayBuffer;
+            const stlLoader = new STLLoader();
+            const geometry = stlLoader.parse(buffer);
+            loadSTLGeometry(geometry);
+          }
         } catch (err) {
           console.error(err);
-          setError("No se pudo parsear el archivo STL");
+          setError(`No se pudo parsear el archivo ${isOBJ ? 'OBJ' : 'STL'}`);
           setLoading(false);
         }
       };
@@ -135,20 +154,42 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
         setError("Error leyendo el archivo");
         setLoading(false);
       };
-      reader.readAsArrayBuffer(file);
+      
+      if (isOBJ) {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     } else if (filePath) {
-      loader.load(
-        filePath,
-        (geometry) => {
-          loadGeometry(geometry);
-        },
-        () => {},
-        (err) => {
-          console.error(err);
-          setError("Error cargando el archivo de impresión 3D");
-          setLoading(false);
-        }
-      );
+      if (isOBJ) {
+        const objLoader = new OBJLoader();
+        objLoader.load(
+          filePath,
+          (group) => {
+            loadOBJObject(group);
+          },
+          () => {},
+          (err) => {
+            console.error(err);
+            setError("Error cargando el archivo OBJ");
+            setLoading(false);
+          }
+        );
+      } else {
+        const stlLoader = new STLLoader();
+        stlLoader.load(
+          filePath,
+          (geometry) => {
+            loadSTLGeometry(geometry);
+          },
+          () => {},
+          (err) => {
+            console.error(err);
+            setError("Error cargando el archivo STL");
+            setLoading(false);
+          }
+        );
+      }
     } else {
       setError("No se especificó un archivo");
       setLoading(false);
