@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import OrderRatingForm from "@/components/OrderRatingForm";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,9 @@ export default async function OrdersPage() {
       case "PAYMENT_PENDING_VERIFICATION": return "Pago en Proceso";
       case "ACCEPTED": return "En Cola";
       case "PRINTING": return "Imprimiendo";
-      case "SHIPPED": return "Entregado";
+      case "FINISHED": return "Listo p/ Retirar";
+      case "SHIPPED": return "Enviado";
+      case "DELIVERED": return "Entregado";
       case "CANCELLED": return "Cancelado";
       default: return status;
     }
@@ -51,8 +54,13 @@ export default async function OrdersPage() {
     switch (status) {
       case "PRINTING": return "bg-black text-white border-black";
       case "QUOTED": return "bg-white text-[#FF4F00] border-[#FF4F00]";
-      case "SHIPPED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "PAYMENT_PENDING_VERIFICATION": return "bg-amber-50 text-amber-700 border-amber-200";
+      case "ACCEPTED": return "bg-blue-50 text-blue-700 border-blue-200";
+      case "FINISHED": return "bg-orange-50 text-[#FF4F00] border-[#FF4F00]";
+      case "SHIPPED": return "bg-purple-50 text-purple-700 border-purple-200";
+      case "DELIVERED": return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "PENDING_QUOTE": return "bg-white text-slate-400 border-slate-200";
+      case "CANCELLED": return "bg-red-50 text-red-700 border-red-200";
       default: return "bg-white text-slate-700 border-slate-200";
     }
   };
@@ -66,7 +74,7 @@ export default async function OrdersPage() {
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
     const range = `${prev.toLocaleDateString('es-ES', options)} - ${d.toLocaleDateString('es-ES', options)}`;
     
-    const isConfirmed = ["ACCEPTED", "PRINTING", "SHIPPED"].includes(status);
+    const isConfirmed = ["ACCEPTED", "PRINTING", "FINISHED", "SHIPPED", "DELIVERED"].includes(status);
     
     return (
       <div className="flex flex-col">
@@ -185,6 +193,65 @@ export default async function OrdersPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Footer Section: Tracking & Ratings */}
+                {((order.status === "SHIPPED" && order.trackingLink) || order.status === "DELIVERED") && (
+                  <div className="mt-8 pt-6 border-t-2 border-slate-100 flex flex-col gap-6">
+                    {order.status === "SHIPPED" && order.trackingLink && (
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-orange-50/50 p-6 rounded-2xl border-2 border-orange-100">
+                        <div>
+                          <p className="text-xs font-black text-slate-900 uppercase tracking-widest mb-1">Tu pedido está en camino</p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Seguí el viaje en tiempo real usando el link de la logística</p>
+                        </div>
+                        <a
+                          href={order.trackingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[#FF4F00] text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all text-center inline-flex items-center gap-2 border-2 border-slate-900 shadow-md active:scale-95 shrink-0"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A2 2 0 013 15.485V6.877a2 2 0 011.236-1.87l6-2.5a2 2 0 011.528 0l6 2.5a2 2 0 011.236 1.87v8.608a2 2 0 01-1.236 1.87L13 20a2 2 0 01-1.528 0L9 20z" />
+                          </svg>
+                          Seguir Envío
+                        </a>
+                      </div>
+                    )}
+
+                    {order.status === "DELIVERED" && (
+                      <div>
+                        {order.rating !== null ? (
+                          <div className="bg-slate-50 p-6 rounded-2xl border-2 border-slate-200">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Tu Opinión Enviada</p>
+                            <div className="flex items-center gap-1 mb-3">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <svg
+                                  key={star}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill={star <= (order.rating ?? 0) ? "#FF4F00" : "none"}
+                                  stroke="#000"
+                                  strokeWidth={2}
+                                  className="w-5 h-5"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.15-.343.64-.343.79 0l2.3 4.658 5.137.747c.379.055.53.518.256.787l-3.717 3.623.878 5.117c.064.375-.329.66-.668.48l-4.594-2.414-4.594 2.414c-.339.18-.732-.105-.668-.48l.878-5.117L3.1 10.428c-.275-.269-.123-.732.257-.787l5.137-.747 2.3-4.658z" />
+                                </svg>
+                              ))}
+                            </div>
+                            {order.ratingComment && (
+                              <p className="text-sm font-bold text-slate-600 italic bg-white p-4 rounded-xl border border-slate-100">
+                                &quot;{order.ratingComment}&quot;
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="max-w-md">
+                            <OrderRatingForm orderId={order.id} />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })

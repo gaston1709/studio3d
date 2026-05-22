@@ -10,6 +10,7 @@ interface QuoteFormProps {
     printTimeEstimated: number | null;
     estimatedDelivery: string | Date | null;
     status: string;
+    trackingLink?: string | null;
   };
 }
 
@@ -20,6 +21,7 @@ export default function QuoteForm({ order }: QuoteFormProps) {
     order.estimatedDelivery ? new Date(order.estimatedDelivery).toISOString().split("T")[0] : ""
   );
   const [status, setStatus] = useState(order.status);
+  const [trackingLink, setTrackingLink] = useState(order.trackingLink || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
@@ -36,6 +38,7 @@ export default function QuoteForm({ order }: QuoteFormProps) {
           printTimeEstimated: parseFloat(hours),
           estimatedDelivery: deliveryDate ? new Date(deliveryDate).toISOString() : null,
           status,
+          trackingLink: status === "SHIPPED" ? trackingLink : null,
         }),
       });
 
@@ -64,7 +67,9 @@ export default function QuoteForm({ order }: QuoteFormProps) {
           <option value="PAYMENT_PENDING_VERIFICATION">Pago en Verificación</option>
           <option value="ACCEPTED">Aceptado / Confirmar Fecha</option>
           <option value="PRINTING">En Impresión</option>
-          <option value="SHIPPED">Enviado / Finalizado</option>
+          <option value="FINISHED">Finalizado (Listo para retirar/coordinar)</option>
+          <option value="SHIPPED">Enviado</option>
+          <option value="DELIVERED">Recibido / Entregado</option>
           <option value="CANCELLED">Cancelado</option>
         </select>
       </div>
@@ -109,10 +114,26 @@ export default function QuoteForm({ order }: QuoteFormProps) {
         )}
       </div>
 
+      {status === "SHIPPED" && (
+        <div className="p-6 rounded-2xl border-4 border-slate-900 bg-orange-50/30 transition-all">
+          <label className="block text-[10px] font-black text-[#FF4F00] uppercase tracking-widest mb-2">
+            🔗 Enlace de Seguimiento (Uber, Cabify, Correo, etc.)
+          </label>
+          <input
+            type="url"
+            value={trackingLink}
+            onChange={(e) => setTrackingLink(e.target.value)}
+            className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-black text-slate-900 focus:border-[#FF4F00] outline-none bg-white"
+            placeholder="https://..."
+            required={status === "SHIPPED"}
+          />
+        </div>
+      )}
+
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:bg-slate-300"
+        className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#FF4F00] hover:shadow-[#FF4F00]/10 transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:bg-slate-300 border-4 border-slate-900"
       >
         {isSubmitting ? "Guardando..." : "Actualizar Pedido"}
       </button>

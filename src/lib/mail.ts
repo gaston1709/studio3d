@@ -152,6 +152,66 @@ export const mailTemplates = {
     `,
   }),
 
+  orderFinished: (orderId: string, fileName: string) => ({
+    subject: `¡Pedido Finalizado! ${fileName} - S3D`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; background-color: #F1F5F9; padding: 40px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1);">
+        <h2 style="color: #000; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">Producción Finalizada</h2>
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">¡Excelentes noticias! Tu pedido <strong>${fileName}</strong> ha finalizado la etapa de manufactura y superado el control de calidad.</p>
+        
+        <div style="margin: 40px 0; padding: 32px; background-color: #000; border-radius: 24px; text-align: center; color: white;">
+          <p style="margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em;">PIEZA TERMINADA</p>
+        </div>
+
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">Nos comunicaremos a la brevedad para coordinar el envío en caso de ser necesario, o bien ya podés pasar a retirarlo si seleccionaste retiro en local.</p>
+
+        <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 40px 0;" />
+        <p style="font-size: 10px; font-weight: 900; color: #999; text-transform: uppercase; letter-spacing: 0.3em; text-align: center;">S3D • Manufactura de Precisión</p>
+      </div>
+    `,
+  }),
+
+  orderShipped: (orderId: string, fileName: string, trackingLink: string) => ({
+    subject: `Tu pedido está en camino: ${fileName} - S3D`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; background-color: #F1F5F9; padding: 40px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1);">
+        <h2 style="color: #000; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">Envío Iniciado</h2>
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">Tu pedido <strong>${fileName}</strong> ya está en camino hacia tu destino.</p>
+        
+        <div style="margin: 40px 0; padding: 32px; background-color: #FF4F00; border-radius: 24px; text-align: center; color: white;">
+          <p style="margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em;">PEDIDO ENVIADO</p>
+          ${trackingLink ? `<a href="${trackingLink}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background-color: #FFFFFF; color: #FF4F00; text-decoration: none; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Seguir Envío (Uber / Logística)</a>` : ''}
+        </div>
+
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">Si el botón anterior no funciona, podés copiar y pegar este enlace en tu navegador:</p>
+        <p style="word-break: break-all; font-size: 12px; color: #666;">${trackingLink || "No provisto"}</p>
+
+        <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 40px 0;" />
+        <p style="font-size: 10px; font-weight: 900; color: #999; text-transform: uppercase; letter-spacing: 0.3em; text-align: center;">S3D • Manufactura de Precisión</p>
+      </div>
+    `,
+  }),
+
+  orderDelivered: (orderId: string, fileName: string) => ({
+    subject: `Entregado: Califica tu experiencia con ${fileName} - S3D`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; background-color: #F1F5F9; padding: 40px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.1);">
+        <h2 style="color: #000; font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.05em; margin-bottom: 24px;">Pedido Entregado</h2>
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">Tu pedido <strong>${fileName}</strong> ha sido marcado como entregado/recibido.</p>
+        
+        <div style="margin: 40px 0; padding: 32px; background-color: #0f172a; border-radius: 24px; text-align: center; color: white;">
+          <p style="margin: 0; font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em;">¡RECIBIDO!</p>
+          <a href="${process.env.NEXTAUTH_URL}/orders" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background-color: #FF4F00; color: #FFFFFF; text-decoration: none; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;">Calificar Experiencia</a>
+        </div>
+
+        <p style="color: #444; font-size: 16px; line-height: 1.6;">Nos encantaría recibir tu opinión para seguir mejorando nuestro servicio de manufactura.</p>
+
+        <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 40px 0;" />
+        <p style="font-size: 10px; font-weight: 900; color: #999; text-transform: uppercase; letter-spacing: 0.3em; text-align: center;">S3D • Manufactura de Precisión</p>
+      </div>
+    `,
+  }),
+
   welcome: (name: string) => ({
     subject: `Bienvenido a S3D - ${name}`,
     html: `

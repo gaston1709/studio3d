@@ -27,7 +27,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { price, printTimeEstimated, status, estimatedDelivery } = body;
+    const { price, printTimeEstimated, status, estimatedDelivery, trackingLink } = body;
 
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
@@ -36,6 +36,7 @@ export async function PATCH(
         printTimeEstimated,
         status,
         estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : null,
+        trackingLink: trackingLink !== undefined ? trackingLink : undefined,
       },
       include: { files: true }
     });
@@ -57,8 +58,14 @@ export async function PATCH(
         case "PRINTING":
           template = mailTemplates.orderPrinting(orderId, displayFileName);
           break;
+        case "FINISHED":
+          template = mailTemplates.orderFinished(orderId, displayFileName);
+          break;
         case "SHIPPED":
-          template = mailTemplates.orderReady(orderId, displayFileName);
+          template = mailTemplates.orderShipped(orderId, displayFileName, trackingLink || updatedOrder.trackingLink || "");
+          break;
+        case "DELIVERED":
+          template = mailTemplates.orderDelivered(orderId, displayFileName);
           break;
       }
 

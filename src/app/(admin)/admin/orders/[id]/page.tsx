@@ -102,6 +102,59 @@ export default async function OrderDetailPage({
             </div>
           </div>
 
+          {/* SEGUIMIENTO Y CALIFICACIÓN */}
+          {(order.trackingLink || order.rating !== null) && (
+            <div className="bg-white border-4 border-slate-900 p-8 rounded-[2rem] shadow-sm space-y-6">
+              <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                 <span className="w-4 h-1 bg-[#FF4F00] rounded-full"></span>
+                 Seguimiento y Opinión del Cliente
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {order.trackingLink && (
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Link de Seguimiento</p>
+                    <a
+                      href={order.trackingLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-black text-[#FF4F00] hover:underline break-all"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      Ver Seguimiento Externo
+                    </a>
+                  </div>
+                )}
+                {order.rating !== null && (
+                  <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Calificación del Cliente</p>
+                    <div className="flex items-center gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg
+                          key={star}
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill={star <= (order.rating ?? 0) ? "#FF4F00" : "none"}
+                          stroke="#000"
+                          strokeWidth={2}
+                          className="w-6 h-6"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c.15-.343.64-.343.79 0l2.3 4.658 5.137.747c.379.055.53.518.256.787l-3.717 3.623.878 5.117c.064.375-.329.66-.668.48l-4.594-2.414-4.594 2.414c-.339.18-.732-.105-.668-.48l.878-5.117L3.1 10.428c-.275-.269-.123-.732.257-.787l5.137-.747 2.3-4.658z" />
+                        </svg>
+                      ))}
+                    </div>
+                    {order.ratingComment && (
+                      <p className="text-sm font-bold text-slate-700 italic bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
+                        &quot;{order.ratingComment}&quot;
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* 2. ESPECIFICACIONES TÉCNICAS */}
           <div className="bg-slate-50 border-4 border-slate-900 p-8 rounded-[2rem] shadow-sm space-y-8">
             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 flex items-center gap-2">

@@ -15,7 +15,7 @@ export default async function AdminDashboard() {
     { label: "Análisis Pendiente", count: getCount("PENDING_QUOTE"), color: "bg-amber-500", link: "/admin/orders" },
     { label: "En Cola", count: getCount("ACCEPTED"), color: "bg-black", link: "/admin/queue" },
     { label: "Manufacturando", count: getCount("PRINTING"), color: "bg-emerald-500", link: "/admin/queue" },
-    { label: "Listos p/ Entregar", count: getCount("SHIPPED"), color: "bg-slate-300", link: "/admin/orders" },
+    { label: "Listos p/ Entregar", count: getCount("FINISHED"), color: "bg-slate-300", link: "/admin/orders" },
   ];
 
   return (

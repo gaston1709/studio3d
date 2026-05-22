@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import OrderForm from "@/components/OrderForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewOrderPage() {
   const materials = await prisma.material.findMany({
     where: { isActive: true },

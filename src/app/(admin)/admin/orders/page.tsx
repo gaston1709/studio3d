@@ -23,9 +23,13 @@ export default async function AdminOrdersPage() {
     switch (status) {
       case "PENDING_QUOTE": return "bg-white text-slate-400 border-slate-200";
       case "QUOTED": return "bg-white text-slate-900 border-slate-900";
-      case "ACCEPTED": return "bg-[#FF4F00] text-white border-[#FF4F00]";
+      case "PAYMENT_PENDING_VERIFICATION": return "bg-amber-50 text-amber-600 border-amber-500";
+      case "ACCEPTED": return "bg-blue-50 text-blue-600 border-blue-500";
       case "PRINTING": return "bg-black text-white border-black";
-      case "SHIPPED": return "bg-emerald-50 text-white border-emerald-600";
+      case "FINISHED": return "bg-orange-50 text-[#FF4F00] border-[#FF4F00]";
+      case "SHIPPED": return "bg-purple-50 text-purple-600 border-purple-500";
+      case "DELIVERED": return "bg-emerald-50 text-emerald-600 border-emerald-500";
+      case "CANCELLED": return "bg-red-50 text-red-600 border-red-500";
       default: return "bg-slate-50 text-slate-400 border-slate-200";
     }
   };
@@ -34,9 +38,12 @@ export default async function AdminOrdersPage() {
     switch (status) {
       case "PENDING_QUOTE": return "Análisis";
       case "QUOTED": return "Cotizado";
+      case "PAYMENT_PENDING_VERIFICATION": return "Verificando Pago";
       case "ACCEPTED": return "En Cola";
       case "PRINTING": return "Imprimiendo";
-      case "SHIPPED": return "Entregado";
+      case "FINISHED": return "Listo p/ Entregar";
+      case "SHIPPED": return "Enviado";
+      case "DELIVERED": return "Entregado";
       case "CANCELLED": return "Cancelado";
       default: return status;
     }

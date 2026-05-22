@@ -79,6 +79,9 @@ model Order {
   estimatedDelivery   DateTime?   
   queuePosition       Int         @default(0) 
   adminNotes          String?
+  trackingLink        String?
+  rating              Int?
+  ratingComment       String?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 }
