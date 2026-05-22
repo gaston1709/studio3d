@@ -3,9 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function QuoteForm({ order }: { order: any }) {
-  const [price, setPrice] = useState(order.price || "");
-  const [hours, setHours] = useState(order.printTimeEstimated || "");
+interface QuoteFormProps {
+  order: {
+    id: string;
+    price: number | null;
+    printTimeEstimated: number | null;
+    estimatedDelivery: string | Date | null;
+    status: string;
+  };
+}
+
+export default function QuoteForm({ order }: QuoteFormProps) {
+  const [price, setPrice] = useState<string>(order.price !== null ? String(order.price) : "");
+  const [hours, setHours] = useState<string>(order.printTimeEstimated !== null ? String(order.printTimeEstimated) : "");
   const [deliveryDate, setDeliveryDate] = useState(
     order.estimatedDelivery ? new Date(order.estimatedDelivery).toISOString().split("T")[0] : ""
   );
@@ -33,7 +43,7 @@ export default function QuoteForm({ order }: { order: any }) {
         router.refresh();
         alert("Pedido actualizado correctamente");
       }
-    } catch (error) {
+    } catch {
       alert("Error al actualizar");
     } finally {
       setIsSubmitting(false);
@@ -94,7 +104,7 @@ export default function QuoteForm({ order }: { order: any }) {
         />
         {status !== 'ACCEPTED' && (
           <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">
-            * Se recomienda confirmar la fecha definitiva al pasar a "Aceptado".
+            * Se recomienda confirmar la fecha definitiva al pasar a &quot;Aceptado&quot;.
           </p>
         )}
       </div>

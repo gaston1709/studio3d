@@ -30,7 +30,7 @@ export default function TermsPage() {
             <span className="text-[#FF4F00]">03.</span> Protocolo de Confirmación y Seña
           </h2>
           <p className="font-medium bg-slate-100 p-6 rounded-xl border-l-4 border-[#FF4F00] italic">
-            "La activación del ciclo de manufactura requiere la validación de una seña equivalente al 50% del presupuesto técnico. Una vez procesada la orden y asignada a una celda de impresión, el monto no es reembolsable debido al consumo de materia prima y reserva de tiempo operativo."
+            &quot;La activación del ciclo de manufactura requiere la validación de una seña equivalente al 50% del presupuesto técnico. Una vez procesada la orden y asignada a una celda de impresión, el monto no es reembolsable debido al consumo de materia prima y reserva de tiempo operativo.&quot;
           </p>
         </section>
 

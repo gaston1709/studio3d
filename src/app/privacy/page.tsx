@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             <span className="text-[#FF4F00]">03.</span> Seguridad de los Archivos
           </h2>
           <p className="font-medium bg-slate-100 p-6 rounded-xl border-l-4 border-[#FF4F00] italic">
-            "Todo activo digital (.STL, .STEP, .3MF) está resguardado en servidores seguros. Studio3D garantiza absoluta confidencialidad sobre la propiedad intelectual y el diseño del cliente."
+            &quot;Todo activo digital (.STL, .STEP, .3MF) está resguardado en servidores seguros. Studio3D garantiza absoluta confidencialidad sobre la propiedad intelectual y el diseño del cliente.&quot;
           </p>
         </section>
 

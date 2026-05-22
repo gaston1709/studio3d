@@ -6,13 +6,13 @@ import { writeFile, mkdir } from "fs/promises";
 import fs from "fs";
 import path from "path";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const images = await prisma.carouselImage.findMany({
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(images);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if ((session?.user as any)?.role !== "ADMIN") {
+    if (session?.user?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

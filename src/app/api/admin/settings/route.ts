@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const settings = await prisma.appSettings.findUnique({
       where: { id: "singleton" }
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Error fetching settings" }, { status: 500 });
   }
 }
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if ((session?.user as any)?.role !== "ADMIN") {
+    if (session?.user?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(settings);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Error updating settings" }, { status: 500 });
   }
 }

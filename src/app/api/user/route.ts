@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const updateData: any = {};
+    const updateData: { name?: string; phone?: string; password?: string } = {};
     if (name) updateData.name = name;
     if (phone) updateData.phone = phone;
 

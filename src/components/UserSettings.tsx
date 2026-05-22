@@ -15,14 +15,23 @@ export default function UserSettings() {
 
   useEffect(() => {
     if (session?.user) {
-      setName(session.user.name || "");
-      // Fetch phone from a dedicated call if needed, or assume it's in session if updated
-      const fetchUserData = async () => {
-          const res = await fetch('/api/auth/session');
-          const data = await res.json();
-          if (data?.user?.phone) setPhone(data.user.phone);
-      };
-      fetchUserData();
+      setTimeout(() => {
+        setName(session.user.name || "");
+        const fetchUserData = async () => {
+          try {
+            const res = await fetch('/api/auth/session');
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.user?.phone) {
+                setPhone(data.user.phone);
+              }
+            }
+          } catch {
+            console.error("Error loading session");
+          }
+        };
+        fetchUserData();
+      }, 0);
     }
   }, [session]);
 
@@ -54,7 +63,7 @@ export default function UserSettings() {
       } else {
         setMessage({ text: data.error || "Error al actualizar", type: "error" });
       }
-    } catch (err) {
+    } catch {
       setMessage({ text: "Error de conexión", type: "error" });
     } finally {
       setIsSubmitting(false);
@@ -75,7 +84,7 @@ export default function UserSettings() {
                 <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
                     <span className="w-8 h-[2px] bg-black"></span> 01. Info
                 </h3>
-                <p className="text-xs text-slate-500 font-medium italic">"Identidad digital y enlace directo."</p>
+                <p className="text-xs text-slate-500 font-medium italic">&quot;Identidad digital y enlace directo.&quot;</p>
             </div>
             <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -106,7 +115,7 @@ export default function UserSettings() {
                 <h3 className="text-[11px] font-black text-black uppercase tracking-[0.3em] mb-4 flex items-center gap-4">
                     <span className="w-8 h-[2px] bg-black"></span> 02. Seguridad
                 </h3>
-                <p className="text-xs text-slate-500 font-medium italic">"Cambie su clave de acceso periódicamente."</p>
+                <p className="text-xs text-slate-500 font-medium italic">&quot;Cambie su clave de acceso periódicamente.&quot;</p>
             </div>
             <div className="md:col-span-8 space-y-8">
                 <div>

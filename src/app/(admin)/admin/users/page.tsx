@@ -20,10 +20,6 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = async () => {
     try {
       const res = await fetch("/api/admin/users");
@@ -33,12 +29,18 @@ export default function UserManagementPage() {
       } else {
         setError("Error al cargar usuarios");
       }
-    } catch (err) {
+    } catch {
       setError("Falla de conexión");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetchUsers();
+    }, 0);
+  }, []);
 
   const toggleRole = async (user: User) => {
     const newRole = user.role === "ADMIN" ? "CLIENT" : "ADMIN";
@@ -63,7 +65,7 @@ export default function UserManagementPage() {
         const data = await res.json();
         alert(data.error || "Error al actualizar rol");
       }
-    } catch (err) {
+    } catch {
       alert("Error de conexión");
     }
   };
@@ -87,7 +89,7 @@ export default function UserManagementPage() {
         const data = await res.json();
         alert(data.error || "Error al eliminar usuario");
       }
-    } catch (err) {
+    } catch {
       alert("Error de conexión");
     }
   };

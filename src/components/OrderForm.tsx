@@ -179,7 +179,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
         const data = await res.json();
         setMessage(data.error || "Error en el procesamiento.");
       }
-    } catch (error) {
+    } catch {
       setMessage("Error de enlace con el servidor.");
     } finally {
       setIsSubmitting(false);

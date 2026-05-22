@@ -7,7 +7,7 @@ import { useState } from "react";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

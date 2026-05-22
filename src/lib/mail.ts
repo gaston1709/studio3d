@@ -39,11 +39,12 @@ export async function sendEmail({
     );
 
     return { success: true, messageId: info.messageId };
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as { code?: string; response?: string; stack?: string };
     console.error(
-      `❌ [MAILER ERROR] Code: ${error.code} | To: ${to} | Response: ${error.response}`
+      `❌ [MAILER ERROR] Code: ${err.code} | To: ${to} | Response: ${err.response}`
     );
-    console.error(error.stack);
+    console.error(err.stack);
     return { success: false, error };
   }
 }

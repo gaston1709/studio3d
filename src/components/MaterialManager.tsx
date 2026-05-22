@@ -20,7 +20,7 @@ interface Material {
 
 export default function MaterialManager({ initialMaterials }: { initialMaterials: Material[] }) {
   const router = useRouter();
-  const [materials, setMaterials] = useState(initialMaterials);
+  const [materials] = useState(initialMaterials);
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const [isColorModalOpen, setIsColorModalOpen] = useState(false);
   

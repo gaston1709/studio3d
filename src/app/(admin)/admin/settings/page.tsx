@@ -10,10 +10,6 @@ export default function PaymentSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   const fetchSettings = async () => {
     try {
       const res = await fetch("/api/admin/settings");
@@ -28,6 +24,12 @@ export default function PaymentSettingsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetchSettings();
+    }, 0);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +48,7 @@ export default function PaymentSettingsPage() {
       } else {
         setMessage("Error al guardar la configuración");
       }
-    } catch (err) {
+    } catch {
       setMessage("Error de conexión");
     } finally {
       setIsSaving(false);

@@ -17,10 +17,6 @@ export default function CarouselManagerPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchImages();
-  }, []);
-
   const fetchImages = async () => {
     try {
       const res = await fetch("/api/admin/carousel");
@@ -32,6 +28,12 @@ export default function CarouselManagerPage() {
       console.error("Error fetching images", error);
     }
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetchImages();
+    }, 0);
+  }, []);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();

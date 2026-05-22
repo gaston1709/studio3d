@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
 
     // Technical Specs
     const purpose = (formData.get("purpose") as string) || "aesthetic";
-    const scaleFactor = (formData.get("scaleFactor") as string) || "100%";
 
     // Delivery Prefs
     const desiredDate = formData.get("desiredDate") as string;
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Find User
-    let user = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email },
     });
 
@@ -71,7 +70,19 @@ export async function POST(req: NextRequest) {
     }
 
     const uploadDir = path.join(process.cwd(), "uploads");
-    const orderFileData: any[] = [];
+    const orderFileData: {
+      fileName: string;
+      filePath: string;
+      materialId: string | null;
+      colorId: string | null;
+      customMaterial: string | null;
+      customColor: string | null;
+      infillType: string;
+      infillPercentage: number | null;
+      layerHeightType: string;
+      layerHeightManual: number | null;
+      scaleFactor: string;
+    }[] = [];
 
     for (const entry of fileEntries) {
       const bytes = await entry.file.arrayBuffer();

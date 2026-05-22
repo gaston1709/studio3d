@@ -29,7 +29,7 @@ export async function POST(
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
 
-    const isAdmin = (session.user as any).role === "ADMIN";
+    const isAdmin = session.user.role === "ADMIN";
     const isOwner = orderBefore.user.email === session.user.email;
 
     if (!isAdmin && !isOwner) {

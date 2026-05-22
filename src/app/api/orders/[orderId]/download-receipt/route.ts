@@ -25,7 +25,7 @@ export async function GET(
       return new NextResponse("Receipt not found", { status: 404 });
     }
 
-    const isAdmin = (session.user as any).role === "ADMIN";
+    const isAdmin = session.user.role === "ADMIN";
     const isOwner = order.user.email === session.user.email;
 
     if (!isAdmin && !isOwner) {

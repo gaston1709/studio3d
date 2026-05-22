@@ -139,7 +139,7 @@ export default function QueueManager({ initialOrders }: { initialOrders: Order[]
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderIds: newOrders.map((o) => o.id) }),
         });
-      } catch (error) {
+      } catch {
         console.error("Failed to save queue order");
       } finally {
         setIsSaving(false);

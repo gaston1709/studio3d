@@ -11,7 +11,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
   
   // If user is admin, redirect to admin dashboard directly
-  if ((session?.user as any)?.role === "ADMIN") {
+  if (session?.user?.role === "ADMIN") {
     redirect("/admin");
   }
 
@@ -125,16 +125,18 @@ export default async function Home() {
                 <div key={img.id} className="w-[85vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
                   <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all shadow-sm h-full flex flex-col">
                     <div className="aspect-square bg-slate-50 relative overflow-hidden">
-                      <img
+                      <Image
                         src={`/uploads/carousel/${img.fileName}`}
                         alt={img.caption || "Showcase"}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 85vw, (max-width: 1024px) 40vw, 28vw"
                       />
                     </div>
                     {img.caption && (
                       <div className="p-8 flex-grow flex items-center justify-center border-t border-slate-50">
                         <p className="text-[13px] text-slate-500 font-medium leading-relaxed italic text-center">
-                          "{img.caption}"
+                          &quot;{img.caption}&quot;
                         </p>
                       </div>
                     )}
@@ -180,7 +182,7 @@ export default async function Home() {
                 <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
               </div>
               <div className="p-10 space-y-8">
-                <p className="text-[13px] text-slate-500 font-medium leading-relaxed line-clamp-5 italic">"{m.description}"</p>
+                <p className="text-[13px] text-slate-500 font-medium leading-relaxed line-clamp-5 italic">&quot;{m.description}&quot;</p>
                 <div className="flex flex-wrap gap-3">
                   {m.colors.map((c) => (
                     <div 

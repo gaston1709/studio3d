@@ -41,7 +41,7 @@ export default function SignUp() {
         const data = await res.json();
         setError(data.error || "Error de registro");
       }
-    } catch (error) {
+    } catch {
       setError("Falla de enlace crítico");
     } finally {
       setIsSubmitting(false);

@@ -32,7 +32,13 @@ export default async function OrderDetailPage({
   }
 
   // Helper to render material/color display
-  const renderConfig = (item: { materialId?: string|null, material?: any, color?: any, customMaterial?: string|null, customColor?: string|null }) => {
+  const renderConfig = (item: { 
+    materialId?: string | null; 
+    material?: { name: string } | null; 
+    color?: { name: string; hexCode: string } | null; 
+    customMaterial?: string | null; 
+    customColor?: string | null; 
+  }) => {
     if (item.materialId) {
         return (
           <div className="flex items-center gap-3">
@@ -50,32 +56,12 @@ export default async function OrderDetailPage({
     );
   };
 
-  const translateShipping = (method: string | null) => {
-    switch (method) {
-      case "local": return "Retiro en Local (CBA)";
-      case "point_nv": return "Punto Retiro: Nueva Córdoba";
-      case "point_ga": return "Punto Retiro: General Paz";
-      case "moto": return "Envío en Moto / Uber";
-      default: return "No definido";
-    }
-  };
-
   const translatePurpose = (p: string) => {
     switch (p) {
       case "aesthetic": return "Estético (Figura/Maqueta)";
       case "decorative": return "Decorativo (Uso diario)";
       case "mechanical": return "Mecánico (Resistencia)";
       default: return p;
-    }
-  };
-
-  const translateLayerHeight = (type: string, val: number | null) => {
-    switch (type) {
-      case "fast": return "Rápido (0.28mm)";
-      case "standard": return "Estándar (0.20mm)";
-      case "detailed": return "Detalle (0.12mm)";
-      case "manual": return `Manual (${val}mm)`;
-      default: return type;
     }
   };
 
@@ -135,7 +121,7 @@ export default async function OrderDetailPage({
                     📅 {order.desiredDate ? new Date(order.desiredDate).toLocaleDateString() : "Sin fecha preferida"}
                   </p>
                   {order.deliveryNotes && (
-                    <p className="text-xs font-bold text-slate-500 italic">" {order.deliveryNotes} "</p>
+                    <p className="text-xs font-bold text-slate-500 italic">&quot; {order.deliveryNotes} &quot;</p>
                   )}
                 </div>
               </div>

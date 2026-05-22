@@ -21,19 +21,15 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
   useEffect(() => {
     if (!containerRef.current) return;
 
-    let scene: THREE.Scene;
-    let camera: THREE.PerspectiveCamera;
-    let renderer: THREE.WebGLRenderer;
-    let controls: OrbitControls;
     let animationFrameId: number;
     const container = containerRef.current;
 
     // Create scene
-    scene = new THREE.Scene();
+    const scene = new THREE.Scene();
     scene.background = new THREE.Color("#f8fafc"); // Slate 50 to match dashboard backgrounds
 
     // Create camera
-    camera = new THREE.PerspectiveCamera(
+    const camera = new THREE.PerspectiveCamera(
       45,
       container.clientWidth / container.clientHeight,
       0.1,
@@ -41,14 +37,14 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     );
 
     // Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
     // Create controls
-    controls = new OrbitControls(camera, renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.maxPolarAngle = Math.PI / 2; // Don't let users look below grid level
@@ -88,10 +84,6 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
         y: Math.round(size.y * 10) / 10,
         z: Math.round(size.z * 10) / 10,
       };
-      setDimensions(dims);
-      if (onDimensionsComputed) {
-        onDimensionsComputed(dims);
-      }
 
       // Center the object
       const center = new THREE.Vector3();
@@ -108,7 +100,13 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       controls.target.set(0, 0, 0);
 
-      setLoading(false);
+      setTimeout(() => {
+        setDimensions(dims);
+        if (onDimensionsComputed) {
+          onDimensionsComputed(dims);
+        }
+        setLoading(false);
+      }, 0);
     };
 
     const loadSTLGeometry = (geometry: THREE.BufferGeometry) => {
@@ -146,13 +144,17 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           }
         } catch (err) {
           console.error(err);
-          setError(`No se pudo parsear el archivo ${isOBJ ? 'OBJ' : 'STL'}`);
-          setLoading(false);
+          setTimeout(() => {
+            setError(`No se pudo parsear el archivo ${isOBJ ? 'OBJ' : 'STL'}`);
+            setLoading(false);
+          }, 0);
         }
       };
       reader.onerror = () => {
-        setError("Error leyendo el archivo");
-        setLoading(false);
+        setTimeout(() => {
+          setError("Error leyendo el archivo");
+          setLoading(false);
+        }, 0);
       };
       
       if (isOBJ) {
@@ -171,8 +173,10 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           () => {},
           (err) => {
             console.error(err);
-            setError("Error cargando el archivo OBJ");
-            setLoading(false);
+            setTimeout(() => {
+              setError("Error cargando el archivo OBJ");
+              setLoading(false);
+            }, 0);
           }
         );
       } else {
@@ -185,14 +189,18 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           () => {},
           (err) => {
             console.error(err);
-            setError("Error cargando el archivo STL");
-            setLoading(false);
+            setTimeout(() => {
+              setError("Error cargando el archivo STL");
+              setLoading(false);
+            }, 0);
           }
         );
       }
     } else {
-      setError("No se especificó un archivo");
-      setLoading(false);
+      setTimeout(() => {
+        setError("No se especificó un archivo");
+        setLoading(false);
+      }, 0);
     }
 
     // Animation loop
@@ -224,7 +232,7 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
         container.removeChild(renderer.domElement);
       }
     };
-  }, [file, filePath]);
+  }, [file, filePath, onDimensionsComputed]);
 
   return (
     <div className="relative w-full h-full min-h-[300px] sm:min-h-[450px] bg-slate-50 rounded-3xl overflow-hidden border-2 border-slate-900/5 shadow-inner flex flex-col justify-between">
