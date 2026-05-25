@@ -1,11 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export default function ThreeDPrinterSimulator() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<"solid" | "wireframe" | "gcode">("solid");
+  const [sliceHeight, setSliceHeight] = useState(100); // 0 to 100 percentage
+  const [autoRotate, setAutoRotate] = useState(true);
+
+  // Keep state in refs for the animation loop
+  const viewModeRef = useRef(viewMode);
+  useEffect(() => { viewModeRef.current = viewMode; }, [viewMode]);
+
+  const sliceHeightRef = useRef(sliceHeight);
+  useEffect(() => { sliceHeightRef.current = sliceHeight; }, [sliceHeight]);
+
+  const autoRotateRef = useRef(autoRotate);
+  useEffect(() => { autoRotateRef.current = autoRotate; }, [autoRotate]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -13,11 +26,11 @@ export default function ThreeDPrinterSimulator() {
 
     // SCENE SETUP
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#0f172a"); // Dark slate background to match clean, professional dark components
+    scene.background = new THREE.Color("#090d16"); // Dark deep CAD environment
 
     // CAMERA SETUP
-    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(110, 85, 110);
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(90, 75, 90);
 
     // RENDERER SETUP
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -25,225 +38,187 @@ export default function ThreeDPrinterSimulator() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.localClippingEnabled = true; // For layer printing simulation
+    renderer.localClippingEnabled = true; // For slicer clipping
     container.appendChild(renderer.domElement);
 
-    // ORBIT CONTROLS (Cinematic mode)
+    // ORBIT CONTROLS
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera going below bed
-    controls.enableZoom = false; // Disable zoom to keep it as a clean visual block
-    controls.autoRotate = true; // Auto rotate for premium 3D showcase feel
-    controls.autoRotateSpeed = 0.6;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't look below ground
+    controls.minDistance = 35;
+    controls.maxDistance = 200;
 
-    // LIGHTING
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    // LIGHTING (Studio style)
+    const ambientLight = new THREE.AmbientLight(0x1e293b, 0.6);
     scene.add(ambientLight);
 
-    // Subtle orange directional light
-    const orangeLight = new THREE.DirectionalLight(0xff4f00, 0.6);
-    orangeLight.position.set(40, 120, 40);
-    scene.add(orangeLight);
+    // Rim light (highlighting edges)
+    const rimLight = new THREE.DirectionalLight(0xff4f00, 1.2);
+    rimLight.position.set(50, 40, -50);
+    scene.add(rimLight);
 
-    // Main studio key light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    keyLight.position.set(-50, 100, -50);
+    // Key light (cool white)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(-50, 80, 50);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
+    keyLight.shadow.bias = -0.001;
     scene.add(keyLight);
 
-    // PRINTER STRUCTURE GROUP
-    const printerGroup = new THREE.Group();
-    scene.add(printerGroup);
+    // Fill light (subtle blue)
+    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    fillLight.position.set(50, 60, 50);
+    scene.add(fillLight);
 
-    // 1. Build Plate (Base de Impresión)
-    const bedWidth = 70;
-    const bedLength = 70;
-    const bedHeight = 3;
-    const bedGeo = new THREE.BoxGeometry(bedWidth, bedHeight, bedLength);
-    const bedMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b, // Slate 800
-      roughness: 0.7,
-      metalness: 0.8,
-    });
-    const bedMesh = new THREE.Mesh(bedGeo, bedMat);
-    bedMesh.position.y = bedHeight / 2;
-    bedMesh.receiveShadow = true;
-    printerGroup.add(bedMesh);
+    // CAD Floor Grid & Coordinate Lines
+    const gridHelper = new THREE.GridHelper(80, 40, 0x334155, 0x1e293b);
+    gridHelper.position.y = -0.01;
+    scene.add(gridHelper);
 
-    // Subtle dark print sheet surface
-    const sheetGeo = new THREE.PlaneGeometry(bedWidth - 4, bedLength - 4);
-    const sheetMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a, // Slate 950
-      roughness: 0.9,
-      metalness: 0.1,
-    });
-    const sheetMesh = new THREE.Mesh(sheetGeo, sheetMat);
-    sheetMesh.rotation.x = -Math.PI / 2;
-    sheetMesh.position.y = bedHeight + 0.01;
-    sheetMesh.receiveShadow = true;
-    printerGroup.add(sheetMesh);
+    // Subtle build envelope box
+    const boxGeo = new THREE.BoxGeometry(70, 45, 70);
+    const boxEdges = new THREE.EdgesGeometry(boxGeo);
+    const boxLineMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.4 });
+    const boxLines = new THREE.LineSegments(boxEdges, boxLineMat);
+    boxLines.position.y = 22.5;
+    scene.add(boxLines);
 
-    // 2. Minimalist Steel rods/columns
-    const pillarGeo = new THREE.CylinderGeometry(1.5, 1.5, 75, 16);
-    const metalMat = new THREE.MeshStandardMaterial({
-      color: 0x64748b, // Slate 500
-      metalness: 0.9,
-      roughness: 0.15,
-    });
+    // Clipping plane for slicer mode
+    const clippingPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 20);
 
-    const positions = [
-      [-bedWidth / 2 - 2, 37.5, -bedLength / 2 - 2],
-      [bedWidth / 2 + 2, 37.5, -bedLength / 2 - 2],
-      [-bedWidth / 2 - 2, 37.5, bedLength / 2 + 2],
-      [bedWidth / 2 + 2, 37.5, bedLength / 2 + 2],
-    ];
-
-    positions.forEach((pos) => {
-      const pillar = new THREE.Mesh(pillarGeo, metalMat);
-      pillar.position.set(pos[0], pos[1], pos[2]);
-      printerGroup.add(pillar);
-    });
-
-    // Top metal frame
-    const topFrameGeoX = new THREE.BoxGeometry(bedWidth + 8, 2, 2);
-    const topX1 = new THREE.Mesh(topFrameGeoX, metalMat);
-    topX1.position.set(0, 75, -bedLength / 2 - 2);
-    printerGroup.add(topX1);
-    
-    const topX2 = new THREE.Mesh(topFrameGeoX, metalMat);
-    topX2.position.set(0, 75, bedLength / 2 + 2);
-    printerGroup.add(topX2);
-
-    const topFrameGeoZ = new THREE.BoxGeometry(2, 2, bedLength + 8);
-    const topZ1 = new THREE.Mesh(topFrameGeoZ, metalMat);
-    topZ1.position.set(-bedWidth / 2 - 2, 75, 0);
-    printerGroup.add(topZ1);
-    
-    const topZ2 = new THREE.Mesh(topFrameGeoZ, metalMat);
-    topZ2.position.set(bedWidth / 2 + 2, 75, 0);
-    printerGroup.add(topZ2);
-
-    // 3. Extruder Gantry Assembly
-    const gantryGroup = new THREE.Group();
-    printerGroup.add(gantryGroup);
-
-    // Sleek carbon gantry rail
-    const gantryRailGeo = new THREE.BoxGeometry(bedWidth, 2, 4);
-    const gantryRailMat = new THREE.MeshStandardMaterial({
-      color: 0x334155, // Slate 700
-      metalness: 0.7,
-      roughness: 0.3,
-    });
-    const gantryRail = new THREE.Mesh(gantryRailGeo, gantryRailMat);
-    gantryRail.castShadow = true;
-    gantryGroup.add(gantryRail);
-
-    // Sleek minimalist print head
-    const extruderGeo = new THREE.BoxGeometry(7, 8, 6);
-    const extruderMat = new THREE.MeshStandardMaterial({
-      color: 0x111827, // Matte black
-      roughness: 0.6,
-      metalness: 0.3,
-    });
-    const extruderMesh = new THREE.Mesh(extruderGeo, extruderMat);
-    extruderMesh.castShadow = true;
-    gantryGroup.add(extruderMesh);
-
-    // Nozzle
-    const nozzleGeo = new THREE.ConeGeometry(1, 2, 8);
-    const nozzleMat = new THREE.MeshStandardMaterial({
-      color: 0xb45309, // Brass
-      metalness: 0.9,
-      roughness: 0.1,
-    });
-    const nozzleMesh = new THREE.Mesh(nozzleGeo, nozzleMat);
-    nozzleMesh.position.set(0, -5, 0);
-    nozzleMesh.rotation.x = Math.PI;
-    extruderMesh.add(nozzleMesh);
-
-    // Molten filament nozzle glow light
-    const nozzleLight = new THREE.PointLight(0xff4f00, 1.2, 12);
-    nozzleLight.position.set(0, -6, 0);
-    extruderMesh.add(nozzleLight);
-
-    // Visual glowing dot
-    const nozzleGlowGeo = new THREE.SphereGeometry(0.4, 8, 8);
-    const nozzleGlowMat = new THREE.MeshBasicMaterial({ color: 0xff4f00 });
-    const nozzleGlowMesh = new THREE.Mesh(nozzleGlowGeo, nozzleGlowMat);
-    nozzleGlowMesh.position.set(0, -6, 0);
-    extruderMesh.add(nozzleGlowMesh);
-
-    // CLIPPING PLANES FOR MODEL
-    const clippingPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 10);
-    const modelMaterial = new THREE.MeshStandardMaterial({
-      color: 0xff4f00, // Premium industrial orange
-      roughness: 0.3,
-      metalness: 0.2,
+    // MATERIALS
+    const solidMat = new THREE.MeshStandardMaterial({
+      color: 0xff4f00, // Brand Orange
+      roughness: 0.35,
+      metalness: 0.15,
       clippingPlanes: [clippingPlane],
-      shadowSide: THREE.DoubleSide,
     });
 
-    // 4. PRETTY PRINTED MODEL: A detailed turbine wheel
-    const modelGroup = new THREE.Group();
-    scene.add(modelGroup);
+    const wireframeMat = new THREE.MeshStandardMaterial({
+      color: 0xff4f00,
+      wireframe: true,
+      clippingPlanes: [clippingPlane],
+    });
 
-    // Base hub
-    const hubGeo = new THREE.CylinderGeometry(8, 12, 18, 32);
-    const hub = new THREE.Mesh(hubGeo, modelMaterial);
+    // HIGH END GEOMETRY: MECHANICAL TURBINE ROTOR
+    const rotorGroup = new THREE.Group();
+    scene.add(rotorGroup);
+
+    // Part 1: Main rotor base hub
+    const hubGeo = new THREE.CylinderGeometry(8, 12, 16, 32);
+    const hub = new THREE.Mesh(hubGeo, solidMat);
     hub.castShadow = true;
     hub.receiveShadow = true;
-    modelGroup.add(hub);
+    hub.position.y = 8;
+    rotorGroup.add(hub);
 
-    // Turbine Blades
+    // Part 2: Outer rim
+    const rimGeo = new THREE.CylinderGeometry(28, 28, 6, 48, 1, true);
+    const rim = new THREE.Mesh(rimGeo, solidMat);
+    rim.castShadow = true;
+    rim.receiveShadow = true;
+    rim.position.y = 8;
+    rotorGroup.add(rim);
+
+    // Part 3: Rotor blades (angled & curved look)
     const numBlades = 12;
     for (let i = 0; i < numBlades; i++) {
       const angle = (i / numBlades) * Math.PI * 2;
-      const bladeGeo = new THREE.BoxGeometry(2, 18, 14);
+      const bladeGeo = new THREE.BoxGeometry(1.5, 14, 11);
+      const blade = new THREE.Mesh(bladeGeo, solidMat);
       
-      // Twist geometry to simulate turbine blade angle
-      const bladeMesh = new THREE.Mesh(bladeGeo, modelMaterial);
-      bladeMesh.position.set(Math.cos(angle) * 11, 0, Math.sin(angle) * 11);
-      bladeMesh.rotation.y = -angle + 0.5; // Angled blade
-      bladeMesh.rotation.z = 0.2; // Tilted blade
-      bladeMesh.castShadow = true;
-      bladeMesh.receiveShadow = true;
-      modelGroup.add(bladeMesh);
+      // Position blade between inner hub and outer rim
+      blade.position.set(Math.cos(angle) * 18, 8, Math.sin(angle) * 18);
+      blade.rotation.y = -angle + 0.6; // Twist
+      blade.rotation.z = 0.15; // Incline
+      blade.castShadow = true;
+      blade.receiveShadow = true;
+      rotorGroup.add(blade);
     }
 
-    // Sit model neatly on bed surface
-    modelGroup.position.y = 9 + bedHeight;
+    // Part 4: Center mounting shaft flange
+    const flangeGeo = new THREE.CylinderGeometry(14, 14, 2, 32);
+    const flange = new THREE.Mesh(flangeGeo, solidMat);
+    flange.position.y = 1;
+    flange.castShadow = true;
+    flange.receiveShadow = true;
+    rotorGroup.add(flange);
 
-    // TOOLPATH TRACER (Glowing lines on active layer)
-    const maxLinePoints = 60;
-    const linePositions = new Float32Array(maxLinePoints * 3);
-    const lineColors = new Float32Array(maxLinePoints * 3);
-    for (let i = 0; i < maxLinePoints; i++) {
-      lineColors[i * 3] = 1.0;
-      lineColors[i * 3 + 1] = 0.31;
-      lineColors[i * 3 + 2] = 0.0;
+    // Part 5: Bolt heads on flange
+    const boltGeo = new THREE.CylinderGeometry(1.5, 1.5, 1.2, 8);
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      const bolt = new THREE.Mesh(boltGeo, solidMat);
+      bolt.position.set(Math.cos(angle) * 11, 2.1, Math.sin(angle) * 11);
+      bolt.rotation.y = angle;
+      bolt.castShadow = true;
+      rotorGroup.add(bolt);
     }
-    const lineGeo = new THREE.BufferGeometry();
-    lineGeo.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
-    lineGeo.setAttribute("color", new THREE.BufferAttribute(lineColors, 3));
-    const lineMat = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      linewidth: 2,
+
+    // G-CODE / TOOLPATH RECONSTRUCTION (Slicer View)
+    // We construct toolpath lines representing the sliced rotor layers
+    const toolpathGroup = new THREE.Group();
+    scene.add(toolpathGroup);
+
+    const layerHeights: number[] = [];
+    const numLayers = 40;
+    const maxModelHeight = 16;
+    for (let i = 0; i < numLayers; i++) {
+      layerHeights.push((i / numLayers) * maxModelHeight + 0.1);
+    }
+
+    const gcodeLineMat = new THREE.LineBasicMaterial({
+      color: 0xff5f1f, // Bright neon orange
       transparent: true,
       opacity: 0.8,
-      blending: THREE.AdditiveBlending
+      linewidth: 1,
     });
-    const toolpathLine = new THREE.Line(lineGeo, lineMat);
-    scene.add(toolpathLine);
 
-    const linePointsQueue: THREE.Vector3[] = [];
+    layerHeights.forEach((h) => {
+      // Draw outer rim circle
+      const rimPoints: THREE.Vector3[] = [];
+      const rimRadius = 28;
+      for (let j = 0; j <= 60; j++) {
+        const theta = (j / 60) * Math.PI * 2;
+        rimPoints.push(new THREE.Vector3(Math.cos(theta) * rimRadius, h, Math.sin(theta) * rimRadius));
+      }
+      const rimLineGeo = new THREE.BufferGeometry().setFromPoints(rimPoints);
+      const rimLine = new THREE.Line(rimLineGeo, gcodeLineMat);
+      toolpathGroup.add(rimLine);
 
-    // SIMULATION VARIABLES
-    let currentPrintHeight = bedHeight;
-    const modelMaxY = 18 + bedHeight; // height of turbine
-    let angleOffset = 0;
+      // Draw inner hub circle
+      const hubPoints: THREE.Vector3[] = [];
+      // Hub radius interpolates from 12 at bottom to 8 at top
+      const hubRadius = 12 - (h / maxModelHeight) * 4;
+      for (let j = 0; j <= 30; j++) {
+        const theta = (j / 30) * Math.PI * 2;
+        hubPoints.push(new THREE.Vector3(Math.cos(theta) * hubRadius, h, Math.sin(theta) * hubRadius));
+      }
+      const hubLineGeo = new THREE.BufferGeometry().setFromPoints(hubPoints);
+      const hubLine = new THREE.Line(hubLineGeo, gcodeLineMat);
+      toolpathGroup.add(hubLine);
+
+      // Draw blade paths (lines connecting hub to rim)
+      for (let b = 0; b < numBlades; b++) {
+        const angle = (b / numBlades) * Math.PI * 2;
+        
+        // Linear path representing blade cross section
+        const startX = Math.cos(angle) * hubRadius;
+        const startZ = Math.sin(angle) * hubRadius;
+        const endX = Math.cos(angle + 0.4) * rimRadius;
+        const endZ = Math.sin(angle + 0.4) * rimRadius;
+
+        const bladePoints = [
+          new THREE.Vector3(startX, h, startZ),
+          new THREE.Vector3(endX, h, endZ)
+        ];
+        const bladeLineGeo = new THREE.BufferGeometry().setFromPoints(bladePoints);
+        const bladeLine = new THREE.Line(bladeLineGeo, gcodeLineMat);
+        toolpathGroup.add(bladeLine);
+      }
+    });
 
     // ANIMATION LOOP
     let animationFrameId: number;
@@ -251,46 +226,48 @@ export default function ThreeDPrinterSimulator() {
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
+      // Apply controls damping
       controls.update();
 
-      // Slow model rotation to simulate print alignment
-      modelGroup.rotation.y += 0.0015;
+      // Render mode management
+      const currentMode = viewModeRef.current;
+      const currentSlice = sliceHeightRef.current; // 0 to 100
+      const activeHeight = (currentSlice / 100) * maxModelHeight;
 
-      // Print head moves in a beautiful rosette pattern
-      angleOffset += 0.05;
-      
-      const currentRadius = 14 + Math.sin(angleOffset * 6) * 3;
-      const headX = Math.cos(angleOffset) * currentRadius;
-      const headZ = Math.sin(angleOffset) * currentRadius;
+      // Update clipping plane height
+      clippingPlane.constant = activeHeight;
 
-      // Position extruder
-      gantryGroup.position.y = currentPrintHeight + 6;
-      extruderMesh.position.x = headX;
-      extruderMesh.position.z = headZ;
-      gantryRail.position.z = headZ;
+      if (currentMode === "gcode") {
+        rotorGroup.visible = false;
+        toolpathGroup.visible = true;
 
-      // Slowly grow print height
-      currentPrintHeight += 0.005;
-      if (currentPrintHeight > modelMaxY) {
-        currentPrintHeight = bedHeight;
-        modelGroup.rotation.y = 0;
+        // Hide layers above active height in G-code mode
+        toolpathGroup.children.forEach((child) => {
+          if (child instanceof THREE.Line) {
+            const positions = child.geometry.attributes.position;
+            if (positions && positions.count > 0) {
+              const yVal = positions.getY(0); // Check height of first point
+              child.visible = yVal <= activeHeight;
+            }
+          }
+        });
+      } else {
+        rotorGroup.visible = true;
+        toolpathGroup.visible = false;
+
+        // Swap material based on mode
+        rotorGroup.children.forEach((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.material = currentMode === "wireframe" ? wireframeMat : solidMat;
+          }
+        });
       }
 
-      clippingPlane.constant = currentPrintHeight;
-
-      // Feed active layer outlines
-      const tipPos = new THREE.Vector3(headX, currentPrintHeight, headZ);
-      linePointsQueue.push(tipPos);
-      if (linePointsQueue.length > maxLinePoints) {
-        linePointsQueue.shift();
+      // Auto rotation
+      if (autoRotateRef.current) {
+        rotorGroup.rotation.y += 0.003;
+        toolpathGroup.rotation.y += 0.003;
       }
-
-      const posAttr = toolpathLine.geometry.attributes.position as THREE.BufferAttribute;
-      for (let i = 0; i < maxLinePoints; i++) {
-        const pt = linePointsQueue[i] || tipPos;
-        posAttr.setXYZ(i, pt.x, pt.y, pt.z);
-      }
-      posAttr.needsUpdate = true;
 
       renderer.render(scene, camera);
     };
@@ -299,6 +276,7 @@ export default function ThreeDPrinterSimulator() {
 
     // RESIZE EVENT
     const handleResize = () => {
+      if (!container) return;
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
@@ -318,8 +296,75 @@ export default function ThreeDPrinterSimulator() {
   }, []);
 
   return (
-    <div className="w-full h-[320px] sm:h-[400px] md:h-[450px] lg:h-[480px] rounded-[2rem] overflow-hidden border-2 border-slate-900 shadow-2xl relative">
-      <div ref={containerRef} className="w-full h-full" />
+    <div className="w-full flex flex-col bg-[#0b0f19] border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+      
+      {/* 3D VIEWPORT CANVAS */}
+      <div ref={containerRef} className="w-full h-[320px] sm:h-[380px] md:h-[420px]" />
+
+      {/* CAD METRICS HUD OVERLAY */}
+      <div className="absolute top-4 left-4 bg-[#090d16]/90 border border-slate-800 rounded-2xl p-4 text-[9px] font-mono text-slate-400 pointer-events-none select-none shadow-md z-10 space-y-1.5">
+        <div className="font-black text-[#FF4F00] uppercase tracking-widest border-b border-slate-800 pb-1.5 mb-1.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4F00]" />
+          CAD INSPECTOR v1.0
+        </div>
+        <div><span className="text-slate-600">ARCHIVO:</span> rotor_industrial.stl</div>
+        <div><span className="text-slate-600">VOLUMEN:</span> 58.4 cm³</div>
+        <div><span className="text-slate-600">PESO EST.:</span> 72.4 g</div>
+        <div><span className="text-slate-600">DIM.:</span> 95 x 95 x 35 mm</div>
+        <div><span className="text-slate-600">POLÍG.:</span> 14,240 Triángulos</div>
+        <div><span className="text-slate-600">ANÁLISIS:</span> MALLA MANIFOLD OK</div>
+      </div>
+
+      {/* TOP RIGHT VIEW CONTROLS */}
+      <button 
+        onClick={() => setAutoRotate(!autoRotate)}
+        className={`absolute top-4 right-4 text-[9px] font-mono font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all z-10 ${
+          autoRotate 
+            ? "bg-[#FF4F00] text-white border-[#FF4F00]" 
+            : "bg-[#090d16] text-slate-400 border-slate-800 hover:text-white"
+        }`}
+      >
+        {autoRotate ? "↻ AUTO-ROTR" : "⏸ ESTÁTICO"}
+      </button>
+
+      {/* INTERACTIVE CAD VIEWBAR */}
+      <div className="bg-[#090d16] border-t border-slate-850 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
+        
+        {/* VIEW SELECTOR */}
+        <div className="flex bg-[#0b0f19] border border-slate-800 p-1 rounded-xl">
+          {(["solid", "wireframe", "gcode"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className={`text-[9px] font-mono font-black uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all ${
+                viewMode === mode
+                  ? "bg-[#FF4F00] text-white"
+                  : "text-slate-400 hover:text-white bg-transparent"
+              }`}
+            >
+              {mode === "solid" ? "Sólido" : mode === "wireframe" ? "Malla 3D" : "G-Code"}
+            </button>
+          ))}
+        </div>
+
+        {/* SLICER SLIDER (Interactive toolpath layers) */}
+        <div className="flex-grow max-w-xs md:max-w-md flex items-center gap-3">
+          <span className="text-[9px] font-mono text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">
+            CORTAR CAPAS:
+          </span>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={sliceHeight}
+            onChange={(e) => setSliceHeight(parseInt(e.target.value))}
+            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#FF4F00]"
+          />
+          <span className="text-[9px] font-mono text-[#FF4F00] font-black w-8 text-right">
+            {sliceHeight}%
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
