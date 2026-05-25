@@ -38,7 +38,7 @@ export default function RootLayout({
       lang="es"
       className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-100 font-sans selection:bg-black selection:text-white">
+      <body className="min-h-full flex flex-col bg-[#05070c] text-slate-100 font-sans selection:bg-[#ff4f00] selection:text-white relative">
         <Providers>
           <Navbar />
           <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
@@ -46,6 +46,16 @@ export default function RootLayout({
           </main>
           <Footer />
         </Providers>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.addEventListener('mousemove', (e) => {
+                document.documentElement.style.setProperty('--mouse-x', e.pageX + 'px');
+                document.documentElement.style.setProperty('--mouse-y', e.pageY + 'px');
+              });
+            `,
+          }}
+        />
       </body>
     </html>
   );
