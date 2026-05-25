@@ -187,7 +187,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 sm:space-y-24 max-w-5xl mx-auto mb-32">
+    <form onSubmit={handleSubmit} className="space-y-12 sm:space-y-24 max-w-5xl mx-auto mb-32 pt-8 sm:pt-12 px-4 md:px-6">
       <div className="border-b-4 border-black pb-8">
         <h1 className="text-3xl sm:text-4xl font-black text-black tracking-tighter uppercase leading-none">Nueva Cotización</h1>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Gestione múltiples activos en una sola terminal</p>
@@ -201,7 +201,12 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           </h3>
           
           <div className="mt-10 p-6 bg-amber-50 border-2 border-amber-200 rounded-3xl">
-             <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2">⚠️ Límite de Volumen</p>
+             <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest italic mb-2 flex items-center gap-1.5">
+               <svg className="w-3 h-3 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+               </svg>
+               Límite de Volumen
+             </p>
              <p className="text-[11px] font-bold text-slate-800 leading-relaxed">Máximo por pieza: <span className="font-black">320x320x325mm</span>. Si supera esto, aclare la escala abajo.</p>
           </div>
         </div>
@@ -239,7 +244,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                          <button 
                            type="button" 
                            onClick={() => setViewingFileId(viewingFileId === f.id ? null : f.id)} 
-                           className={`px-3 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-widest border transition-all active:scale-95 flex items-center gap-1.5 ${
+                           className={`px-3 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-widest border transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer ${
                              viewingFileId === f.id
                                ? "bg-black text-white border-black"
                                : "bg-white text-slate-600 hover:text-black border-slate-200 hover:border-slate-300"
@@ -248,7 +253,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                            {viewingFileId === f.id ? "✕ Cerrar" : "👁️ Vista 3D"}
                          </button>
                        )}
-                       <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                       <button type="button" onClick={() => removeFile(f.id)} className="text-red-400 hover:text-red-600 transition-colors cursor-pointer">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
                        </button>
                      </div>
@@ -312,8 +317,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                       <div>
                         <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Densidad de Relleno</label>
                         <div className="flex bg-black/5 p-1 rounded-xl border-2 border-black/5 w-max">
-                          <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "auto" })} className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-[0.2em] transition-all ${f.infillType === "auto" ? 'bg-black text-white shadow-md' : 'text-slate-500 hover:text-black'}`}>Automático</button>
-                          <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "manual" })} className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-[0.2em] transition-all ${f.infillType === "manual" ? 'bg-black text-white shadow-md' : 'text-slate-500 hover:text-black'}`}>Manual</button>
+                          <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "auto" })} className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-[0.2em] transition-all cursor-pointer ${f.infillType === "auto" ? 'bg-black text-white shadow-md' : 'text-slate-500 hover:text-black'}`}>Automático</button>
+                          <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "manual" })} className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-[0.2em] transition-all cursor-pointer ${f.infillType === "manual" ? 'bg-black text-white shadow-md' : 'text-slate-500 hover:text-black'}`}>Manual</button>
                         </div>
                         {f.infillType === "manual" && (
                           <div className="mt-4 animate-in fade-in slide-in-from-top-2">
@@ -390,7 +395,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 { id: "decorative", label: "Funcional", desc: "Uso diario" },
                 { id: "mechanical", label: "Industrial", desc: "Resistencia" },
               ].map((p) => (
-                <button key={p.id} type="button" onClick={() => setPurpose(p.id)} className={`p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border-4 text-left transition-all ${purpose === p.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 hover:border-black/20'}`}>
+                <button key={p.id} type="button" onClick={() => setPurpose(p.id)} className={`p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] border-4 text-left transition-all cursor-pointer ${purpose === p.id ? 'border-black bg-white shadow-xl' : 'border-black/5 bg-white/20 hover:border-black/20'}`}>
                   <p className="font-black text-sm uppercase tracking-widest mb-2 leading-none">{p.label}</p>
                   <p className="text-[9px] font-black text-slate-500 leading-tight uppercase tracking-tighter opacity-60">{p.desc}</p>
                 </button>
@@ -431,7 +436,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       </section>
 
       <section className="pt-12 sm:pt-20 border-t-4 border-black">
-          <button type="submit" disabled={isSubmitting} className={`w-full py-5 sm:py-8 rounded-2xl sm:rounded-[2rem] font-black text-xl sm:text-2xl text-white transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30"}`}>
+          <button type="submit" disabled={isSubmitting} className={`w-full py-5 sm:py-8 rounded-2xl sm:rounded-[2rem] font-black text-xl sm:text-2xl text-white transition-all uppercase tracking-[0.3em] shadow-2xl active:scale-[0.98] ${isSubmitting ? "bg-slate-300 cursor-not-allowed" : "bg-black hover:bg-slate-800 shadow-black/30 cursor-pointer"}`}>
             {isSubmitting ? "Procesando Pipeline..." : "Enviar a Producción"}
           </button>
           {message && (

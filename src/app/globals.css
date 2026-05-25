@@ -2,13 +2,13 @@
 
 :root {
   --foreground-rgb: 15, 23, 42;
-  --background-rgb: 241, 245, 249; /* Slate 100: #F1F5F9 */
+  --background-rgb: 248, 250, 252; /* Slate 50: #F8FAFC */
   --accent-orange: #FF4F00;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F1F5F9;
+  background: #F8FAFC;
   font-family: var(--font-inter), sans-serif;
 }
 
@@ -26,8 +26,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Smooth transitions */
-* {
-  @apply duration-300;
+a, button, select, input, textarea, .card, .bambu-card {
+  @apply transition-all duration-300;
 }
 
 /* Industrial Tech Accents */

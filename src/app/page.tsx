@@ -46,7 +46,7 @@ export default async function Home() {
   });
 
   return (
-    <div className="space-y-36 sm:space-y-48 pb-24 bg-slate-100 engineering-grid font-sans">
+    <div className="space-y-36 sm:space-y-48 pb-24 bg-slate-50 engineering-grid font-sans">
       
       {/* HERO SECTION - SLEEK MINIMALIST ENGINEERING LAYOUT */}
       <section className="relative pt-12 md:pt-24 min-h-[85vh] flex items-center overflow-hidden">
@@ -71,7 +71,10 @@ export default async function Home() {
               {/* Designer Note */}
               <div className="bg-white border border-slate-200 p-5 rounded-2xl max-w-xl shadow-sm">
                 <p className="text-xs text-slate-500 font-mono leading-relaxed uppercase tracking-wider">
-                  ⚙️ <span className="font-bold text-slate-900">Visor de Malla CAD:</span> Usá la barra interactiva en el visor para inspeccionar el modelo en 3D, cortar las capas en rodajas o analizar las trayectorias de impresión (G-Code).
+                  <svg className="w-3.5 h-3.5 text-[#FF4F00] inline-block mr-1.5 align-text-bottom" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg> <span className="font-bold text-slate-900">Visor de Malla CAD:</span> Usá la barra interactiva en el visor para inspeccionar el modelo en 3D, cortar las capas en rodajas o analizar las trayectorias de impresión (G-Code).
                 </p>
               </div>
               
@@ -80,13 +83,13 @@ export default async function Home() {
                   <>
                     <Link 
                       href="/auth/signin" 
-                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center cursor-pointer"
                     >
                       Ingresar
                     </Link>
                     <Link 
                       href="/auth/signup" 
-                      className="bg-transparent text-slate-950 border-2 border-slate-950 px-10 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all active:scale-95 text-center"
+                      className="bg-transparent text-slate-950 border-2 border-slate-950 px-10 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all active:scale-95 text-center cursor-pointer"
                     >
                       Crear Cuenta
                     </Link>
@@ -96,14 +99,14 @@ export default async function Home() {
                     <Link 
                       prefetch={false}
                       href="/orders/new" 
-                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center cursor-pointer"
                     >
                       Nueva Cotización
                     </Link>
                     <Link 
                       prefetch={false}
                       href="/orders" 
-                      className="bg-white text-slate-950 border-2 border-slate-200 px-10 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:border-slate-950 transition-all active:scale-95 text-center"
+                      className="bg-white text-slate-950 border-2 border-slate-200 px-10 py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest hover:border-slate-950 transition-all active:scale-95 text-center cursor-pointer"
                     >
                       Mis Pedidos
                     </Link>
@@ -191,7 +194,7 @@ export default async function Home() {
             <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2 font-mono">[ BIBLIOTECA DE MATERIALES ]</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Fichas Técnicas</h2>
           </div>
-          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mt-4 md:mt-0 font-mono">Ver todo →</Link>
+          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mt-4 md:mt-0 font-mono cursor-pointer">Ver todo →</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -264,7 +267,7 @@ export default async function Home() {
                   <Link 
                     prefetch={false}
                     href="/orders/new" 
-                    className="inline-block bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-slate-950 transition-all shadow-md active:scale-95"
+                    className="inline-block bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-slate-950 transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     Iniciar Cotización
                   </Link>

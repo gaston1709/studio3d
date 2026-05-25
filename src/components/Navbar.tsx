@@ -11,7 +11,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-slate-100/90 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
+    <nav className="bg-slate-50/90 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center group">
           <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Botón Hamburguesa Celu */}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 text-slate-900"
+          className="md:hidden p-2 text-slate-900 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {isMenuOpen ? (
@@ -54,7 +54,7 @@ export default function Navbar() {
           
           {status === "authenticated" ? (
             <div className="flex items-center gap-8 border-l border-slate-200 pl-8">
-              <Link href="/profile" className="text-right group/user">
+              <Link href="/profile" className="text-right group/user cursor-pointer">
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 group-hover/user:text-[#FF4F00]">Mi Perfil</p>
                 <p className="text-[11px] font-black text-slate-900 leading-none">{session.user?.email}</p>
               </Link>
@@ -63,7 +63,7 @@ export default function Navbar() {
                 <Link 
                   prefetch={false}
                   href="/admin" 
-                  className="bg-[#FF4F00] text-white text-[9px] font-black px-4 py-2.5 rounded-lg hover:bg-black transition-all uppercase tracking-widest"
+                  className="bg-[#FF4F00] text-white text-[9px] font-black px-4 py-2.5 rounded-lg hover:bg-black transition-all uppercase tracking-widest cursor-pointer"
                 >
                   Admin Panel
                 </Link>
@@ -71,7 +71,7 @@ export default function Navbar() {
 
               <button 
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-colors"
+                className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
               >
                 Salir
               </button>
@@ -80,13 +80,13 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               <Link 
                 href="/auth/signup" 
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-black"
+                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-black cursor-pointer"
               >
                 Registro
               </Link>
               <Link 
                 href="/auth/signin" 
-                className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-3 rounded-xl hover:bg-[#FF4F00] transition-all shadow-lg shadow-black/10"
+                className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-3 rounded-xl hover:bg-[#FF4F00] transition-all shadow-lg shadow-black/10 cursor-pointer"
               >
                 Ingresar
               </Link>
@@ -97,7 +97,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-slate-100 border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
+        <div className="md:hidden absolute top-full left-0 w-full bg-slate-50 border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
           {!isAdmin && (
             <>
               <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Mis Pedidos</Link>
@@ -105,7 +105,7 @@ export default function Navbar() {
             </>
           )}
           
-          <div className="h-px bg-slate-100 w-full"></div>
+          <div className="h-px bg-slate-200 w-full"></div>
 
           {status === "authenticated" ? (
             <div className="space-y-6">

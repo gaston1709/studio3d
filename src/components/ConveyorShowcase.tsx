@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 interface CarouselImage {
@@ -16,26 +16,37 @@ interface ConveyorShowcaseProps {
 export default function ConveyorShowcase({ images }: ConveyorShowcaseProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const railRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
       if (!containerRef.current || !railRef.current) return;
-      
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
 
-      // Check if the container is on screen
-      if (rect.top < windowHeight && rect.bottom > 0) {
-        // Calculate where the element is relative to the viewport scroll
-        const scrollStart = rect.top - windowHeight;
-        const scrollEnd = rect.bottom;
-        const totalDistance = windowHeight + rect.height;
-        const currentDistance = windowHeight - rect.top;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (!containerRef.current || !railRef.current) {
+            ticking = false;
+            return;
+          }
+          const container = containerRef.current;
+          const rail = railRef.current;
+          const rect = container.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
 
-        const progress = Math.min(Math.max(currentDistance / totalDistance, 0), 1);
-        setScrollProgress(progress);
+          if (rect.top < windowHeight && rect.bottom > 0) {
+            const totalDistance = windowHeight + rect.height;
+            const currentDistance = windowHeight - rect.top;
+            const progress = Math.min(Math.max(currentDistance / totalDistance, 0), 1);
+
+            const maxTranslation = 300; // max translation in pixels
+            const translationX = -(progress * maxTranslation) + 50;
+
+            rail.style.transform = `translateX(${translationX}px)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
@@ -47,11 +58,6 @@ export default function ConveyorShowcase({ images }: ConveyorShowcaseProps) {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-
-  // Calculate horizontal translation based on scroll progress
-  // Move it from left to right or right to left
-  const maxTranslation = 300; // max translation in pixels
-  const translationX = -(scrollProgress * maxTranslation) + 50;
 
   // Technical metadata mock generator for showcase items (appeals to design students)
   const getTechnicalMeta = (index: number) => {
@@ -78,7 +84,7 @@ export default function ConveyorShowcase({ images }: ConveyorShowcaseProps) {
       <div 
         ref={railRef} 
         className="conveyor-rail flex gap-10 px-6 relative z-10"
-        style={{ transform: `translateX(${translationX}px)` }}
+        style={{ transform: "translateX(50px)" }}
       >
         {images.map((img, idx) => {
           const meta = getTechnicalMeta(idx);

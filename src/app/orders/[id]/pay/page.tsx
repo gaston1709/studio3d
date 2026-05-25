@@ -46,7 +46,12 @@ export default async function OrderPaymentPage({
             <p className="text-4xl font-black text-slate-900">${order.price.toFixed(2)}</p>
           </div>
           <div className="md:text-right bg-blue-50 border-2 border-blue-100 px-6 py-4 rounded-2xl w-full md:w-auto">
-            <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 italic">Seña del 50% ✨</p>
+            <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 italic flex items-center md:justify-end gap-1">
+              Seña del 50%
+              <svg className="w-3.5 h-3.5 text-blue-500 inline-block" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.982-11.795H13l1.812-7.205L6 13.795H11l-1.187 2.109z" />
+              </svg>
+            </p>
             <p className="text-4xl font-black text-blue-600">${depositAmount.toFixed(2)}</p>
           </div>
         </div>

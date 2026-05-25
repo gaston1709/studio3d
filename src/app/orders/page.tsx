@@ -87,7 +87,7 @@ export default async function OrdersPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 bg-slate-100 min-h-screen">
+    <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 bg-slate-50 min-h-screen">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8 border-b-4 border-slate-900 pb-8 sm:pb-12">
         <div className="space-y-2">
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tighter uppercase leading-none">Mis Pedidos</h1>

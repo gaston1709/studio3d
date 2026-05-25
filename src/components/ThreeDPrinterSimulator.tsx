@@ -308,7 +308,7 @@ export default function ThreeDPrinterSimulator() {
       {/* TOP RIGHT VIEW CONTROLS */}
       <button 
         onClick={() => setAutoRotate(!autoRotate)}
-        className={`absolute top-4 right-4 text-[9px] font-mono font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all z-10 ${
+        className={`absolute top-4 right-4 text-[9px] font-mono font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all z-10 cursor-pointer ${
           autoRotate 
             ? "bg-[#FF4F00] text-white border-[#FF4F00]" 
             : "bg-white text-slate-500 border-slate-200 hover:text-slate-900"
@@ -326,7 +326,7 @@ export default function ThreeDPrinterSimulator() {
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className={`text-[9px] font-mono font-black uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all ${
+              className={`text-[9px] font-mono font-black uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
                 viewMode === mode
                   ? "bg-[#FF4F00] text-white"
                   : "text-slate-400 hover:text-slate-900 bg-transparent"

@@ -31,7 +31,7 @@ function SignInContent() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-slate-100 px-4 py-12">
+    <div className="min-h-[70vh] flex items-center justify-center bg-slate-50 px-4 py-12">
       <form 
         onSubmit={handleSubmit} 
         className="max-w-md w-full bg-white/60 backdrop-blur-md border-2 border-black/10 rounded-[3rem] p-12 shadow-2xl"
