@@ -69,102 +69,17 @@ h1, h2, h3, h4, h5, h6 {
   @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }
 
-/* Industrial Tech Styles */
-.industrial-grid {
-  background-image: radial-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+/* Premium Engineering Grid */
+.engineering-grid {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-.dark-industrial-grid {
-  background-image: radial-gradient(rgba(255, 79, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.technical-corner {
-  position: relative;
-}
-
-.technical-corner::before,
-.technical-corner::after {
-  content: '';
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: #FF4F00;
-  border-style: solid;
-  pointer-events: none;
-}
-
-.technical-corner::before {
-  top: -2px;
-  left: -2px;
-  border-width: 2px 0 0 2px;
-}
-
-.technical-corner::after {
-  bottom: -2px;
-  right: -2px;
-  border-width: 0 2px 2px 0;
-}
-
-/* Pulse status led */
-.pulse-led-orange {
-  box-shadow: 0 0 0 0 rgba(255, 79, 0, 0.7);
-  animation: pulse-orange 2s infinite;
-}
-
-.pulse-led-green {
-  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-  animation: pulse-green 2s infinite;
-}
-
-@keyframes pulse-orange {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 79, 0, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(255, 79, 0, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 79, 0, 0);
-  }
-}
-
-@keyframes pulse-green {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-  }
-}
-
-/* Conveyor belt smooth animation loop */
-@keyframes conveyor {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.conveyor-track {
+/* Conveyor Parallax Track */
+.conveyor-rail {
   display: flex;
-  width: max-content;
-  animation: conveyor 40s linear infinite;
+  will-change: transform;
+  transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.conveyor-track:hover {
-  animation-play-state: paused;
-}
 

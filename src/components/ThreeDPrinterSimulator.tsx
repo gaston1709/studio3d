@@ -26,14 +26,14 @@ export default function ThreeDPrinterSimulator() {
 
     // SCENE SETUP
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#090d16"); // Dark deep CAD environment
+    scene.background = new THREE.Color("#f8fafc"); // Slate 50 (clean, bright studio background)
 
     // CAMERA SETUP
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(90, 75, 90);
 
     // RENDERER SETUP
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.shadowMap.enabled = true;
@@ -49,17 +49,17 @@ export default function ThreeDPrinterSimulator() {
     controls.minDistance = 35;
     controls.maxDistance = 200;
 
-    // LIGHTING (Studio style)
-    const ambientLight = new THREE.AmbientLight(0x1e293b, 0.6);
+    // LIGHTING (Daylight Studio style)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
-    // Rim light (highlighting edges)
-    const rimLight = new THREE.DirectionalLight(0xff4f00, 1.2);
+    // Subtle orange directional highlights
+    const rimLight = new THREE.DirectionalLight(0xff4f00, 0.8);
     rimLight.position.set(50, 40, -50);
     scene.add(rimLight);
 
-    // Key light (cool white)
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    // Main key light (soft shadows)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(-50, 80, 50);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 1024;
@@ -67,20 +67,20 @@ export default function ThreeDPrinterSimulator() {
     keyLight.shadow.bias = -0.001;
     scene.add(keyLight);
 
-    // Fill light (subtle blue)
-    const fillLight = new THREE.DirectionalLight(0x38bdf8, 0.4);
+    // Fill light (clean light grey)
+    const fillLight = new THREE.DirectionalLight(0xe2e8f0, 0.5);
     fillLight.position.set(50, 60, 50);
     scene.add(fillLight);
 
-    // CAD Floor Grid & Coordinate Lines
-    const gridHelper = new THREE.GridHelper(80, 40, 0x334155, 0x1e293b);
+    // CAD Floor Grid & Coordinate Lines (Subtle Slate)
+    const gridHelper = new THREE.GridHelper(80, 40, 0x94a3b8, 0xe2e8f0);
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
     // Subtle build envelope box
     const boxGeo = new THREE.BoxGeometry(70, 45, 70);
     const boxEdges = new THREE.EdgesGeometry(boxGeo);
-    const boxLineMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.4 });
+    const boxLineMat = new THREE.LineBasicMaterial({ color: 0xcbd5e1, transparent: true, opacity: 0.5 });
     const boxLines = new THREE.LineSegments(boxEdges, boxLineMat);
     boxLines.position.y = 22.5;
     scene.add(boxLines);
@@ -158,7 +158,6 @@ export default function ThreeDPrinterSimulator() {
     }
 
     // G-CODE / TOOLPATH RECONSTRUCTION (Slicer View)
-    // We construct toolpath lines representing the sliced rotor layers
     const toolpathGroup = new THREE.Group();
     scene.add(toolpathGroup);
 
@@ -170,7 +169,7 @@ export default function ThreeDPrinterSimulator() {
     }
 
     const gcodeLineMat = new THREE.LineBasicMaterial({
-      color: 0xff5f1f, // Bright neon orange
+      color: 0xff4f00, // Solid brand orange toolpaths
       transparent: true,
       opacity: 0.8,
       linewidth: 1,
@@ -190,7 +189,6 @@ export default function ThreeDPrinterSimulator() {
 
       // Draw inner hub circle
       const hubPoints: THREE.Vector3[] = [];
-      // Hub radius interpolates from 12 at bottom to 8 at top
       const hubRadius = 12 - (h / maxModelHeight) * 4;
       for (let j = 0; j <= 30; j++) {
         const theta = (j / 30) * Math.PI * 2;
@@ -203,8 +201,6 @@ export default function ThreeDPrinterSimulator() {
       // Draw blade paths (lines connecting hub to rim)
       for (let b = 0; b < numBlades; b++) {
         const angle = (b / numBlades) * Math.PI * 2;
-        
-        // Linear path representing blade cross section
         const startX = Math.cos(angle) * hubRadius;
         const startZ = Math.sin(angle) * hubRadius;
         const endX = Math.cos(angle + 0.4) * rimRadius;
@@ -226,27 +222,23 @@ export default function ThreeDPrinterSimulator() {
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Apply controls damping
       controls.update();
 
-      // Render mode management
       const currentMode = viewModeRef.current;
-      const currentSlice = sliceHeightRef.current; // 0 to 100
+      const currentSlice = sliceHeightRef.current;
       const activeHeight = (currentSlice / 100) * maxModelHeight;
 
-      // Update clipping plane height
       clippingPlane.constant = activeHeight;
 
       if (currentMode === "gcode") {
         rotorGroup.visible = false;
         toolpathGroup.visible = true;
 
-        // Hide layers above active height in G-code mode
         toolpathGroup.children.forEach((child) => {
           if (child instanceof THREE.Line) {
             const positions = child.geometry.attributes.position;
             if (positions && positions.count > 0) {
-              const yVal = positions.getY(0); // Check height of first point
+              const yVal = positions.getY(0);
               child.visible = yVal <= activeHeight;
             }
           }
@@ -255,7 +247,6 @@ export default function ThreeDPrinterSimulator() {
         rotorGroup.visible = true;
         toolpathGroup.visible = false;
 
-        // Swap material based on mode
         rotorGroup.children.forEach((child) => {
           if (child instanceof THREE.Mesh) {
             child.material = currentMode === "wireframe" ? wireframeMat : solidMat;
@@ -263,7 +254,6 @@ export default function ThreeDPrinterSimulator() {
         });
       }
 
-      // Auto rotation
       if (autoRotateRef.current) {
         rotorGroup.rotation.y += 0.003;
         toolpathGroup.rotation.y += 0.003;
@@ -296,23 +286,23 @@ export default function ThreeDPrinterSimulator() {
   }, []);
 
   return (
-    <div className="w-full flex flex-col bg-[#0b0f19] border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+    <div className="w-full flex flex-col bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-md relative">
       
       {/* 3D VIEWPORT CANVAS */}
       <div ref={containerRef} className="w-full h-[320px] sm:h-[380px] md:h-[420px]" />
 
       {/* CAD METRICS HUD OVERLAY */}
-      <div className="absolute top-4 left-4 bg-[#090d16]/90 border border-slate-800 rounded-2xl p-4 text-[9px] font-mono text-slate-400 pointer-events-none select-none shadow-md z-10 space-y-1.5">
-        <div className="font-black text-[#FF4F00] uppercase tracking-widest border-b border-slate-800 pb-1.5 mb-1.5 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4F00]" />
-          CAD INSPECTOR v1.0
+      <div className="absolute top-4 left-4 bg-white/90 border border-slate-200/85 backdrop-blur-md rounded-2xl p-4 text-[9px] font-mono text-slate-500 pointer-events-none select-none shadow-sm z-10 space-y-1.5">
+        <div className="font-black text-[#FF4F00] uppercase tracking-widest border-b border-slate-200 pb-1.5 mb-1.5 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#FF4F00] pulse-led-orange" />
+          VISOR CAD v1.0
         </div>
-        <div><span className="text-slate-600">ARCHIVO:</span> rotor_industrial.stl</div>
-        <div><span className="text-slate-600">VOLUMEN:</span> 58.4 cm³</div>
-        <div><span className="text-slate-600">PESO EST.:</span> 72.4 g</div>
-        <div><span className="text-slate-600">DIM.:</span> 95 x 95 x 35 mm</div>
-        <div><span className="text-slate-600">POLÍG.:</span> 14,240 Triángulos</div>
-        <div><span className="text-slate-600">ANÁLISIS:</span> MALLA MANIFOLD OK</div>
+        <div><span className="text-slate-400">ARCHIVO:</span> rotor_industrial.stl</div>
+        <div><span className="text-slate-400">VOLUMEN:</span> 58.4 cm³</div>
+        <div><span className="text-slate-400">PESO EST.:</span> 72.4 g</div>
+        <div><span className="text-slate-400">DIM.:</span> 95 x 95 x 35 mm</div>
+        <div><span className="text-slate-400">POLÍG.:</span> 14,240 Triángulos</div>
+        <div><span className="text-slate-400">ANÁLISIS:</span> MANIFOLD OK</div>
       </div>
 
       {/* TOP RIGHT VIEW CONTROLS */}
@@ -321,17 +311,17 @@ export default function ThreeDPrinterSimulator() {
         className={`absolute top-4 right-4 text-[9px] font-mono font-black uppercase tracking-wider px-2.5 py-1.5 rounded-xl border transition-all z-10 ${
           autoRotate 
             ? "bg-[#FF4F00] text-white border-[#FF4F00]" 
-            : "bg-[#090d16] text-slate-400 border-slate-800 hover:text-white"
+            : "bg-white text-slate-500 border-slate-200 hover:text-slate-900"
         }`}
       >
-        {autoRotate ? "↻ AUTO-ROTR" : "⏸ ESTÁTICO"}
+        {autoRotate ? "↻ AUTO-ROTAR" : "⏸ ESTÁTICO"}
       </button>
 
       {/* INTERACTIVE CAD VIEWBAR */}
-      <div className="bg-[#090d16] border-t border-slate-850 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
+      <div className="bg-slate-50 border-t border-slate-100 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
         
         {/* VIEW SELECTOR */}
-        <div className="flex bg-[#0b0f19] border border-slate-800 p-1 rounded-xl">
+        <div className="flex bg-white border border-slate-200 p-1 rounded-xl">
           {(["solid", "wireframe", "gcode"] as const).map((mode) => (
             <button
               key={mode}
@@ -339,7 +329,7 @@ export default function ThreeDPrinterSimulator() {
               className={`text-[9px] font-mono font-black uppercase tracking-wider px-3.5 py-2 rounded-lg transition-all ${
                 viewMode === mode
                   ? "bg-[#FF4F00] text-white"
-                  : "text-slate-400 hover:text-white bg-transparent"
+                  : "text-slate-400 hover:text-slate-900 bg-transparent"
               }`}
             >
               {mode === "solid" ? "Sólido" : mode === "wireframe" ? "Malla 3D" : "G-Code"}
@@ -349,7 +339,7 @@ export default function ThreeDPrinterSimulator() {
 
         {/* SLICER SLIDER (Interactive toolpath layers) */}
         <div className="flex-grow max-w-xs md:max-w-md flex items-center gap-3">
-          <span className="text-[9px] font-mono text-slate-500 font-bold uppercase tracking-widest whitespace-nowrap">
+          <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-widest whitespace-nowrap">
             CORTAR CAPAS:
           </span>
           <input
@@ -358,7 +348,7 @@ export default function ThreeDPrinterSimulator() {
             max="100"
             value={sliceHeight}
             onChange={(e) => setSliceHeight(parseInt(e.target.value))}
-            className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#FF4F00]"
+            className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#FF4F00]"
           />
           <span className="text-[9px] font-mono text-[#FF4F00] font-black w-8 text-right">
             {sliceHeight}%

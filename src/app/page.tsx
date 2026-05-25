@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import ThreeDPrinterSimulator from "@/components/ThreeDPrinterSimulator";
+import ConveyorShowcase from "@/components/ConveyorShowcase";
 
 export const dynamic = "force-dynamic";
 
@@ -46,17 +46,17 @@ export default async function Home() {
   });
 
   return (
-    <div className="space-y-32 sm:space-y-48 pb-24 bg-[#F1F5F9] font-sans">
+    <div className="space-y-36 sm:space-y-48 pb-24 bg-slate-100 engineering-grid font-sans">
       
-      {/* HERO SECTION - SLEEK MINIMALIST LAYOUT */}
-      <section className="relative pt-8 md:pt-20 min-h-[80vh] flex items-center overflow-hidden">
+      {/* HERO SECTION - SLEEK MINIMALIST ENGINEERING LAYOUT */}
+      <section className="relative pt-12 md:pt-24 min-h-[85vh] flex items-center overflow-hidden">
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
             
-            {/* LEFT COLUMN: CLEAR SERVICE VALUE PROPOSITION */}
-            <div className="lg:col-span-6 flex flex-col space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
-              <span className="text-xs font-black uppercase tracking-[0.25em] text-[#FF4F00]">
-                Estudio de Manufactura Aditiva
+            {/* LEFT COLUMN: VALUE PROPOSITION */}
+            <div className="lg:col-span-6 flex flex-col space-y-8 text-left animate-in fade-in slide-in-from-left-8 duration-1000">
+              <span className="text-xs font-black uppercase tracking-[0.25em] text-[#FF4F00] font-mono">
+                [ ESTUDIO DE MANUFACTURA ADITIVA ]
               </span>
               
               <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-slate-900 tracking-tight leading-[0.9] uppercase">
@@ -67,13 +67,20 @@ export default async function Home() {
               <p className="text-lg md:text-xl text-slate-600 font-normal leading-relaxed max-w-xl">
                 Convertimos planos y modelos tridimensionales en piezas físicas de alta precisión. Subí tu archivo, elegí el polímero adecuado y nosotros nos encargamos del resto.
               </p>
+
+              {/* Designer Note */}
+              <div className="bg-white border border-slate-200 p-5 rounded-2xl max-w-xl shadow-sm">
+                <p className="text-xs text-slate-500 font-mono leading-relaxed uppercase tracking-wider">
+                  ⚙️ <span className="font-bold text-slate-900">Visor de Malla CAD:</span> Usá la barra interactiva en el visor para inspeccionar el modelo en 3D, cortar las capas en rodajas o analizar las trayectorias de impresión (G-Code).
+                </p>
+              </div>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
                 {!session ? (
                   <>
                     <Link 
                       href="/auth/signin" 
-                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-orange-950/10 active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center"
                     >
                       Ingresar
                     </Link>
@@ -89,7 +96,7 @@ export default async function Home() {
                     <Link 
                       prefetch={false}
                       href="/orders/new" 
-                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-orange-950/10 active:scale-95 text-center"
+                      className="bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-900 transition-all shadow-md active:scale-95 text-center"
                     >
                       Nueva Cotización
                     </Link>
@@ -105,7 +112,7 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: PURE 3D PRINTER ANIMATION */}
+            {/* RIGHT COLUMN: PURE 3D CAD VISUALIZER */}
             <div className="lg:col-span-6 flex justify-center items-center animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 w-full">
               <div className="w-full max-w-[500px] lg:max-w-full">
                 <ThreeDPrinterSimulator />
@@ -120,7 +127,7 @@ export default async function Home() {
       <section className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-slate-200 pb-8 mb-16">
           <div>
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2">Proceso de Trabajo</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2 font-mono">[ PROCESO DE TRABAJO ]</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Cómo funciona</h2>
           </div>
           <p className="text-slate-500 font-normal text-sm md:max-w-xs mt-4 md:mt-0 leading-relaxed">
@@ -153,7 +160,7 @@ export default async function Home() {
           ].map((item, idx) => (
             <div 
               key={idx} 
-              className="bg-white border border-slate-200 rounded-[2rem] p-8 flex flex-col justify-between hover:border-slate-400 transition-all shadow-sm"
+              className="bg-white border border-slate-200 rounded-[2rem] p-8 flex flex-col justify-between hover:border-slate-350 transition-all shadow-sm"
             >
               <div>
                 <span className="text-slate-200 font-black text-4xl tracking-tight block mb-8 font-mono">{item.step}</span>
@@ -165,45 +172,15 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* SHOWCASE GALLERY - HIGH END HORIZONTAL SWIPE */}
+      {/* SHOWCASE GALLERY - CONVEYOR BELT BY SCROLL */}
       {carouselImages.length > 0 && (
-        <section className="container mx-auto px-6">
-          <div className="flex justify-between items-end border-b border-slate-200 pb-8 mb-16">
-            <div>
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2">Galería de Trabajos</span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Piezas fabricadas</h2>
-            </div>
+        <section className="py-6">
+          <div className="container mx-auto px-6 mb-10">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2 font-mono">[ LÍNEA DE MONTAJE ]</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Piezas fabricadas</h2>
           </div>
           
-          <div className="relative w-full">
-            <div 
-              id="showcase-scroll"
-              className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth gap-8 pb-10"
-            >
-              {carouselImages.map((img) => (
-                <div key={img.id} className="w-[80vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
-                  <div className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden hover:border-slate-400 transition-all shadow-sm h-full flex flex-col">
-                    <div className="aspect-square bg-slate-50 relative overflow-hidden">
-                      <Image
-                        src={`/uploads/carousel/${img.fileName}`}
-                        alt={img.caption || "Showcase"}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 80vw, (max-width: 1024px) 40vw, 28vw"
-                      />
-                    </div>
-                    {img.caption && (
-                      <div className="p-6 flex-grow flex items-center justify-center border-t border-slate-100">
-                        <p className="text-xs text-slate-500 font-medium leading-relaxed italic text-center">
-                          &quot;{img.caption}&quot;
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ConveyorShowcase images={carouselImages} />
         </section>
       )}
 
@@ -211,10 +188,10 @@ export default async function Home() {
       <section className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:justify-between md:items-end border-b border-slate-200 pb-8 mb-16">
           <div>
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2">Biblioteca de Materiales</span>
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 block mb-2 font-mono">[ BIBLIOTECA DE MATERIALES ]</span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">Fichas Técnicas</h2>
           </div>
-          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mt-4 md:mt-0">Ver todo →</Link>
+          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mt-4 md:mt-0 font-mono">Ver todo →</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -223,7 +200,7 @@ export default async function Home() {
             return (
               <div 
                 key={m.id} 
-                className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden hover:border-slate-400 transition-all flex flex-col justify-between shadow-sm"
+                className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden hover:border-slate-350 transition-all flex flex-col justify-between shadow-sm"
               >
                 <div className="p-8 border-b border-slate-100 bg-slate-50/50">
                   <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">{m.name}</h3>
@@ -233,24 +210,24 @@ export default async function Home() {
                   <p className="text-xs text-slate-500 leading-relaxed italic">&quot;{m.description}&quot;</p>
                   
                   {/* Flat Property List */}
-                  <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-100 text-xs">
+                  <div className="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-100 text-xs font-mono">
                     <div className="flex justify-between border-b border-slate-200/60 pb-2">
                       <span className="text-slate-400">Resistencia</span>
-                      <span className="text-slate-800 font-bold">{props.strength}</span>
+                      <span className="text-slate-700 font-bold">{props.strength}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-200/60 pb-2">
                       <span className="text-slate-400">Flexibilidad</span>
-                      <span className="text-slate-800 font-bold">{props.flexibility}</span>
+                      <span className="text-slate-700 font-bold">{props.flexibility}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-400">Terminación</span>
-                      <span className="text-slate-800 font-bold">{props.finish}</span>
+                      <span className="text-slate-700 font-bold">{props.finish}</span>
                     </div>
                   </div>
 
                   {/* Colors */}
                   <div className="space-y-3">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">Colores en Bobina:</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block font-mono">Colores en Bobina:</span>
                     <div className="flex flex-wrap gap-2.5">
                       {m.colors.map((c) => (
                         <div 
@@ -271,9 +248,13 @@ export default async function Home() {
 
       {/* CTA SECTION - CLEAN & SPACIOUS */}
       <section className="container mx-auto px-6">
-        <div className="bg-slate-900 rounded-[3rem] p-8 sm:p-16 md:p-24 text-center space-y-8 relative overflow-hidden shadow-xl">
+        <div className="bg-slate-900 rounded-[3rem] p-8 sm:p-16 md:p-24 text-center space-y-8 relative overflow-hidden shadow-lg">
+            
+            {/* Subtle engineering grid overlay */}
+            <div className="absolute inset-0 opacity-[0.03] bg-white engineering-grid pointer-events-none select-none" />
+
             <div className="relative z-10 space-y-6">
-              <span className="text-[#FF4F00] text-xs font-black uppercase tracking-[0.2em] block">Cotización al instante</span>
+              <span className="text-[#FF4F00] text-xs font-black uppercase tracking-[0.2em] block font-mono">[ COTIZACIÓN AL INSTANTE ]</span>
               <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight uppercase leading-none">¿Listo para fabricar?</h2>
               <p className="text-slate-400 font-normal text-md sm:text-lg max-w-xl mx-auto leading-relaxed">
                   Subí tus archivos STL o OBJ en nuestro cotizador y recibí el presupuesto para tu proyecto en el día.
@@ -283,7 +264,7 @@ export default async function Home() {
                   <Link 
                     prefetch={false}
                     href="/orders/new" 
-                    className="inline-block bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-slate-950 transition-all shadow-xl active:scale-95"
+                    className="inline-block bg-[#FF4F00] text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-slate-950 transition-all shadow-md active:scale-95"
                   >
                     Iniciar Cotización
                   </Link>
