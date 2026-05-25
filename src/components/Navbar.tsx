@@ -13,7 +13,7 @@ export default function Navbar() {
   return (
     <nav className="bg-slate-100/90 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-4 group">
+        <Link href="/" className="flex items-center group">
           <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
             <Image 
               src="/logo.png" 
@@ -22,10 +22,6 @@ export default function Navbar() {
               className="object-contain transition-transform group-hover:scale-105"
               priority
             />
-          </div>
-          <div className="hidden lg:flex items-center gap-2 bg-slate-900 text-white border border-slate-800 rounded-lg px-2.5 py-1.5 text-[8px] font-mono tracking-widest font-black uppercase shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 pulse-led-green" />
-            PLANTA: ACTIVA 24/7
           </div>
         </Link>
 
