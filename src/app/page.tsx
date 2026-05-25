@@ -82,7 +82,7 @@ export default async function Home() {
             
             {/* LEFT: BIG LOGO */}
             <div className="lg:col-span-5 flex justify-center lg:justify-end animate-in fade-in slide-in-from-left-8 duration-1000">
-              <div className="relative w-72 h-72 md:w-[450px] md:h-[450px] filter drop-shadow-[0_0_30px_rgba(255,79,0,0.25)] float-slow">
+              <div className="relative w-72 h-72 md:w-[450px] md:h-[450px] filter drop-shadow-[0_0_20px_rgba(255,79,0,0.15)] float-slow">
                 <Image 
                   src="/logo.png" 
                   alt="S3D Logo" 
@@ -95,17 +95,17 @@ export default async function Home() {
 
             {/* RIGHT: INDUSTRIAL TECH MESSAGING */}
             <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-10 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-              <div className="flex items-center gap-3 px-3 py-1.5 rounded-md bg-slate-900/60 border border-slate-800 text-[10px] font-mono font-black tracking-widest text-[#FF4F00] uppercase select-none">
+              <div className="flex items-center gap-3 px-3 py-1.5 rounded-md bg-slate-200/80 border border-slate-300 text-[10px] font-mono font-black tracking-widest text-[#FF4F00] uppercase select-none">
                 <span>[NODE_01 // ACTIVE]</span>
               </div>
 
-              <h1 className="text-6xl md:text-8xl xl:text-[10rem] font-black text-white tracking-tighter leading-[0.85] uppercase">
+              <h1 className="text-6xl md:text-8xl xl:text-[10rem] font-black text-slate-900 tracking-tighter leading-[0.85] uppercase">
                 IMPRIMÍ <br />
                 <span className="italic text-[#FF4F00] glow-text-orange">TUS</span> IDEAS.
               </h1>
               
               <div className="max-w-xl space-y-8">
-                <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed">
+                <p className="text-lg md:text-xl text-slate-600 font-medium leading-relaxed">
                   Manufactura aditiva de alta precisión. <br />
                   Convertimos activos digitales en piezas físicas de calidad industrial con optimización estructural.
                 </p>
@@ -152,10 +152,10 @@ export default async function Home() {
       {/* TECHNICAL SHOWCASE CAROUSEL */}
       {carouselImages.length > 0 && (
         <section className="container mx-auto px-6 relative">
-          <div className="flex justify-between items-end border-b border-slate-800/80 pb-8 mb-12">
+          <div className="flex justify-between items-end border-b border-slate-200 pb-8 mb-12">
             <div>
-              <div className="text-[10px] font-mono font-black text-slate-500 uppercase tracking-[0.3em] mb-2">[GALLERY_MODULE]</div>
-              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none">
+              <div className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-[0.3em] mb-2">[GALLERY_MODULE]</div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
                 Showcase <span className="text-[#FF4F00]">3D</span>
               </h2>
             </div>
@@ -168,8 +168,8 @@ export default async function Home() {
             >
               {carouselImages.map((img, i) => (
                 <div key={img.id} className="w-[85vw] md:w-[45vw] lg:w-[32vw] flex-shrink-0 snap-center">
-                  <div className="cyber-card h-full flex flex-col border border-slate-800/60 bg-slate-950/60 overflow-hidden hover:border-[#FF4F00]/40 transition-all duration-300">
-                    <div className="aspect-[4/3] bg-slate-900/60 relative overflow-hidden">
+                  <div className="cyber-card h-full flex flex-col overflow-hidden hover:border-[#FF4F00]/40 transition-all duration-300">
+                    <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden">
                       <Image
                         src={img.isLocalAsset ? `/images/${img.fileName}` : `/uploads/carousel/${img.fileName}`}
                         alt={img.caption || "Showcase"}
@@ -182,8 +182,8 @@ export default async function Home() {
                       </div>
                     </div>
                     {img.caption && (
-                      <div className="p-8 flex-grow flex items-center justify-center border-t border-slate-900 bg-slate-950/80">
-                        <p className="text-[12px] text-slate-400 font-medium leading-relaxed italic text-center">
+                      <div className="p-8 flex-grow flex items-center justify-center border-t border-slate-100 bg-slate-50">
+                        <p className="text-[12px] text-slate-600 font-medium leading-relaxed italic text-center">
                           &quot;{img.caption}&quot;
                         </p>
                       </div>
@@ -215,49 +215,49 @@ export default async function Home() {
 
       {/* MATERIALS PREVIEW */}
       <section className="space-y-16 container mx-auto px-6 relative">
-        <div className="flex justify-between items-end border-b border-slate-800/80 pb-8">
+        <div className="flex justify-between items-end border-b border-slate-200 pb-8">
           <div>
-            <div className="text-[10px] font-mono font-black text-slate-500 uppercase tracking-[0.3em] mb-2">[POLYMER_INVENTORY]</div>
-            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase leading-none">Biblioteca de Polímeros</h2>
+            <div className="text-[10px] font-mono font-black text-slate-400 uppercase tracking-[0.3em] mb-2">[POLYMER_INVENTORY]</div>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Biblioteca de Polímeros</h2>
           </div>
-          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:text-white transition-colors duration-300 mb-1 font-mono">Ver todos →</Link>
+          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:text-black transition-colors duration-300 mb-1 font-mono">Ver todos →</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {materials.map((m) => {
             const stats = getStats(m.name);
             return (
-              <div key={m.id} className="cyber-card group flex flex-col justify-between p-8 border border-slate-800/60 bg-slate-950/45 hover:border-[#FF4F00]/40 transition-all duration-300">
+              <div key={m.id} className="cyber-card group flex flex-col justify-between p-8 hover:border-[#FF4F00]/40 transition-all duration-300">
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center border-b border-slate-900 pb-4">
-                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">{m.name}</h3>
-                    <span className="text-[9px] font-mono text-slate-500 font-bold">[READY]</span>
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
+                    <span className="text-[9px] font-mono text-slate-400 font-bold">[READY]</span>
                   </div>
                   
-                  <p className="text-[13px] text-slate-400 font-medium leading-relaxed italic min-h-[80px]">&quot;{m.description}&quot;</p>
+                  <p className="text-[13px] text-slate-500 font-medium leading-relaxed italic min-h-[80px]">&quot;{m.description}&quot;</p>
                   
                   <div className="flex flex-wrap gap-3 py-2">
                     {m.colors.map((c) => (
                       <div 
                         key={c.id} 
-                        className="w-7 h-7 rounded-full border border-slate-800 shadow-inner group-hover:scale-110 transition-transform relative cursor-help" 
+                        className="w-7 h-7 rounded-full border border-slate-200 shadow-inner group-hover:scale-110 transition-transform relative cursor-help" 
                         style={{ backgroundColor: c.hexCode }}
                         title={`${c.name} (Material: ${m.name})`}
                       >
-                        <div className="absolute inset-0 rounded-full border border-white/10"></div>
+                        <div className="absolute inset-0 rounded-full border border-black/5"></div>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Animated Technical Specifications Section */}
-                <div className="space-y-4 pt-6 border-t border-slate-900 mt-8">
+                <div className="space-y-4 pt-6 border-t border-slate-100 mt-8">
                   <p className="text-[9px] font-black uppercase tracking-widest text-[#FF4F00] font-mono">Especificaciones Técnicas</p>
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-[9px] font-mono text-slate-500 mb-1">
                         <span>RIGIDEZ</span>
-                        <span className="text-slate-300 font-bold">{stats.rigidity}%</span>
+                        <span className="text-slate-700 font-bold">{stats.rigidity}%</span>
                       </div>
                       <div className="tech-stat-bar">
                         <div className="tech-stat-fill" style={{ width: `${stats.rigidity}%` }} />
@@ -267,7 +267,7 @@ export default async function Home() {
                     <div>
                       <div className="flex justify-between text-[9px] font-mono text-slate-500 mb-1">
                         <span>RESISTENCIA IMPACTO</span>
-                        <span className="text-slate-300 font-bold">{stats.impact}%</span>
+                        <span className="text-slate-700 font-bold">{stats.impact}%</span>
                       </div>
                       <div className="tech-stat-bar">
                         <div className="tech-stat-fill" style={{ width: `${stats.impact}%` }} />
@@ -277,7 +277,7 @@ export default async function Home() {
                     <div>
                       <div className="flex justify-between text-[9px] font-mono text-slate-500 mb-1">
                         <span>RESISTENCIA TÉRMICA</span>
-                        <span className="text-slate-300 font-bold">{stats.thermal}%</span>
+                        <span className="text-slate-700 font-bold">{stats.thermal}%</span>
                       </div>
                       <div className="tech-stat-bar">
                         <div className="tech-stat-fill" style={{ width: `${stats.thermal}%` }} />
@@ -293,10 +293,10 @@ export default async function Home() {
 
       {/* CTA SECTION */}
       <section className="container mx-auto px-6 relative">
-        <div className="bg-slate-950/80 rounded-[3rem] border border-slate-800 p-16 md:p-24 text-center space-y-12 relative overflow-hidden shadow-2xl border-b-4 border-[#FF4F00] filter backdrop-blur-md">
+        <div className="bg-slate-900 rounded-[3rem] p-16 md:p-24 text-center space-y-12 relative overflow-hidden shadow-2xl border-b-8 border-[#FF4F00]">
             
             {/* Tech accents */}
-            <div className="absolute top-4 left-6 text-[8px] font-mono text-slate-600 tracking-widest">[SYSTEM_CORE_INITIATION_SEQUENCE]</div>
+            <div className="absolute top-4 left-6 text-[8px] font-mono text-slate-500 tracking-widest">[SYSTEM_CORE_INITIATION_SEQUENCE]</div>
             <div className="absolute top-4 right-6 text-[8px] font-mono text-[#FF4F00] tracking-widest select-none pulse-glow-green w-1.5 h-1.5 rounded-full inline-block"></div>
             
             <div className="relative z-10 max-w-2xl mx-auto space-y-8">
@@ -304,7 +304,7 @@ export default async function Home() {
                 ¿LISTO PARA <br />
                 <span className="text-[#FF4F00] glow-text-orange">FABRICAR?</span>
               </h2>
-              <p className="text-slate-400 font-medium text-lg leading-relaxed max-w-lg mx-auto">
+              <p className="text-slate-300 font-medium text-lg leading-relaxed max-w-lg mx-auto">
                 Subí tus archivos CAD o STL y recibí una cotización técnica instantánea en el día.
               </p>
               <div className="pt-6">
@@ -319,8 +319,8 @@ export default async function Home() {
             </div>
             
             {/* Background Graphic */}
-            <div className="absolute inset-0 opacity-[0.02] flex items-center justify-center pointer-events-none select-none">
-              <span className="text-[25rem] font-black tracking-tighter text-white">S3D</span>
+            <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none select-none">
+              <span className="text-[25rem] font-black tracking-tighter text-white/5">S3D</span>
             </div>
         </div>
       </section>

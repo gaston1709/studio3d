@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background-hex: #05070c;
-  --foreground-hex: #f8fafc;
+  --background-hex: #f1f5f9;
+  --foreground-hex: #0f172a;
   --accent-orange: #ff4f00;
-  --accent-cyan: #00f0ff;
-  --glass-bg: rgba(10, 15, 30, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent-cyan: #0ea5e9;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.08);
   --mouse-x: 50%;
   --mouse-y: 50%;
 }
@@ -25,8 +25,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Technical grid and blueprint styles */
 .cyber-grid {
   background-image: 
-    linear-gradient(to right, rgba(255, 79, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 79, 0, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(15, 23, 42, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.025) 1px, transparent 1px);
   background-size: 40px 40px;
   position: relative;
 }
@@ -35,16 +35,16 @@ h1, h2, h3, h4, h5, h6 {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle 800px at var(--mouse-x) var(--mouse-y), rgba(255, 79, 0, 0.06), transparent 80%);
+  background: radial-gradient(circle 800px at var(--mouse-x) var(--mouse-y), rgba(255, 79, 0, 0.04), transparent 80%);
   pointer-events: none;
   z-index: 0;
 }
 
 /* Cyber card design with glow following cursor */
 .cyber-card {
-  background: rgba(10, 14, 23, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-bottom: 2px solid rgba(255, 79, 0, 0.15);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-bottom: 2px solid rgba(255, 79, 0, 0.25);
   backdrop-filter: blur(12px);
   border-radius: 24px;
   position: relative;
@@ -56,7 +56,7 @@ h1, h2, h3, h4, h5, h6 {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), rgba(255, 79, 0, 0.08), transparent 70%);
+  background: radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), rgba(255, 79, 0, 0.05), transparent 70%);
   opacity: 0;
   transition: opacity 0.5s ease;
   pointer-events: none;
@@ -65,7 +65,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .cyber-card:hover {
   border-color: rgba(255, 79, 0, 0.3);
-  box-shadow: 0 0 30px rgba(255, 79, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04), 0 0 20px rgba(255, 79, 0, 0.05);
   transform: translateY(-4px);
 }
 
@@ -88,7 +88,7 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
   border: none;
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(255, 79, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(255, 79, 0, 0.15);
 }
 
 .cyber-btn-orange::before {
@@ -104,7 +104,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .cyber-btn-orange:hover {
   background: #ff6a20;
-  box-shadow: 0 0 30px rgba(255, 79, 0, 0.4);
+  box-shadow: 0 0 30px rgba(255, 79, 0, 0.3);
   transform: translateY(-2px);
 }
 
@@ -115,13 +115,13 @@ h1, h2, h3, h4, h5, h6 {
 .cyber-btn-secondary {
   position: relative;
   background: transparent;
-  color: #fff;
+  color: var(--foreground-hex);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   padding: 1.25rem 2.5rem;
   border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(15, 23, 42, 0.15);
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
   transition: all 0.3s ease;
   overflow: hidden;
@@ -129,19 +129,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .cyber-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #fff;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.03);
+  border-color: var(--foreground-hex);
+  box-shadow: 0 0 20px rgba(15, 23, 42, 0.05);
   transform: translateY(-2px);
 }
 
 /* Glowing text */
 .glow-text-orange {
-  text-shadow: 0 0 20px rgba(255, 79, 0, 0.5);
+  text-shadow: 0 0 20px rgba(255, 79, 0, 0.25);
 }
 
 .glow-text-cyan {
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+  text-shadow: 0 0 20px rgba(14, 165, 233, 0.25);
 }
 
 /* Laser sweep animation */
@@ -151,11 +151,11 @@ h1, h2, h3, h4, h5, h6 {
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
-  box-shadow: 0 0 10px var(--accent-cyan);
+  background: linear-gradient(90deg, transparent, var(--accent-orange), transparent);
+  box-shadow: 0 0 10px var(--accent-orange);
   animation: sweep 6s linear infinite;
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.3;
   z-index: 10;
 }
 
@@ -176,26 +176,26 @@ h1, h2, h3, h4, h5, h6 {
   animation: cyber-pulse 2s infinite ease-in-out;
 }
 
-/* custom scrollbar for dark theme */
+/* custom scrollbar for light theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #05070c;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 79, 0, 0.3);
+  background: rgba(255, 79, 0, 0.2);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 79, 0, 0.6);
+  background: rgba(255, 79, 0, 0.5);
 }
 
 /* Technical stats progress bar container */
 .tech-stat-bar {
   height: 6px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.05);
   border-radius: 3px;
   overflow: hidden;
   position: relative;
