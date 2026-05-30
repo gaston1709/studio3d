@@ -130,11 +130,13 @@ export default async function Home() {
 
       {/* ===================== CAPA 02 · MATERIALES (graphite) ===================== */}
       <section className="panel-graphite">
-        <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
-          <span className="layer-seam flex-1" />
-          <span className="seam-label whitespace-nowrap">— Capa 02 · Materiales —</span>
-          <span className="layer-seam flex-1" />
-        </div>
+        <ScrollReveal className="w-full">
+          <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
+            <span className="layer-seam flex-1" />
+            <span className="seam-label whitespace-nowrap">— Capa 02 · Materiales —</span>
+            <span className="layer-seam flex-1" />
+          </div>
+        </ScrollReveal>
 
         <ScrollReveal>
           <div className="container mx-auto px-6 py-16 md:py-24 space-y-12">
@@ -191,11 +193,13 @@ export default async function Home() {
       {/* ===================== CAPA 03 · SHOWCASE (paper) ===================== */}
       {carouselImages.length > 0 && (
         <section className="panel-paper">
-          <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
-            <span className="layer-seam flex-1" />
-            <span className="seam-label whitespace-nowrap">— Capa 03 · Hecho por nosotros —</span>
-            <span className="layer-seam flex-1" />
-          </div>
+          <ScrollReveal className="w-full">
+            <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
+              <span className="layer-seam flex-1" />
+              <span className="seam-label whitespace-nowrap">— Capa 03 · Hecho por nosotros —</span>
+              <span className="layer-seam flex-1" />
+            </div>
+          </ScrollReveal>
 
           <ScrollReveal>
             <div className="container mx-auto px-6 py-16 md:py-24 space-y-12">
@@ -257,11 +261,13 @@ export default async function Home() {
       {/* ===================== CAPA 04 · CTA (graphite) ===================== */}
       <section className="panel-graphite relative overflow-hidden">
         <div className="absolute inset-0 layer-lines-dark opacity-60 pointer-events-none" aria-hidden="true" />
-        <div className="container mx-auto px-6 pt-12 flex items-center gap-4 relative z-10">
-          <span className="layer-seam flex-1" />
-          <span className="seam-label whitespace-nowrap">— Capa 04 · Tu pieza —</span>
-          <span className="layer-seam flex-1" />
-        </div>
+        <ScrollReveal className="w-full relative z-10">
+          <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
+            <span className="layer-seam flex-1" />
+            <span className="seam-label whitespace-nowrap">— Capa 04 · Tu pieza —</span>
+            <span className="layer-seam flex-1" />
+          </div>
+        </ScrollReveal>
 
         <ScrollReveal>
           <div className="container mx-auto px-6 py-20 md:py-32 text-center space-y-8 relative z-10">

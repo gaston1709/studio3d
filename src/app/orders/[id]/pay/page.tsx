@@ -27,7 +27,7 @@ export default async function OrderPaymentPage({
   if (!order || order.user.email !== session.user.email || !order.price) {
     return (
       <div className="max-w-2xl mx-auto py-20 text-center">
-        <h1 className="text-2xl font-black text-slate-900 uppercase">Pedido no válido o inaccesible.</h1>
+        <h1 className="mono text-sm uppercase tracking-[0.2em] text-red-500">Pedido no válido o inaccesible.</h1>
       </div>
     );
   }
@@ -35,19 +35,26 @@ export default async function OrderPaymentPage({
   const depositAmount = order.price / 2;
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-8 tracking-tighter uppercase">Confirmar y <span className="text-blue-600">Pagar</span></h1>
+    <div className="max-w-2xl mx-auto py-12 px-6 space-y-8">
+      {/* Header seam */}
+      <div className="flex items-center gap-4">
+        <span className="layer-seam flex-1" />
+        <span className="seam-label whitespace-nowrap">— Confirmación de impresión —</span>
+        <span className="layer-seam flex-1" />
+      </div>
 
-      <div className="bg-white border-4 border-slate-900 rounded-3xl sm:rounded-[2.5rem] p-5 sm:p-10 shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] space-y-10">
+      <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--ink)] tracking-tight">Confirmar y abonar</h1>
+
+      <div className="bg-[var(--paper)] border border-[var(--paper-line)] rounded-2xl p-8 md:p-10 warm-shadow layer-press space-y-8">
         {/* Resumen */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b-4 border-slate-100 pb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 border-b border-[var(--paper-line)] pb-8">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Costo Total</p>
-            <p className="text-4xl font-black text-slate-900">${order.price.toFixed(2)}</p>
+            <p className="mono text-[9px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mb-1">Costo Total</p>
+            <p className="text-3xl font-semibold text-[var(--ink)]">${order.price.toFixed(2)}</p>
           </div>
-          <div className="md:text-right bg-blue-50 border-2 border-blue-100 px-6 py-4 rounded-2xl w-full md:w-auto">
-            <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-1 italic">Seña del 50% ✨</p>
-            <p className="text-4xl font-black text-blue-600">${depositAmount.toFixed(2)}</p>
+          <div className="bg-white border border-[var(--paper-line)] px-6 py-4 rounded-xl w-full sm:w-auto">
+            <p className="mono text-[9px] uppercase tracking-[0.2em] text-[var(--amber)] mb-1 italic">Seña requerida (50%)</p>
+            <p className="text-3xl font-semibold text-[var(--amber)]">${depositAmount.toFixed(2)}</p>
           </div>
         </div>
 

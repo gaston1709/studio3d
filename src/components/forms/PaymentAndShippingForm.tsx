@@ -70,20 +70,20 @@ export default function PaymentAndShippingForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Envío */}
-      <div>
-        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-          <span className="w-8 h-[2px] bg-slate-400"></span> 01. Método de Entrega
+      <div className="space-y-4">
+        <h3 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] flex items-center gap-3">
+          <span className="w-6 h-px bg-[var(--paper-line)]" /> 01 · Método de Entrega
         </h3>
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {shippingOptions.map((opt) => (
             <label 
               key={opt.id}
-              className={`flex items-center justify-between p-5 border-4 rounded-3xl cursor-pointer transition-all ${
+              className={`flex items-center justify-between p-5 border rounded-2xl cursor-pointer transition-all perimeter-card ${
                 shippingMethod === opt.id 
-                  ? "border-[#FF4F00] bg-white shadow-xl shadow-orange-950/5 scale-[1.01]" 
-                  : "border-slate-200 bg-slate-50 hover:border-slate-400 hover:bg-slate-100/50"
+                  ? "border-[var(--amber)] bg-[color-mix(in_srgb,var(--amber)_5%,white)] warm-shadow" 
+                  : "border-[var(--paper-line)] bg-white/60 hover:border-[var(--ink-soft)]"
               }`}
             >
               <div className="flex items-center gap-4">
@@ -93,11 +93,11 @@ export default function PaymentAndShippingForm({
                   value={opt.id} 
                   checked={shippingMethod === opt.id}
                   onChange={(e) => setShippingMethod(e.target.value)}
-                  className="w-5 h-5 text-[#FF4F00] border-2 border-slate-900 focus:ring-[#FF4F00] accent-[#FF4F00]"
+                  className="w-4 h-4 text-[var(--amber)] border-[var(--paper-line)] focus:ring-[var(--amber)] accent-[var(--amber)] cursor-pointer"
                 />
                 <div>
-                  <p className="font-black text-slate-900 text-sm uppercase tracking-wide">{opt.label}</p>
-                  <p className="text-xs font-bold text-slate-400 mt-1">{opt.desc}</p>
+                  <p className="font-semibold text-[var(--ink)] text-sm">{opt.label}</p>
+                  <p className="text-xs text-[var(--ink-soft)] mt-1">{opt.desc}</p>
                 </div>
               </div>
             </label>
@@ -106,26 +106,26 @@ export default function PaymentAndShippingForm({
       </div>
 
       {/* Pago */}
-      <div>
-        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-4">
-          <span className="w-8 h-[2px] bg-slate-400"></span> 02. Comprobante de Seña (${depositAmount.toFixed(2)})
+      <div className="space-y-4">
+        <h3 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] flex items-center gap-3">
+          <span className="w-6 h-px bg-[var(--paper-line)]" /> 02 · Seña (${depositAmount.toFixed(2)})
         </h3>
         
-        <div className="bg-white border-4 border-slate-900 p-8 rounded-3xl mb-6 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">Cuentas de Transferencia (50% Seña)</p>
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:justify-between border-b border-slate-100 pb-3 gap-2">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alias</span>
-              <span className="text-sm font-black text-[#FF4F00] uppercase tracking-wider">{paymentInfo.alias}</span>
+        <div className="bg-white border border-[var(--paper-line)] p-6 rounded-2xl shadow-sm">
+          <p className="mono text-[8px] uppercase tracking-[0.2em] text-[var(--ink-soft)] mb-4">Cuentas de Transferencia (50% Seña)</p>
+          <div className="space-y-3">
+            <div className="flex justify-between border-b border-[var(--paper-line)] pb-3 gap-2">
+              <span className="mono text-[9px] uppercase tracking-widest text-[var(--ink-soft)]">Alias</span>
+              <span className="text-sm font-semibold text-[var(--amber)] uppercase tracking-wider">{paymentInfo.alias}</span>
             </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">CBU</span>
-              <span className="text-sm font-black text-slate-900 tracking-widest">{paymentInfo.cbu}</span>
+            <div className="flex justify-between gap-2">
+              <span className="mono text-[9px] uppercase tracking-widest text-[var(--ink-soft)]">CBU</span>
+              <span className="text-sm font-semibold text-[var(--ink)] tracking-widest">{paymentInfo.cbu}</span>
             </div>
           </div>
         </div>
 
-        <div className="relative border-4 border-dashed border-slate-300 rounded-3xl p-10 hover:border-[#FF4F00] transition-all text-center group bg-white">
+        <div className="relative border-2 border-dashed border-[var(--paper-line)] rounded-2xl p-8 hover:border-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_3%,transparent)] transition-all text-center group bg-white/60">
           <input
             type="file"
             required
@@ -144,21 +144,21 @@ export default function PaymentAndShippingForm({
               }
               setFile(selectedFile);
             }}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
           <div className="space-y-4">
-            <div className="w-12 h-12 bg-slate-50 border-2 border-slate-200 rounded-2xl flex items-center justify-center mx-auto group-hover:bg-[#FF4F00]/5 group-hover:border-[#FF4F00]/20 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-400 group-hover:text-[#FF4F00] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-12 h-12 bg-[var(--paper)] border border-[var(--paper-line)] rounded-xl flex items-center justify-center mx-auto group-hover:bg-[color-mix(in_srgb,var(--amber)_5%,white)] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--ink-soft)] group-hover:text-[var(--amber)] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
             </div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-relaxed">
+            <p className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.2em] leading-relaxed">
               {file ? (
-                <span className="text-[#FF4F00] border-b-2 border-[#FF4F00] pb-0.5">{file.name}</span>
+                <span className="text-[var(--amber)] border-b border-[var(--amber)] pb-0.5">{file.name}</span>
               ) : (
                 <>
                   Arrastrá o hacé click para subir <br />
-                  <span className="text-[8px] text-slate-400 mt-1 block">PNG, JPG o PDF (máx. 5MB)</span>
+                  <span className="text-[8px] text-[var(--ink-soft)]/50 mt-1 block">PNG, JPG o PDF (máx. 5MB)</span>
                 </>
               )}
             </p>
@@ -169,17 +169,17 @@ export default function PaymentAndShippingForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full py-6 rounded-2xl font-black text-white transition-all uppercase tracking-[0.2em] shadow-xl text-xs active:scale-[0.98] ${
-          isSubmitting 
-            ? "bg-slate-300 cursor-not-allowed" 
-            : "bg-slate-900 hover:bg-[#FF4F00] shadow-slate-900/10"
-        }`}
+        className="w-full py-4 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50"
       >
-        {isSubmitting ? "Cargando Transacción..." : "Confirmar y Subir Comprobante"}
+        {isSubmitting ? (
+          <span className="mono text-xs uppercase tracking-[0.2em]">Cargando Transacción...</span>
+        ) : (
+          "Confirmar y Subir Comprobante"
+        )}
       </button>
 
       {message && (
-        <div className="p-6 bg-emerald-50 text-emerald-800 rounded-2xl text-center font-black text-[10px] border-2 border-emerald-200 uppercase tracking-[0.2em] animate-in zoom-in-95">
+        <div className="p-4 bg-[color-mix(in_srgb,var(--amber)_10%,white)] text-[var(--ink)] border border-[var(--paper-line)] rounded-xl text-center mono text-[10px] uppercase tracking-[0.2em] layer-press">
           {message}
         </div>
       )}

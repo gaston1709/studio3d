@@ -18,7 +18,7 @@ export default function OrderRatingForm({ orderId }: OrderRatingFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      setError("Por favor, selecciona una calificación.");
+      setError("Por favor, seleccioná una calificación.");
       return;
     }
     setError(null);
@@ -45,26 +45,26 @@ export default function OrderRatingForm({ orderId }: OrderRatingFormProps) {
   };
 
   return (
-    <div className="bg-white border-4 border-slate-900 p-8 rounded-[2.5rem] shadow-xl">
-      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight mb-2">
-        Califica tu Pieza
+    <div className="bg-[var(--paper)] border border-[var(--paper-line)] p-8 rounded-2xl warm-shadow layer-press">
+      <h3 className="text-xl font-semibold text-[var(--ink)] tracking-tight mb-1">
+        Calificá tu pieza
       </h3>
-      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-6">
+      <p className="mono text-[9px] uppercase tracking-[0.2em] text-[var(--ink-soft)] mb-6">
         Queremos saber cómo fue tu experiencia de manufactura en S3D
       </p>
 
       {error && (
-        <div className="p-4 mb-6 bg-red-50 border-4 border-red-500 rounded-xl text-red-700 font-black text-xs uppercase tracking-wider">
-          🚨 {error}
+        <div className="p-4 mb-6 bg-red-50 border border-red-200 text-red-700 mono text-[9px] uppercase tracking-wider rounded-xl">
+          ⚠ {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+          <label className="mono block text-[9px] text-[var(--ink-soft)] mb-3 uppercase tracking-[0.28em]">
             Calificación
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((star) => {
               const active = star <= (hoverRating || rating);
               return (
@@ -74,15 +74,15 @@ export default function OrderRatingForm({ orderId }: OrderRatingFormProps) {
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="p-1 transition-transform active:scale-90"
+                  className="p-1 transition-transform active:scale-90 cursor-pointer"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    fill={active ? "#FF4F00" : "none"}
-                    stroke="#000"
-                    strokeWidth={2.5}
-                    className="w-10 h-10 transition-colors"
+                    fill={active ? "var(--amber)" : "none"}
+                    stroke={active ? "var(--amber)" : "var(--ink-soft)"}
+                    strokeWidth={1.5}
+                    className="w-8 h-8 transition-colors"
                   >
                     <path
                       strokeLinecap="round"
@@ -97,13 +97,13 @@ export default function OrderRatingForm({ orderId }: OrderRatingFormProps) {
         </div>
 
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+          <label className="mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]">
             Comentarios Adicionales
           </label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-bold text-slate-900 focus:border-[#FF4F00] outline-none bg-slate-50 min-h-[120px] transition-colors resize-none"
+            className="w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm min-h-[100px] transition-colors resize-none placeholder:text-[var(--ink-soft)]/30"
             placeholder="¿Qué te pareció la resolución, el material o la atención? Tu feedback nos sirve un montón..."
             maxLength={500}
           />
@@ -112,9 +112,13 @@ export default function OrderRatingForm({ orderId }: OrderRatingFormProps) {
         <button
           type="submit"
           disabled={isSubmitting || rating === 0}
-          className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#FF4F00] hover:shadow-[#FF4F00]/10 border-4 border-slate-900 transition-all shadow-xl active:scale-95 disabled:bg-slate-300 disabled:border-slate-300"
+          className="w-full py-4 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50"
         >
-          {isSubmitting ? "Enviando..." : "Enviar Calificación"}
+          {isSubmitting ? (
+            <span className="mono text-xs uppercase tracking-[0.2em]">Enviando...</span>
+          ) : (
+            "Enviar Calificación"
+          )}
         </button>
       </form>
     </div>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import dynamic from "next/dynamic";
 import ZHeightRail from "@/components/landing/ZHeightRail";
+import DimensionOverlay from "./DimensionOverlay";
 
 const ThreeDViewer = dynamic(() => import("../ThreeDViewer"), {
   ssr: false,
@@ -71,6 +72,8 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   const [purpose, setPurpose] = useState("aesthetic");
   const [desiredDate, setDesiredDate] = useState("");
   const [deliveryNotes, setDeliveryNotes] = useState("");
+  const [fileDimensions, setFileDimensions] = useState<Record<string, { x: number; y: number; z: number }>>({});
+
   const formProgress = useMemo(() => {
     const fields = [
       fileConfigs.length > 0,
@@ -82,22 +85,42 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     return Math.round((done / fields.length) * 100);
   }, [fileConfigs, purpose]);
 
+  // Determine active file being displayed in the 3D Viewer
+  const activeFileConfig = useMemo(() => {
+    return fileConfigs.find(f => f.id === viewingFileId) || fileConfigs[0] || null;
+  }, [fileConfigs, viewingFileId]);
+
+  // Determine active color for --accent CSS property
+  const activeHexColor = useMemo(() => {
+    if (!activeFileConfig) return null;
+    const mat = materials.find(m => m.id === activeFileConfig.materialId);
+    const color = mat?.colors.find(c => c.id === activeFileConfig.colorId);
+    return color?.hexCode || activeFileConfig.customColor || null;
+  }, [activeFileConfig, materials]);
+
   // Update --accent when filament color is selected
   useEffect(() => {
-    const firstFile = fileConfigs[0];
-    if (!firstFile) {
-      document.documentElement.style.removeProperty("--accent");
-      return;
-    }
-    const mat = materials.find(m => m.id === firstFile.materialId);
-    const color = mat?.colors.find(c => c.id === firstFile.colorId);
-    if (color?.hexCode) {
-      document.documentElement.style.setProperty("--accent", color.hexCode);
+    if (activeHexColor && !activeHexColor.startsWith("var(")) {
+      document.documentElement.style.setProperty("--accent", activeHexColor);
     } else {
       document.documentElement.style.removeProperty("--accent");
     }
-    return () => { document.documentElement.style.removeProperty("--accent"); };
-  }, [fileConfigs, materials]);
+    return () => {
+      document.documentElement.style.removeProperty("--accent");
+    };
+  }, [activeHexColor]);
+
+  // Parse scale string and apply scaling to dimensions
+  const getScaledDimensions = (dims: { x: number; y: number; z: number } | null, scaleStr: string) => {
+    if (!dims) return null;
+    const numeric = parseFloat(scaleStr);
+    const pct = isNaN(numeric) ? 1 : numeric / 100;
+    return {
+      x: Math.round(dims.x * pct * 10) / 10,
+      y: Math.round(dims.y * pct * 10) / 10,
+      z: Math.round(dims.z * pct * 10) / 10,
+    };
+  };
 
   if (status === "loading") return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -143,9 +166,19 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       scaleFactor: "100%",
     }));
     setFilesConfigs([...fileConfigs, ...newConfigs]);
+    if (!viewingFileId && newConfigs.length > 0) {
+      setViewingFileId(newConfigs[0].id);
+    }
   };
 
-  const removeFile = (id: string) => setFilesConfigs(fileConfigs.filter(f => f.id !== id));
+  const removeFile = (id: string) => {
+    setFilesConfigs(fileConfigs.filter(f => f.id !== id));
+    if (viewingFileId === id) {
+      const remaining = fileConfigs.filter(f => f.id !== id);
+      setViewingFileId(remaining.length > 0 ? remaining[0].id : null);
+    }
+  };
+
   const updateFileConfig = (id: string, updates: Partial<FileConfig>) =>
     setFilesConfigs(fileConfigs.map(f => f.id === id ? { ...f, ...updates } : f));
 
@@ -176,6 +209,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
       if (res.ok) {
         setMessage("Pedido enviado. Te mandamos el presupuesto pronto.");
         setFilesConfigs([]);
+        setViewingFileId(null);
       } else {
         const data = await res.json();
         setMessage(data.error || "Error al enviar el pedido.");
@@ -192,23 +226,80 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   return (
     <>
       <ZHeightRail mode="form" formProgress={formProgress} />
-      <form onSubmit={handleSubmit} className="full-bleed -mt-8 md:-mt-12">
-        {/* Header seam */}
-        <div className="panel-paper">
-          <div className="container mx-auto px-6 pt-10 pb-0 flex items-center gap-4">
-            <span className="layer-seam flex-1" />
-            <span className="seam-label whitespace-nowrap">— El banco de trabajo —</span>
-            <span className="layer-seam flex-1" />
-          </div>
-          <div className="container mx-auto px-6 pt-8 pb-4">
-            <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--ink)] tracking-tight">Nueva cotización</h1>
-            <p className="mono text-[10px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-2">Subí tu modelo, elegí material y mandanos el pedido</p>
+      
+      <div className="full-bleed -mt-8 md:-mt-12 flex flex-col lg:flex-row min-h-[calc(100vh-64px)] bg-[var(--paper)]">
+        
+        {/* Left column: 3D Viewer or placeholder (60% width on desktop, 50vh height on mobile) */}
+        <div className="w-full lg:w-[60%] h-[50vh] lg:h-[calc(100vh-64px)] sticky top-16 lg:top-20 bg-[var(--graphite)] border-r border-[var(--graphite-line)] relative flex flex-col justify-between overflow-hidden">
+          
+          {activeFileConfig ? (
+            <div className="w-full h-full relative">
+              <ThreeDViewer
+                file={activeFileConfig.file}
+                hexColor={activeHexColor}
+                onDimensionsComputed={(dims) => {
+                  setFileDimensions(prev => ({ ...prev, [activeFileConfig.id]: dims }));
+                }}
+              />
+              
+              {/* Dimension Overlay (SVG Engineering Cotas) */}
+              {fileDimensions[activeFileConfig.id] && (
+                <DimensionOverlay
+                  dimensions={getScaledDimensions(fileDimensions[activeFileConfig.id], activeFileConfig.scaleFactor) || fileDimensions[activeFileConfig.id]}
+                />
+              )}
+              
+              {/* Floating current file indicator */}
+              <div className="absolute top-6 right-6 bg-[var(--graphite)]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-[var(--graphite-line)] mono text-[10px] uppercase tracking-[0.2em] text-[var(--paper)] z-10">
+                {activeFileConfig.file.name}
+              </div>
+            </div>
+          ) : (
+            /* Empty / waiting geometry state */
+            <div className="w-full h-full relative flex flex-col items-center justify-center p-8 text-center"
+                 style={{
+                   background: `
+                     linear-gradient(var(--graphite-line) 1px, transparent 1px),
+                     linear-gradient(90deg, var(--graphite-line) 1px, transparent 1px),
+                     var(--graphite)
+                   `,
+                   backgroundSize: "24px 24px",
+                 }}>
+              {/* Radial gradient glow simulating print bed warming */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,color-mix(in_srgb,var(--amber)_8%,transparent)_0%,transparent_70%)] pointer-events-none" />
+              
+              <div className="relative z-10 space-y-4 max-w-xs">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--graphite-line)] border border-[color-mix(in_srgb,var(--amber)_30%,var(--graphite-line))] flex items-center justify-center mx-auto text-[var(--amber)] text-2xl animate-pulse">
+                  📥
+                </div>
+                <p className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)]">ESPERANDO GEOMETRÍA</p>
+                <p className="text-sm text-[var(--paper)]/50">Subí tus archivos .STL, .STEP o .3MF para iniciar el banco de trabajo.</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Bottom technical label */}
+          <div className="absolute bottom-4 left-4 z-10 bg-[var(--graphite)]/50 backdrop-blur-sm border border-[var(--graphite-line)] px-3 py-1.5 rounded-lg mono text-[8px] uppercase tracking-[0.25em] text-[var(--paper)]/60">
+            VISOR 3D V2 · MOTOR: THREE.JS
           </div>
         </div>
 
-        <div className="panel-paper">
-          <div className="container mx-auto px-6 pb-24 space-y-16">
+        {/* Right column: scrolleable form (40% width on desktop) */}
+        <div className="w-full lg:w-[40%] h-auto lg:h-[calc(100vh-64px)] overflow-y-auto bg-[var(--paper)] border-l border-[var(--paper-line)] flex flex-col hide-scrollbar">
+          
+          {/* Header seam inside scroll */}
+          <div className="p-8 pb-4 border-b border-[var(--paper-line)] bg-[var(--paper)] sticky top-0 z-20">
+            <div className="flex items-center gap-4 mb-4">
+              <span className="layer-seam flex-1" />
+              <span className="seam-label whitespace-nowrap">— El banco de trabajo —</span>
+              <span className="layer-seam flex-1" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--ink)] tracking-tight">Nueva cotización</h1>
+            <p className="mono text-[9px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-2">Configurá tus piezas y solicitá presupuesto</p>
+          </div>
 
+          <form onSubmit={handleSubmit} className="p-8 space-y-8 flex-grow">
+            
             {/* Volume limit notice */}
             <div className="flex items-start gap-3 p-4 bg-[color-mix(in_srgb,var(--amber)_8%,var(--paper))] rounded-xl border border-[color-mix(in_srgb,var(--amber)_30%,var(--paper-line))]">
               <span className="mono text-[10px] text-[var(--amber)] uppercase tracking-[0.2em] flex-shrink-0 mt-0.5">⚠ Límite</span>
@@ -218,13 +309,13 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             </div>
 
             {/* 01 Files */}
-            <section>
+            <section className="space-y-4">
               <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mb-4 flex items-center gap-3">
                 <span className="w-6 h-px bg-[var(--paper-line)]" /> 01 · Archivos
               </h2>
 
               <div className="relative border-2 border-dashed border-[var(--paper-line)] rounded-2xl p-8 hover:border-[var(--accent)] hover:bg-[color-mix(in_srgb,var(--accent)_3%,transparent)] transition-all text-center group">
-                <input type="file" multiple accept=".stl,.3mf,.step" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <input type="file" multiple accept=".stl,.3mf,.step" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-colors" style={{ backgroundColor: "var(--accent)" }}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -249,23 +340,23 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                       <div className="bg-[color-mix(in_srgb,var(--paper)_60%,white)] px-6 py-3 border-b border-[var(--paper-line)] flex justify-between items-center">
                         <div className="flex items-center gap-3 min-w-0">
                           <span className="mono text-[9px] text-[var(--ink-soft)] flex-shrink-0">#{idx + 1}</span>
-                          <p className="text-sm font-medium text-[var(--ink)] truncate max-w-[160px] sm:max-w-[300px]" title={f.file.name}>{f.file.name}</p>
+                          <p className="text-sm font-medium text-[var(--ink)] truncate max-w-[120px] sm:max-w-[200px]" title={f.file.name}>{f.file.name}</p>
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          {/\.(stl|obj)$/i.test(f.file.name) && (
+                          {/\.(stl|obj|step|3mf)$/i.test(f.file.name) && (
                             <button
                               type="button"
-                              onClick={() => setViewingFileId(viewingFileId === f.id ? null : f.id)}
-                              className={`px-3 py-1.5 rounded-lg mono text-[9px] uppercase tracking-widest border transition-all active:scale-95 ${
-                                viewingFileId === f.id
-                                  ? "border-[var(--accent)] text-[var(--accent)]"
+                              onClick={() => setViewingFileId(f.id)}
+                              className={`px-3 py-1.5 rounded-lg mono text-[8px] uppercase tracking-widest border transition-all active:scale-95 cursor-pointer ${
+                                activeFileConfig?.id === f.id
+                                  ? "border-[var(--accent)] text-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_8%,transparent)]"
                                   : "border-[var(--paper-line)] text-[var(--ink-soft)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
                               }`}
                             >
-                              {viewingFileId === f.id ? "✕ Cerrar" : "Vista 3D"}
+                              {activeFileConfig?.id === f.id ? "● Visualizando" : "Inspeccionar"}
                             </button>
                           )}
-                          <button type="button" onClick={() => removeFile(f.id)} className="text-[var(--ink-soft)] hover:text-red-500 transition-colors">
+                          <button type="button" onClick={() => removeFile(f.id)} className="text-[var(--ink-soft)] hover:text-red-500 transition-colors cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
@@ -273,33 +364,35 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                         </div>
                       </div>
 
-                      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <WarmInput label="Material">
-                          <select value={f.materialId} onChange={(e) => updateFileConfig(f.id, { materialId: e.target.value, colorId: "" })} className={inputClass}>
-                            {materials.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                            <option value="multi">Varios materiales</option>
-                            <option value="custom">Otro</option>
-                          </select>
-                        </WarmInput>
-
-                        {f.materialId !== "custom" && f.materialId !== "multi" && (
-                          <WarmInput label="Color">
-                            <div className="relative">
-                              <select value={f.colorId} required onChange={(e) => updateFileConfig(f.id, { colorId: e.target.value })} className={inputClass}>
-                                <option value="" disabled>Seleccionar...</option>
-                                {availableColors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                <option value="multi">Varios colores</option>
-                                <option value="custom">Otro</option>
-                              </select>
-                              {selectedColor && (
-                                <span className="absolute right-9 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-[var(--paper-line)] pointer-events-none" style={{ backgroundColor: selectedColor.hexCode }} />
-                              )}
-                            </div>
+                      <div className="p-6 space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <WarmInput label="Material">
+                            <select value={f.materialId} onChange={(e) => updateFileConfig(f.id, { materialId: e.target.value, colorId: "" })} className={inputClass}>
+                              {materials.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                              <option value="multi">Varios materiales</option>
+                              <option value="custom">Otro</option>
+                            </select>
                           </WarmInput>
-                        )}
+
+                          {f.materialId !== "custom" && f.materialId !== "multi" && (
+                            <WarmInput label="Color">
+                              <div className="relative">
+                                <select value={f.colorId} required onChange={(e) => updateFileConfig(f.id, { colorId: e.target.value })} className={inputClass}>
+                                  <option value="" disabled>Seleccionar...</option>
+                                  {availableColors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                  <option value="multi">Varios colores</option>
+                                  <option value="custom">Otro</option>
+                                </select>
+                                {selectedColor && (
+                                  <span className="absolute right-9 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-[var(--paper-line)] pointer-events-none" style={{ backgroundColor: selectedColor.hexCode }} />
+                                )}
+                              </div>
+                            </WarmInput>
+                          )}
+                        </div>
 
                         {(f.materialId === "custom" || f.materialId === "multi" || f.colorId === "custom" || f.colorId === "multi") && (
-                          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {(f.materialId === "custom" || f.materialId === "multi") && (
                               <input type="text" required value={f.customMaterial} onChange={(e) => updateFileConfig(f.id, { customMaterial: e.target.value })} placeholder={f.materialId === "multi" ? "Detallá los materiales..." : "Especificá material..."} className="px-4 py-3 border border-[color-mix(in_srgb,var(--amber)_40%,var(--paper-line))] bg-[color-mix(in_srgb,var(--amber)_4%,white)] rounded-xl text-sm outline-none focus:border-[var(--amber)] transition-colors" />
                             )}
@@ -308,12 +401,12 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                         )}
 
                         {/* Technical specs */}
-                        <div className="md:col-span-2 pt-4 border-t border-[var(--paper-line)] grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="pt-4 border-t border-[var(--paper-line)] grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]">Densidad de relleno</label>
                             <div className="flex bg-[color-mix(in_srgb,var(--paper-line)_40%,transparent)] p-1 rounded-xl w-max">
-                              <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "auto" })} className={`px-4 py-2 rounded-lg mono text-[9px] uppercase tracking-[0.2em] transition-all ${f.infillType === "auto" ? "bg-white text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>Auto</button>
-                              <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "manual" })} className={`px-4 py-2 rounded-lg mono text-[9px] uppercase tracking-[0.2em] transition-all ${f.infillType === "manual" ? "bg-white text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>Manual</button>
+                              <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "auto" })} className={`px-4 py-2 rounded-lg mono text-[9px] uppercase tracking-[0.2em] transition-all cursor-pointer ${f.infillType === "auto" ? "bg-white text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>Auto</button>
+                              <button type="button" onClick={() => updateFileConfig(f.id, { infillType: "manual" })} className={`px-4 py-2 rounded-lg mono text-[9px] uppercase tracking-[0.2em] transition-all cursor-pointer ${f.infillType === "manual" ? "bg-white text-[var(--ink)] shadow-sm" : "text-[var(--ink-soft)] hover:text-[var(--ink)]"}`}>Manual</button>
                             </div>
                             {f.infillType === "manual" && (
                               <div className="mt-3">
@@ -338,21 +431,12 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                             )}
                           </WarmInput>
 
-                          <div className="md:col-span-2">
+                          <div className="sm:col-span-2">
                             <WarmInput label="Factor de escala">
                               <input type="text" value={f.scaleFactor} onChange={(e) => updateFileConfig(f.id, { scaleFactor: e.target.value })} placeholder="100%" className={inputClass} />
                             </WarmInput>
                           </div>
                         </div>
-
-                        {viewingFileId === f.id && (
-                          <div className="md:col-span-2 pt-4 border-t border-[var(--paper-line)]">
-                            <label className="mono block text-[9px] text-[var(--ink-soft)] mb-3 uppercase tracking-[0.28em]">Inspección de geometría</label>
-                            <div className="h-[300px] sm:h-[400px] rounded-2xl overflow-hidden">
-                              <ThreeDViewer file={f.file} />
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
@@ -361,11 +445,11 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             </section>
 
             {/* 02 Application */}
-            <section>
-              <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mb-4 flex items-center gap-3">
+            <section className="space-y-4">
+              <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] flex items-center gap-3">
                 <span className="w-6 h-px bg-[var(--paper-line)]" /> 02 · Aplicación
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { id: "aesthetic", label: "Estético", desc: "Visual" },
                   { id: "decorative", label: "Funcional", desc: "Uso diario" },
@@ -375,7 +459,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                     key={p.id}
                     type="button"
                     onClick={() => setPurpose(p.id)}
-                    className={`p-6 rounded-2xl border text-left transition-all perimeter-card ${
+                    className={`p-6 rounded-2xl border text-left transition-all perimeter-card cursor-pointer ${
                       purpose === p.id
                         ? "border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_5%,white)] warm-shadow"
                         : "border-[var(--paper-line)] bg-white/60"
@@ -389,15 +473,15 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
             </section>
 
             {/* 03 Logistics */}
-            <section>
-              <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mb-4 flex items-center gap-3">
+            <section className="space-y-4">
+              <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--ink-soft)] flex items-center gap-3">
                 <span className="w-6 h-px bg-[var(--paper-line)]" /> 03 · Logística
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <WarmInput label="Fecha preferida de entrega">
-                  <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className={`${inputClass} md:max-w-xs`} />
+                  <input type="date" value={desiredDate} onChange={(e) => setDesiredDate(e.target.value)} className={`${inputClass} max-w-xs`} />
                 </WarmInput>
-                <div className="md:col-span-2">
+                <div>
                   <WarmInput label="Notas adicionales">
                     <textarea rows={3} value={deliveryNotes} onChange={(e) => setDeliveryNotes(e.target.value)} placeholder="Instrucciones especiales, requerimientos de ensamblado..." className="w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--accent)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors resize-none" />
                   </WarmInput>
@@ -410,7 +494,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               <button
                 type="submit"
                 disabled={isSubmitting || fileConfigs.length === 0}
-                className="w-full py-5 rounded-2xl font-semibold text-lg text-white transition-all active:scale-[0.98] disabled:opacity-50 warm-interactive"
+                className="w-full py-5 rounded-2xl font-semibold text-lg text-[var(--graphite)] transition-all active:scale-[0.98] disabled:opacity-50 warm-interactive cursor-pointer shadow-md"
                 style={{ backgroundColor: isSubmitting ? "var(--ink-soft)" : "var(--accent)" }}
               >
                 {isSubmitting ? (
@@ -429,9 +513,10 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 </div>
               )}
             </section>
-          </div>
+          </form>
         </div>
-      </form>
+
+      </div>
     </>
   );
 }

@@ -9,24 +9,96 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 interface ThreeDViewerProps {
   file?: File;
   filePath?: string;
+  hexColor?: string | null;
   onDimensionsComputed?: (dims: { x: number; y: number; z: number }) => void;
 }
 
-export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: ThreeDViewerProps) {
+function BootSequence({ onComplete }: { onComplete: () => void }) {
+  const lines = ["CARGANDO GEOMETRÍA...", "CALCULANDO VOLUMEN...", "ESTIMANDO TIEMPO...", "LISTO."];
+  const [visibleLines, setVisibleLines] = useState<string[]>([]);
+
+  useEffect(() => {
+    let current = 0;
+    const interval = setInterval(() => {
+      if (current < lines.length) {
+        setVisibleLines((prev) => [...prev, lines[current]]);
+        current++;
+      } else {
+        clearInterval(interval);
+        setTimeout(onComplete, 300);
+      }
+    }, 300);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--graphite)] z-20 p-8">
+      <div className="space-y-3 text-left w-full max-w-xs">
+        {visibleLines.map((line, i) => (
+          <p
+            key={i}
+            className="mono text-[11px] uppercase tracking-[0.2em] text-[var(--amber)] animate-[boot-line_150ms_ease-out_both]"
+          >
+            {line}
+          </p>
+        ))}
+      </div>
+      <style>{`
+        @keyframes boot-line {
+          from { opacity: 0; transform: translateX(-4px); }
+          to { opacity: 1; transform: none; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default function ThreeDViewer({
+  file,
+  filePath,
+  hexColor,
+  onDimensionsComputed,
+}: ThreeDViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
+  const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const [booting, setBooting] = useState(false);
+  const [modelLoaded, setModelLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dimensions, setDimensions] = useState<{ x: number; y: number; z: number } | null>(null);
 
+  // Trigger boot sequence on file change
+  useEffect(() => {
+    if (file || filePath) {
+      setBooting(true);
+      setModelLoaded(false);
+      setError(null);
+    }
+  }, [file, filePath]);
+
+  // Update material color if hexColor changes
+  useEffect(() => {
+    if (materialRef.current) {
+      const colorToSet = hexColor || "var(--amber)";
+      // Handle CSS variables or plain hex
+      if (colorToSet.startsWith("var(")) {
+        // Fallback to amber color
+        materialRef.current.color.set(0xff7a1a);
+      } else {
+        materialRef.current.color.set(colorToSet);
+      }
+    }
+  }, [hexColor]);
+
   useEffect(() => {
     if (!containerRef.current) return;
+    if (booting || (!file && !filePath)) return;
 
     let animationFrameId: number;
     const container = containerRef.current;
 
     // Create scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#f8fafc"); // Slate 50 to match dashboard backgrounds
+    scene.background = new THREE.Color("#1A1613"); // Match panel-graphite background
 
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -61,38 +133,40 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     dirLight2.position.set(-1, -2, -1);
     scene.add(dirLight2);
 
-    // Add grid floor
-    const gridHelper = new THREE.GridHelper(200, 50, 0xcbd5e1, 0xf1f5f9);
+    // Grid Floor - match warm printer theme
+    const gridHelper = new THREE.GridHelper(200, 50, 0x2e2822, 0xff7a1a);
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
-    // Material matching Studio3D brand accent (#FF4F00)
+    // Initial material color setup
+    let initialColor = 0xff7a1a; // var(--amber)
+    if (hexColor && !hexColor.startsWith("var(")) {
+      initialColor = parseInt(hexColor.replace("#", "0x"), 16);
+    }
     const material = new THREE.MeshStandardMaterial({
-      color: 0xff4f00,
+      color: initialColor,
       roughness: 0.4,
       metalness: 0.1,
     });
+    materialRef.current = material;
 
     const processLoadedObject = (object: THREE.Object3D) => {
-      // Compute bounding box for dimensions
       const box = new THREE.Box3().setFromObject(object);
       const size = new THREE.Vector3();
       box.getSize(size);
-      
+
       const dims = {
         x: Math.round(size.x * 10) / 10,
         y: Math.round(size.y * 10) / 10,
         z: Math.round(size.z * 10) / 10,
       };
 
-      // Center the object
       const center = new THREE.Vector3();
       box.getCenter(center);
       object.position.sub(center);
 
       scene.add(object);
 
-      // Adjust camera to fit
       const sphere = new THREE.Sphere();
       box.getBoundingSphere(sphere);
       const radius = sphere.radius;
@@ -100,13 +174,11 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
       camera.lookAt(new THREE.Vector3(0, 0, 0));
       controls.target.set(0, 0, 0);
 
-      setTimeout(() => {
-        setDimensions(dims);
-        if (onDimensionsComputed) {
-          onDimensionsComputed(dims);
-        }
-        setLoading(false);
-      }, 0);
+      setDimensions(dims);
+      if (onDimensionsComputed) {
+        onDimensionsComputed(dims);
+      }
+      setModelLoaded(true);
     };
 
     const loadSTLGeometry = (geometry: THREE.BufferGeometry) => {
@@ -126,7 +198,6 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     const fileName = file?.name || filePath || "";
     const isOBJ = fileName.toLowerCase().endsWith(".obj");
 
-    // Load file from File object or filePath string
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -144,19 +215,15 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           }
         } catch (err) {
           console.error(err);
-          setTimeout(() => {
-            setError(`No se pudo parsear el archivo ${isOBJ ? 'OBJ' : 'STL'}`);
-            setLoading(false);
-          }, 0);
+          setError(`No se pudo parsear el archivo ${isOBJ ? "OBJ" : "STL"}`);
+          setModelLoaded(true); // stop loading screen on error
         }
       };
       reader.onerror = () => {
-        setTimeout(() => {
-          setError("Error leyendo el archivo");
-          setLoading(false);
-        }, 0);
+        setError("Error leyendo el archivo");
+        setModelLoaded(true);
       };
-      
+
       if (isOBJ) {
         reader.readAsText(file);
       } else {
@@ -173,10 +240,8 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           () => {},
           (err) => {
             console.error(err);
-            setTimeout(() => {
-              setError("Error cargando el archivo OBJ");
-              setLoading(false);
-            }, 0);
+            setError("Error cargando el archivo OBJ");
+            setModelLoaded(true);
           }
         );
       } else {
@@ -189,21 +254,13 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
           () => {},
           (err) => {
             console.error(err);
-            setTimeout(() => {
-              setError("Error cargando el archivo STL");
-              setLoading(false);
-            }, 0);
+            setError("Error cargando el archivo STL");
+            setModelLoaded(true);
           }
         );
       }
-    } else {
-      setTimeout(() => {
-        setError("No se especificó un archivo");
-        setLoading(false);
-      }, 0);
     }
 
-    // Animation loop
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       controls.update();
@@ -211,7 +268,6 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     };
     animate();
 
-    // Resize handler
     const handleResize = () => {
       if (!container) return;
       camera.aspect = container.clientWidth / container.clientHeight;
@@ -220,48 +276,38 @@ export default function ThreeDViewer({ file, filePath, onDimensionsComputed }: T
     };
     window.addEventListener("resize", handleResize);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
-      
-      // Clean up WebGL resources
       renderer.dispose();
       scene.clear();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [file, filePath, onDimensionsComputed]);
+  }, [file, filePath, booting]);
+
+  const showLoading = (file || filePath) && (booting || !modelLoaded);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] sm:min-h-[450px] bg-slate-50 rounded-3xl overflow-hidden border-2 border-slate-900/5 shadow-inner flex flex-col justify-between">
-      {loading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/90 z-10">
-          <div className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Analizando malla 3D...</p>
-        </div>
+    <div className="relative w-full h-full min-h-[300px] sm:min-h-[450px] bg-[var(--graphite)] rounded-3xl overflow-hidden border border-[var(--graphite-line)] shadow-inner flex flex-col justify-between">
+      {showLoading && (
+        <BootSequence onComplete={() => setBooting(false)} />
       )}
 
       {error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50 z-10 px-6 text-center">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--graphite)] z-10 px-6 text-center">
           <span className="text-3xl mb-4">⚠️</span>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-red-500">{error}</p>
+          <p className="mono text-[10px] uppercase tracking-[0.2em] text-red-500">{error}</p>
         </div>
       )}
 
-      <div ref={containerRef} className="w-full flex-grow h-[300px] sm:h-[450px]" />
-
-      {dimensions && !loading && !error && (
-        <div className="bg-white/90 backdrop-blur-md px-6 py-4 border-t-2 border-slate-900/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-black uppercase tracking-[0.2em] text-slate-500 z-10">
-          <span>Dimensiones calculadas:</span>
-          <div className="flex gap-4 text-slate-900">
-            <div>X: <span className="text-[#FF4F00]">{dimensions.x}</span> mm</div>
-            <div>Y: <span className="text-[#FF4F00]">{dimensions.y}</span> mm</div>
-            <div>Z: <span className="text-[#FF4F00]">{dimensions.z}</span> mm</div>
-          </div>
-        </div>
-      )}
+      <div
+        ref={containerRef}
+        className={`w-full flex-grow h-[300px] sm:h-[450px] transition-opacity duration-300 ${
+          showLoading ? "opacity-0" : "opacity-100 layer-press"
+        }`}
+      />
     </div>
   );
 }

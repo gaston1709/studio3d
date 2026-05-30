@@ -142,14 +142,55 @@ h1, h2, h3, h4, h5, h6 {
 .layer-seam {
   position: relative;
   height: 1px;
-  background: color-mix(in srgb, var(--amber) 55%, transparent);
+  background: transparent;
 }
+.layer-seam::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--amber) 55%, transparent);
+  clip-path: inset(0 100% 0 0);
+}
+.reveal.is-visible .layer-seam::before {
+  animation: nozzle-draw 800ms linear both;
+}
+/* Nozzle drawing tip */
+.reveal.is-visible .layer-seam::after {
+  content: '';
+  position: absolute;
+  top: -2.5px;
+  height: 6px;
+  width: 16px;
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+  animation: seam-nozzle-tip 800ms linear both;
+}
+@keyframes seam-nozzle-tip {
+  0% { left: 0%; opacity: 1; }
+  90% { left: 100%; opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
 .seam-label {
   font-family: var(--font-space-mono), ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--amber) 60%, var(--ink));
+
+  /* Stepper tick typing effect */
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+}
+.reveal.is-visible .seam-label {
+  animation: seam-type 600ms steps(30, end) forwards;
+  animation-delay: 400ms;
+}
+@keyframes seam-type {
+  from { width: 0; }
+  to { width: 100%; }
 }
 .panel-graphite .seam-label {
   color: var(--amber-glow);
