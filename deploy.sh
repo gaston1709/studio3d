@@ -38,11 +38,17 @@ mkdir -p uploads/orders
 
 # 6. Build Next.js
 echo "[6/7] Building Next.js..."
+rm -rf .next
 npm run build
 
 # 7. Restart PM2
 echo "[7/7] Restarting PM2 process..."
-pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
+PM2_BIN="$(dirname "$(which node)")/pm2"
+if [ ! -x "$PM2_BIN" ]; then
+    echo "ERROR: pm2 no encontrado en $(dirname "$(which node)"). Instalalo con: npm install -g pm2"
+    exit 1
+fi
+"$PM2_BIN" restart ecosystem.config.cjs --env production || "$PM2_BIN" start ecosystem.config.cjs --env production
 
 # Optional: update Nginx config
 if [ -d "/etc/nginx/conf.d" ]; then
