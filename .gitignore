@@ -46,3 +46,11 @@ next-env.d.ts
 *.db
 /uploads/
 
+# Local tooling — no subir al repo
+/.agent/
+/.claude/
+/design-system/
+
+# Patches sueltos
+*.patch
+
