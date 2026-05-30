@@ -10,11 +10,9 @@ APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$APP_DIR"
 
-# Preflight: .env must exist
+# Preflight: .env recommended (PM2 can also inject env via ecosystem.config.cjs)
 if [ ! -f ".env" ]; then
-    echo "ERROR: .env file not found at $APP_DIR/.env"
-    echo "  Copy .env.example to .env and fill in the values."
-    exit 1
+    echo "AVISO: .env no encontrado — PM2 usará env_production de ecosystem.config.cjs"
 fi
 
 # 1. Pull latest changes
