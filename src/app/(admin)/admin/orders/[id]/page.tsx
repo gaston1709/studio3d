@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import QuoteForm from "@/components/QuoteForm";
+import QuoteForm from "@/components/forms/QuoteForm";
 import Link from "next/link";
 
 export default async function OrderDetailPage({

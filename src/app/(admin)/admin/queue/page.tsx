@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import QueueManager from "@/components/QueueManager";
+import QueueManager from "@/components/admin/QueueManager";
 
 export const dynamic = "force-dynamic";
 

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import MaterialManager from "@/components/MaterialManager";
+import MaterialManager from "@/components/admin/MaterialManager";
 
 // Force this page to be dynamic so it always fetches fresh data from the DB
 export const dynamic = "force-dynamic";

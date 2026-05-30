@@ -12,7 +12,6 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
-  // If user is admin, redirect to admin dashboard directly
   if (session?.user?.role === "ADMIN") {
     redirect("/admin");
   }
@@ -20,9 +19,7 @@ export default async function Home() {
   const materials = await prisma.material.findMany({
     where: { isActive: true },
     include: {
-      colors: {
-        where: { isActive: true }
-      }
+      colors: { where: { isActive: true } },
     },
     take: 3,
   });
@@ -31,42 +28,59 @@ export default async function Home() {
     orderBy: { createdAt: "desc" },
   });
 
+  const h1Words = ["Imprimí", "tus", "ideas."];
+
   return (
-    // Full-bleed warm wrapper. Negative margins neutralise the <main>
-    // container's vertical padding so the panels touch navbar and footer.
     <div className="full-bleed -mt-8 md:-mt-12 -mb-8 md:-mb-12">
       <ZHeightRail />
 
       {/* ===================== CAPA 01 · HERO (paper) ===================== */}
       <section className="panel-paper relative overflow-hidden">
-        <div className="absolute inset-0 layer-lines opacity-70 pointer-events-none" aria-hidden="true" />
+        {/* Layer-lines that breathe */}
+        <div className="absolute inset-0 layer-lines-breathing opacity-70 pointer-events-none" aria-hidden="true" />
+
         <div className="relative z-10 container mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32 min-h-[80vh] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center w-full">
 
             {/* Text */}
             <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
-              <p className="mono text-[11px] tracking-[0.28em] uppercase text-[color-mix(in_srgb,var(--amber)_60%,var(--ink))] layer-build" style={{ animationDelay: "0ms" }}>
-                Capa 01 · El taller
-              </p>
-              <h1
-                className="text-5xl sm:text-7xl md:text-8xl font-semibold text-[var(--ink)] tracking-tight leading-[0.95] layer-build"
-                style={{ animationDelay: "90ms" }}
+              {/* Status line — taller abierto */}
+              <p
+                className="mono text-[11px] tracking-[0.28em] uppercase text-[color-mix(in_srgb,var(--amber)_60%,var(--ink))] layer-build"
+                style={{ animationDelay: "0ms" }}
               >
-                Imprimí <span className="text-[var(--amber)]">tus</span> ideas.
+                · Taller abierto · Una impresora · Atención personalizada ·
+              </p>
+
+              {/* H1: each word extruded with nozzle-draw stagger */}
+              <h1 className="text-5xl sm:text-7xl md:text-8xl font-semibold text-[var(--ink)] tracking-tight leading-[0.95] flex flex-wrap gap-x-4 gap-y-2 justify-center lg:justify-start">
+                {h1Words.map((word, i) => (
+                  <span
+                    key={word}
+                    className="inline-block nozzle-draw"
+                    style={{
+                      animationDelay: `${90 + i * 140}ms`,
+                      color: word === "tus" ? "var(--amber)" : "var(--ink)",
+                    }}
+                  >
+                    {word}
+                  </span>
+                ))}
               </h1>
+
               <p
                 className="max-w-xl text-lg sm:text-xl text-[var(--ink-soft)] leading-relaxed layer-build"
-                style={{ animationDelay: "180ms" }}
+                style={{ animationDelay: "520ms" }}
               >
                 Un taller. Una impresora. Lo hacemos nosotros, capa por capa.
               </p>
 
-              <div className="layer-build w-full sm:w-auto" style={{ animationDelay: "270ms" }}>
+              <div className="layer-build w-full sm:w-auto" style={{ animationDelay: "640ms" }}>
                 {!session ? (
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <Link
                       href="/auth/signin"
-                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 warm-interactive cursor-pointer"
                     >
                       Entrar
                     </Link>
@@ -82,7 +96,7 @@ export default async function Home() {
                     <Link
                       prefetch={false}
                       href="/orders/new"
-                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 warm-interactive cursor-pointer"
                     >
                       Pedir una pieza
                     </Link>
@@ -110,7 +124,6 @@ export default async function Home() {
                 />
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -141,16 +154,26 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {materials.map((m) => (
-                <div key={m.id} className="bg-[var(--paper)] text-[var(--ink)] rounded-2xl overflow-hidden flex flex-col shadow-xl shadow-black/30 group">
+                <div key={m.id} className="bg-[var(--paper)] text-[var(--ink)] rounded-2xl overflow-hidden flex flex-col warm-shadow perimeter-card group">
                   <div className="p-8 space-y-5 flex-grow flex flex-col">
                     <h3 className="text-2xl font-semibold tracking-tight">{m.name}</h3>
                     <p className="text-sm text-[var(--ink-soft)] leading-relaxed italic flex-grow">&quot;{m.description}&quot;</p>
-                    <div className="flex flex-wrap gap-2.5 pt-2">
+                    {/* FilamentSwatch — conic gradient simulating spooled filament */}
+                    <div className="flex flex-wrap gap-3 pt-2">
                       {m.colors.map((c) => (
                         <div
                           key={c.id}
-                          className="w-7 h-7 rounded-full border border-[var(--paper-line)] shadow-inner group-hover:scale-110 transition-transform duration-200"
-                          style={{ backgroundColor: c.hexCode }}
+                          className="w-8 h-8 rounded-full border border-[var(--paper-line)] group-hover:rotate-180 transition-transform duration-[2000ms] ease-linear cursor-default"
+                          style={{
+                            background: `conic-gradient(
+                              from 0deg,
+                              color-mix(in srgb, ${c.hexCode} 80%, black) 0deg,
+                              ${c.hexCode} 90deg,
+                              color-mix(in srgb, ${c.hexCode} 90%, white) 180deg,
+                              ${c.hexCode} 270deg,
+                              color-mix(in srgb, ${c.hexCode} 80%, black) 360deg
+                            )`,
+                          }}
                           title={c.name}
                         />
                       ))}
@@ -188,7 +211,7 @@ export default async function Home() {
                 >
                   {carouselImages.map((img) => (
                     <div key={img.id} className="w-[85vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
-                      <div className="bg-white rounded-2xl overflow-hidden shadow-lg shadow-black/5 h-full flex flex-col border border-[var(--paper-line)]">
+                      <div className="bg-white rounded-2xl overflow-hidden shadow-lg shadow-black/5 h-full flex flex-col border border-[var(--paper-line)] perimeter-card">
                         <div className="aspect-square bg-[color-mix(in_srgb,var(--paper)_60%,white)] relative overflow-hidden">
                           <Image
                             src={`/uploads/carousel/${img.fileName}`}
@@ -205,14 +228,12 @@ export default async function Home() {
                             </p>
                           </div>
                         )}
-                        {/* Printed bottom edge */}
                         <div className="layer-lines h-3 w-full" aria-hidden="true" />
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Auto-scroll script — paused under reduced motion */}
                 <script dangerouslySetInnerHTML={{ __html: `
                   (function() {
                     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -254,7 +275,7 @@ export default async function Home() {
               <Link
                 prefetch={false}
                 href="/orders/new"
-                className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-10 py-5 text-lg font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--graphite)] active:scale-95 cursor-pointer"
+                className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-10 py-5 text-lg font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--graphite)] active:scale-95 warm-interactive cursor-pointer"
               >
                 Empezar mi pieza
               </Link>

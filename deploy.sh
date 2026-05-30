@@ -1,53 +1,65 @@
 #!/bin/bash
-# deploy.sh - Despliegue seguro para S3D (THE IRON)
+# deploy.sh - Despliegue seguro para S3D
 set -e
 
 echo "=========================================================="
-echo "🚀 S3D - Safe Deployer"
+echo "  S3D - Safe Deployer"
 echo "=========================================================="
 
 APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$APP_DIR"
 
-# 1. Obtener cambios
-echo "📥 Pulleando cambios de Git..."
-git pull
-
-# 2. Dependencias
-echo "📦 Instalando dependencias (incluyendo nodemailer)..."
-npm install
-
-# 3. Base de Datos
-echo "💎 Regenerando Prisma Client..."
-npx prisma generate
-
-# 4. Directorios de Sistema
-echo "📁 Asegurando carpetas de persistencia..."
-mkdir -p uploads
-
-# 5. Construcción
-echo "🏗️  Construyendo Aplicación Next.js..."
-npm run build
-
-# 6. Reiniciar Servicios con PM2
-echo "♻️  Reiniciando proceso en PM2..."
-pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
-
-# 7. Infraestructura (Opcional - Requiere sudo)
-if [ -d "/etc/nginx/conf.d" ]; then
-    echo "📂 Actualizando configuración de Nginx en conf.d..."
-    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/conf.d/s3d.conf
-    sudo systemctl reload nginx
-    echo "✅ Nginx recargado."
-elif [ -d "/etc/nginx/sites-available" ]; then
-    echo "📂 Actualizando configuración de Nginx en sites-available..."
-    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/sites-available/s3d.conf
-    sudo ln -sf /etc/nginx/sites-available/s3d.conf /etc/nginx/sites-enabled/s3d.conf 2>/dev/null || true
-    sudo systemctl reload nginx
-    echo "✅ Nginx recargado."
+# Preflight: .env must exist
+if [ ! -f ".env" ]; then
+    echo "ERROR: .env file not found at $APP_DIR/.env"
+    echo "  Copy .env.example to .env and fill in the values."
+    exit 1
 fi
 
+# 1. Pull latest changes
+echo "[1/7] Pulling changes from Git..."
+git pull
+
+# 2. Install dependencies
+echo "[2/7] Installing dependencies..."
+npm ci --production=false
+
+# 3. Apply DB migrations
+echo "[3/7] Applying Prisma migrations..."
+npx prisma migrate deploy
+
+# 4. Regenerate Prisma Client
+echo "[4/7] Regenerating Prisma Client..."
+npx prisma generate
+
+# 5. Ensure persistent directories
+echo "[5/7] Ensuring upload directories..."
+mkdir -p uploads/carousel
+mkdir -p uploads/orders
+
+# 6. Build Next.js
+echo "[6/7] Building Next.js..."
+npm run build
+
+# 7. Restart PM2
+echo "[7/7] Restarting PM2 process..."
+pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
+
+# Optional: update Nginx config
+if [ -d "/etc/nginx/conf.d" ]; then
+    echo "[nginx] Updating Nginx config (conf.d)..."
+    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/conf.d/s3d.conf
+    sudo nginx -t && sudo systemctl reload nginx && echo "[nginx] Reloaded."
+elif [ -d "/etc/nginx/sites-available" ]; then
+    echo "[nginx] Updating Nginx config (sites-available)..."
+    sudo cp "$APP_DIR/infrastructure/nginx.conf" /etc/nginx/sites-available/s3d.conf
+    sudo ln -sf /etc/nginx/sites-available/s3d.conf /etc/nginx/sites-enabled/s3d.conf 2>/dev/null || true
+    sudo nginx -t && sudo systemctl reload nginx && echo "[nginx] Reloaded."
+fi
+
+echo ""
 echo "=========================================================="
-echo "✅ DESPLIEGUE SEGURO COMPLETADO"
+echo "  DEPLOYMENT COMPLETE"
+echo "  App running at http://localhost:3010"
 echo "=========================================================="

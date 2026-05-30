@@ -32,7 +32,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-24 pt-8 border-t border-[var(--graphite-line)] flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="mono text-[9px] uppercase tracking-[0.28em] text-[color-mix(in_srgb,var(--paper)_45%,transparent)]">© 2026 Studio3D. Todos los derechos reservados.</p>
+          <div className="flex flex-col items-center md:items-start gap-1.5">
+            <p className="mono text-[9px] uppercase tracking-[0.28em] text-[color-mix(in_srgb,var(--paper)_45%,transparent)]">© 2026 Studio3D. Todos los derechos reservados.</p>
+            <p className="mono text-[8px] uppercase tracking-[0.28em] text-[color-mix(in_srgb,var(--paper)_25%,transparent)]">IMPRESIÓN COMPLETADA · 2026</p>
+          </div>
           <div className="flex gap-8">
             <a href="/terms" className="mono text-[9px] uppercase tracking-[0.28em] text-[color-mix(in_srgb,var(--paper)_45%,transparent)] hover:text-[var(--amber)] transition-colors duration-200">Términos de Servicio</a>
             <a href="/privacy" className="mono text-[9px] uppercase tracking-[0.28em] text-[color-mix(in_srgb,var(--paper)_45%,transparent)] hover:text-[var(--amber)] transition-colors duration-200">Privacidad</a>

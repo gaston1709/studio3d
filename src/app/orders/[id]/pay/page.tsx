@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
-import PaymentAndShippingForm from "@/components/PaymentAndShippingForm";
+import PaymentAndShippingForm from "@/components/forms/PaymentAndShippingForm";
 
 export default async function OrderPaymentPage({
   params,
