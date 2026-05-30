@@ -58,42 +58,46 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
     ? (order.files.length > 1 ? `${order.files[0].fileName} (+${order.files.length - 1})` : order.files[0].fileName)
     : "Sin archivo";
 
+  const isPrinting = order.status === "PRINTING";
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-6 p-6 rounded-2xl border transition-all shadow-sm mb-4 ${
-        order.status === "PRINTING"
-          ? "bg-blue-600 border-blue-400 ring-4 ring-blue-100"
-          : "bg-white border-slate-100"
+      className={`flex items-center gap-6 p-5 rounded-2xl border transition-all shadow-sm mb-4 ${
+        isPrinting
+          ? "bg-[var(--graphite)] border-[var(--amber)] text-[var(--paper)]"
+          : "bg-white/60 border-[var(--paper-line)] text-[var(--ink)]"
       }`}
     >
       <div 
         {...attributes} 
         {...listeners}
-        className={`cursor-grab active:cursor-grabbing p-2 rounded-lg ${order.status === 'PRINTING' ? 'text-white/50 hover:bg-white/10' : 'text-slate-300 hover:bg-slate-50'}`}
+        className={`cursor-grab active:cursor-grabbing p-2 rounded-lg ${
+          isPrinting ? 'text-[var(--paper)]/50 hover:bg-white/10' : 'text-[var(--ink-soft)]/50 hover:bg-white/40'
+        }`}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
         </svg>
       </div>
 
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg ${
-        order.status === "PRINTING" ? "bg-white text-blue-600 shadow-xl" : "bg-[#0F1115] text-white"
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${
+        isPrinting ? "bg-[var(--amber)] text-[var(--graphite)] shadow-md" : "bg-[var(--graphite)] text-[var(--paper)]"
       }`}>
-        {order.status === "PRINTING" ? "⚡" : index + 1}
+        {isPrinting ? "⚡" : index + 1}
       </div>
 
-      <div className="flex-grow">
+      <div className="flex-grow min-w-0">
         <div className="flex items-center gap-3">
-          <p className={`font-bold tracking-tight ${order.status === 'PRINTING' ? 'text-white text-lg' : 'text-slate-900'}`}>{displayFileName}</p>
-          <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-widest ${
-            order.status === "PRINTING" ? "bg-white/20 text-white border-white/30" : "bg-blue-50 text-blue-600 border-blue-100"
+          <p className={`font-semibold tracking-tight truncate ${isPrinting ? 'text-white' : 'text-[var(--ink)]'}`}>{displayFileName}</p>
+          <span className={`mono text-[8px] px-2 py-0.5 rounded border uppercase tracking-widest font-semibold ${
+            isPrinting ? "bg-[var(--amber)]/20 text-[var(--amber)] border-[var(--amber)]/40" : "bg-[var(--paper)] text-[var(--ink-soft)] border-[var(--paper-line)]"
           }`}>
-            {order.status === "PRINTING" ? "PROCESANDO" : "EN COLA"}
+            {isPrinting ? "PROCESANDO" : "EN COLA"}
           </span>
         </div>
-        <p className={`text-[10px] font-bold uppercase tracking-widest mt-1 ${order.status === 'PRINTING' ? 'text-white/70' : 'text-slate-400'}`}>
+        <p className={`mono text-[9px] uppercase tracking-wider mt-1 truncate ${isPrinting ? 'text-[var(--paper)]/60' : 'text-[var(--ink-soft)]'}`}>
           {order.user.email} • {order.files && order.files.length > 0
             ? (order.files.length > 1 
                 ? "Varios" 
@@ -103,9 +107,9 @@ function SortableItem({ order, index }: { order: Order; index: number }) {
         </p>
       </div>
 
-      <div className="text-right">
-        <p className={`text-[9px] font-bold uppercase tracking-[0.2em] mb-1 ${order.status === 'PRINTING' ? 'text-white/50' : 'text-slate-400'}`}>Ciclo</p>
-        <p className={`font-black text-xl tracking-tighter ${order.status === 'PRINTING' ? 'text-white' : 'text-slate-900'}`}>{order.printTimeEstimated || 0}h</p>
+      <div className="text-right shrink-0">
+        <p className={`mono text-[8px] uppercase tracking-[0.2em] mb-0.5 ${isPrinting ? 'text-[var(--paper)]/40' : 'text-[var(--ink-soft)]'}`}>Ciclo</p>
+        <p className={`font-semibold text-lg tracking-tight ${isPrinting ? 'text-white' : 'text-[var(--ink)]'}`}>{order.printTimeEstimated || 0}h</p>
       </div>
     </div>
   );
@@ -151,46 +155,46 @@ export default function QueueManager({ initialOrders }: { initialOrders: Order[]
   const daysEstimated = Math.ceil(totalHours / 12);
 
   return (
-    <div className="space-y-12">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-[#0F1115] p-8 rounded-2xl shadow-2xl border border-white/5">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-4">Carga Operativa Total</p>
+    <div className="space-y-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-[var(--graphite)] p-6 rounded-2xl border border-white/5 flex flex-col justify-between min-h-[140px]">
+            <p className="mono text-[9px] text-[var(--paper)]/50 uppercase tracking-[0.25em]">Carga Operativa Total</p>
             <div className="flex items-baseline gap-2">
-               <p className="text-6xl font-black text-white tracking-tighter">{totalHours.toFixed(1)}</p>
-               <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">Horas</span>
+               <p className="text-5xl font-semibold text-white tracking-tight">{totalHours.toFixed(1)}</p>
+               <span className="mono text-[10px] text-[var(--paper)]/40 uppercase tracking-widest">Horas</span>
             </div>
           </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mb-4">Pipeline de Entrega</p>
+          <div className="panel-paper p-6 rounded-2xl border border-[var(--paper-line)] warm-shadow bg-white/40 flex flex-col justify-between min-h-[140px]">
+            <p className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.25em]">Pipeline de Entrega</p>
             <div className="flex items-baseline gap-2">
-               <span className="text-2xl font-bold text-slate-300">~</span>
-               <p className="text-6xl font-black text-slate-900 tracking-tighter">{daysEstimated}</p>
-               <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Días</span>
+               <span className="mono text-xl text-[var(--ink-soft)]/50">~</span>
+               <p className="text-5xl font-semibold text-[var(--ink)] tracking-tight">{daysEstimated}</p>
+               <span className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">Días</span>
             </div>
           </div>
         </div>
         
-        <div className="bg-blue-50 border border-blue-200 p-8 rounded-2xl flex flex-col justify-center">
-           <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-4">Estado del Servidor</h3>
-           <div className="flex items-center gap-3">
-              <div className={`w-3 h-3 rounded-full ${isSaving ? 'bg-amber-500 animate-spin' : 'bg-emerald-500'}`}></div>
-              <p className="text-sm font-bold text-blue-900 uppercase tracking-widest">
+        <div className="bg-[color-mix(in_srgb,var(--amber)_5%,white)] border border-[var(--paper-line)] p-6 rounded-2xl flex flex-col justify-between min-h-[140px]">
+           <h3 className="mono text-[9px] text-[var(--amber)] uppercase tracking-[0.25em]">Estado de Red</h3>
+           <div className="flex items-center gap-2 pt-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${isSaving ? 'bg-amber-500 animate-spin' : 'bg-emerald-500'}`} />
+              <p className="mono text-xs font-semibold text-[var(--ink)] uppercase tracking-widest">
                 {isSaving ? "Sincronizando..." : "Sincronizado"}
               </p>
            </div>
-           <p className="text-[10px] text-blue-400 font-medium mt-4 leading-relaxed uppercase tracking-tighter">
-             El orden de manufactura impacta directamente en las fechas tentativas de los clientes.
+           <p className="mono text-[8px] text-[var(--ink-soft)] mt-4 leading-normal uppercase">
+             El orden de manufactura impacta directamente en las fechas de los clientes.
            </p>
         </div>
       </div>
 
       <div className="space-y-6">
-        <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] pl-2 border-l-4 border-blue-600">Prioridad de Producción (Drag & Drop)</h2>
+        <h2 className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.25em] pl-3 border-l-2 border-[var(--amber)]">Prioridad de Producción (Drag & Drop)</h2>
 
         {orders.length === 0 ? (
-          <div className="py-32 text-center bg-white rounded-3xl border border-slate-100 shadow-inner">
-            <p className="text-slate-300 font-bold uppercase tracking-widest italic">Cola de manufactura despejada</p>
+          <div className="py-20 text-center bg-white/20 border border-dashed border-[var(--paper-line)] rounded-3xl">
+            <p className="mono text-xs text-[var(--ink-soft)] uppercase tracking-widest italic">Cola de manufactura despejada</p>
           </div>
         ) : (
           <DndContext

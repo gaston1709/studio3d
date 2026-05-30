@@ -53,77 +53,85 @@ export default function QuoteForm({ order }: QuoteFormProps) {
     }
   };
 
+  const labelClass = "mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]";
+  const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30 appearance-none";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Estado del Pedido</label>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-black text-slate-900 focus:border-blue-600 outline-none bg-slate-50 shadow-sm"
-        >
-          <option value="PENDING_QUOTE">Pendiente Cotizar</option>
-          <option value="QUOTED">Cotizado (Avisar al cliente)</option>
-          <option value="PAYMENT_PENDING_VERIFICATION">Pago en Verificación</option>
-          <option value="ACCEPTED">Aceptado / Confirmar Fecha</option>
-          <option value="PRINTING">En Impresión</option>
-          <option value="FINISHED">Finalizado (Listo para retirar/coordinar)</option>
-          <option value="SHIPPED">Enviado</option>
-          <option value="DELIVERED">Recibido / Entregado</option>
-          <option value="CANCELLED">Cancelado</option>
-        </select>
+        <label className={labelClass}>Estado del Pedido</label>
+        <div className="relative">
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className={inputClass + " cursor-pointer pr-10"}
+          >
+            <option value="PENDING_QUOTE">Pendiente Cotizar</option>
+            <option value="QUOTED">Cotizado (Avisar al cliente)</option>
+            <option value="PAYMENT_PENDING_VERIFICATION">Pago en Verificación</option>
+            <option value="ACCEPTED">Aceptado / Confirmar Fecha</option>
+            <option value="PRINTING">En Impresión</option>
+            <option value="FINISHED">Finalizado (Listo para retirar/coordinar)</option>
+            <option value="SHIPPED">Enviado</option>
+            <option value="DELIVERED">Recibido / Entregado</option>
+            <option value="CANCELLED">Cancelado</option>
+          </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--ink-soft)]">
+            ▼
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Precio ($)</label>
+          <label className={labelClass}>Precio ($)</label>
           <input
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-black text-slate-900 focus:border-blue-600 outline-none bg-slate-50"
+            className={inputClass}
             placeholder="0.00"
           />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Horas Est.</label>
+          <label className={labelClass}>Horas Est.</label>
           <input
             type="number"
             value={hours}
             onChange={(e) => setHours(e.target.value)}
-            className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-black text-slate-900 focus:border-blue-600 outline-none bg-slate-50"
+            className={inputClass}
             placeholder="0.0"
           />
         </div>
       </div>
 
-      <div className={`p-6 rounded-2xl border-4 transition-all ${status === 'ACCEPTED' ? 'bg-blue-50 border-blue-600' : 'bg-slate-50 border-slate-200 opacity-60'}`}>
-        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+      <div className={`p-6 rounded-2xl border transition-all ${status === 'ACCEPTED' ? 'bg-[color-mix(in_srgb,var(--amber)_8%,white)] border-[var(--amber)]' : 'bg-white/40 border-[var(--paper-line)] opacity-70'}`}>
+        <label className={labelClass}>
           {status === 'ACCEPTED' ? '📅 Fecha Final Confirmada' : '📅 Fecha Tentativa'}
         </label>
         <input
           type="date"
           value={deliveryDate}
           onChange={(e) => setDeliveryDate(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-slate-900 rounded-xl font-black text-slate-900 focus:border-blue-600 outline-none bg-white"
+          className={inputClass}
         />
         {status !== 'ACCEPTED' && (
-          <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter">
+          <p className="mono text-[8px] text-[var(--ink-soft)] mt-2 uppercase tracking-wide">
             * Se recomienda confirmar la fecha definitiva al pasar a &quot;Aceptado&quot;.
           </p>
         )}
       </div>
 
       {status === "SHIPPED" && (
-        <div className="p-6 rounded-2xl border-4 border-slate-900 bg-orange-50/30 transition-all">
-          <label className="block text-[10px] font-black text-[#FF4F00] uppercase tracking-widest mb-2">
+        <div className="p-6 rounded-2xl border border-[var(--paper-line)] bg-[color-mix(in_srgb,var(--amber)_5%,white)] transition-all">
+          <label className="mono block text-[9px] text-[var(--amber)] mb-2 uppercase tracking-[0.28em]">
             🔗 Enlace de Seguimiento (Uber, Cabify, Correo, etc.)
           </label>
           <input
             type="url"
             value={trackingLink}
             onChange={(e) => setTrackingLink(e.target.value)}
-            className="w-full px-4 py-3 border-4 border-slate-900 rounded-xl font-black text-slate-900 focus:border-[#FF4F00] outline-none bg-white"
+            className={inputClass}
             placeholder="https://..."
             required={status === "SHIPPED"}
           />
@@ -133,7 +141,7 @@ export default function QuoteForm({ order }: QuoteFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#FF4F00] hover:shadow-[#FF4F00]/10 transition-all shadow-xl shadow-slate-900/10 active:scale-95 disabled:bg-slate-300 border-4 border-slate-900"
+        className="w-full py-4 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50"
       >
         {isSubmitting ? "Guardando..." : "Actualizar Pedido"}
       </button>

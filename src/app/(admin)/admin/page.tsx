@@ -12,85 +12,110 @@ export default async function AdminDashboard() {
   const getCount = (status: string) => stats.find((s) => s.status === status)?._count || 0;
 
   const cards = [
-    { label: "Análisis Pendiente", count: getCount("PENDING_QUOTE"), color: "bg-amber-500", link: "/admin/orders" },
-    { label: "En Cola", count: getCount("ACCEPTED"), color: "bg-black", link: "/admin/queue" },
-    { label: "Manufacturando", count: getCount("PRINTING"), color: "bg-emerald-500", link: "/admin/queue" },
-    { label: "Listos p/ Entregar", count: getCount("FINISHED"), color: "bg-slate-300", link: "/admin/orders" },
+    { label: "Cotización Pendiente", count: getCount("PENDING_QUOTE"), statusColor: "bg-[var(--amber)]", link: "/admin/orders" },
+    { label: "En Cola de Espera", count: getCount("ACCEPTED"), statusColor: "bg-[var(--ink-soft)]", link: "/admin/queue" },
+    { label: "Manufacturando", count: getCount("PRINTING"), statusColor: "bg-[var(--amber)] animate-pulse", link: "/admin/queue" },
+    { label: "Listos p/ Retiro", count: getCount("FINISHED"), statusColor: "bg-emerald-600", link: "/admin/orders" },
   ];
 
   return (
-    <div className="space-y-12">
-      <div className="border-b-4 border-black pb-8">
-        <h1 className="text-5xl font-black text-black tracking-tighter uppercase leading-none">Consola de <span className="opacity-30 italic">Control</span></h1>
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mt-4">Panel Maestro de Producción</p>
+    <div className="space-y-10">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-4 mb-4">
+          <span className="layer-seam flex-1" />
+          <span className="seam-label whitespace-nowrap">— OPERACIONES DE MANUFACTURA —</span>
+          <span className="layer-seam flex-1" />
+        </div>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink)]">Consola de Control</h1>
+        <p className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.28em] mt-1.5">Monitoreo y administración del taller 3D</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {/* Grid Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {cards.map((card, i) => (
-          <Link key={i} href={card.link} className="bg-white/60 backdrop-blur-md p-10 rounded-[2.5rem] border-2 border-black/10 shadow-sm hover:border-black transition-all group">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 group-hover:text-black">{card.label}</p>
+          <Link
+            key={i}
+            href={card.link}
+            className="panel-paper p-8 rounded-2xl border border-[var(--paper-line)] warm-shadow flex flex-col justify-between hover:border-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_3%,white)] transition-all group layer-press"
+          >
+            <p className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.2em] mb-4 group-hover:text-[var(--ink)] transition-colors">
+              {card.label}
+            </p>
             <div className="flex items-end justify-between">
-               <p className="text-6xl font-black text-black tracking-tighter leading-none">{card.count}</p>
-               <div className={`w-3 h-3 rounded-full ${card.color} animate-pulse`}></div>
+              <span className="text-4xl font-semibold tracking-tight text-[var(--ink)]">
+                {card.count}
+              </span>
+              <span className={`w-2.5 h-2.5 rounded-full ${card.statusColor}`} />
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <Link href="/admin/orders" className="p-12 bg-black rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl shadow-black/20 group">
-           <div className="space-y-4">
-             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Gestión de Órdenes</h2>
-             <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Revisión técnica y cotización de archivos</p>
-           </div>
-           <div className="flex justify-between items-center">
-             <span className="text-[10px] font-black uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-white/20 rounded-full group-hover:bg-white transition-colors"></div>
-           </div>
+      {/* Main Panels Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+        {/* Orders Card */}
+        <Link
+          href="/admin/orders"
+          className="p-10 bg-[var(--graphite)] text-[var(--paper)] rounded-3xl flex flex-col justify-between min-h-[280px] hover:scale-[1.01] hover:border-[var(--amber)] border border-transparent transition-all shadow-lg shadow-black/15 group"
+        >
+          <div className="space-y-3">
+            <span className="mono text-[9px] text-[var(--paper)]/50 uppercase tracking-[0.25em]">MÓDULO DE VENTAS</span>
+            <h2 className="text-2xl font-semibold tracking-tight text-white">Gestión de Órdenes</h2>
+            <p className="text-[var(--paper)]/60 text-sm leading-relaxed max-w-sm">Revisión técnica de piezas, cotización manual de presupuestos y gestión de estados de pago.</p>
+          </div>
+          <div className="flex justify-between items-center pt-6 border-t border-[var(--graphite-line)]">
+            <span className="mono text-[10px] text-[var(--amber)] uppercase tracking-[0.28em] font-semibold">Administrar Pedidos →</span>
+            <div className="w-12 h-1 bg-[var(--graphite-line)] rounded-full group-hover:bg-[var(--amber)] transition-colors"></div>
+          </div>
         </Link>
 
-        <Link href="/admin/materials" className="p-12 bg-white/60 backdrop-blur-md rounded-[3rem] border-4 border-black text-black flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all group">
-           <div className="space-y-4">
-             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Inventario Base</h2>
-             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.2em]">Control de polímeros y stock de colores</p>
-           </div>
-           <div className="flex justify-between items-center">
-             <span className="text-[10px] font-black uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-black/10 rounded-full group-hover:bg-black transition-colors"></div>
-           </div>
+        {/* Queue Card */}
+        <Link
+          href="/admin/queue"
+          className="p-10 bg-[var(--graphite)] text-[var(--paper)] rounded-3xl flex flex-col justify-between min-h-[280px] hover:scale-[1.01] hover:border-[var(--amber)] border border-transparent transition-all shadow-lg shadow-black/15 group"
+        >
+          <div className="space-y-3">
+            <span className="mono text-[9px] text-[var(--paper)]/50 uppercase tracking-[0.25em]">LÍNEA DE PRODUCCIÓN</span>
+            <h2 className="text-2xl font-semibold tracking-tight text-white">Cola de Impresión</h2>
+            <p className="text-[var(--paper)]/60 text-sm leading-relaxed max-w-sm">Monitoreo de tareas activas de manufactura en base a tiempos de entrega pactados.</p>
+          </div>
+          <div className="flex justify-between items-center pt-6 border-t border-[var(--graphite-line)]">
+            <span className="mono text-[10px] text-[var(--amber)] uppercase tracking-[0.28em] font-semibold">Ver Cola Activa →</span>
+            <div className="w-12 h-1 bg-[var(--graphite-line)] rounded-full group-hover:bg-[var(--amber)] transition-colors"></div>
+          </div>
         </Link>
 
-        <Link href="/admin/users" className="p-12 bg-amber-50 rounded-[3rem] border-4 border-amber-200 text-slate-900 flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all group">
-           <div className="space-y-4">
-             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Usuarios</h2>
-             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.2em]">Gestión de permisos y terminales activas</p>
-           </div>
-           <div className="flex justify-between items-center">
-             <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-amber-200 rounded-full group-hover:bg-amber-400 transition-colors"></div>
-           </div>
+        {/* Materials Card */}
+        <Link
+          href="/admin/materials"
+          className="p-10 bg-white border border-[var(--paper-line)] rounded-3xl flex flex-col justify-between min-h-[280px] hover:scale-[1.01] hover:border-[var(--amber)] transition-all warm-shadow group layer-press"
+        >
+          <div className="space-y-3">
+            <span className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.25em]">ALMACÉN</span>
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--ink)]">Inventario Base</h2>
+            <p className="text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">Administración de tipos de filamento, colores disponibles en stock y tarifas por gramo.</p>
+          </div>
+          <div className="flex justify-between items-center pt-6 border-t border-[var(--paper-line)]">
+            <span className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.28em] font-semibold group-hover:text-[var(--amber)] transition-colors">Configurar Materiales →</span>
+            <div className="w-12 h-1 bg-[var(--paper-line)] rounded-full group-hover:bg-[var(--amber)] transition-colors"></div>
+          </div>
         </Link>
 
-        <Link href="/admin/carousel" className="p-12 bg-slate-900 rounded-[3rem] text-white flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all shadow-2xl group">
-           <div className="space-y-4">
-             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Showcase Gallery</h2>
-             <p className="text-slate-400 text-sm font-medium uppercase tracking-[0.2em]">Gestor del carrusel de imágenes de la Home</p>
-           </div>
-           <div className="flex justify-between items-center">
-             <span className="text-[10px] font-black text-[#FF4F00] uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-white/20 rounded-full group-hover:bg-[#FF4F00] transition-colors"></div>
-           </div>
-        </Link>
-
-        <Link href="/admin/settings" className="p-12 bg-blue-50 rounded-[3rem] border-4 border-blue-200 text-slate-900 flex flex-col justify-between min-h-[350px] hover:scale-[1.02] transition-all group">
-           <div className="space-y-4">
-             <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Datos de Pago</h2>
-             <p className="text-slate-500 text-sm font-medium uppercase tracking-[0.2em]">CBU, Alias y configuraciones globales</p>
-           </div>
-           <div className="flex justify-between items-center">
-             <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.4em]">Acceder al Módulo →</span>
-             <div className="w-16 h-1.5 bg-blue-200 rounded-full group-hover:bg-blue-400 transition-colors"></div>
-           </div>
+        {/* Settings Card */}
+        <Link
+          href="/admin/settings"
+          className="p-10 bg-white border border-[var(--paper-line)] rounded-3xl flex flex-col justify-between min-h-[280px] hover:scale-[1.01] hover:border-[var(--amber)] transition-all warm-shadow group layer-press"
+        >
+          <div className="space-y-3">
+            <span className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.25em]">SISTEMA</span>
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--ink)]">Ajustes & Cuentas</h2>
+            <p className="text-[var(--ink-soft)] text-sm leading-relaxed max-w-sm">Actualización de datos bancarios (CBU/Alias) y configuración de sucursales de retiro y envíos.</p>
+          </div>
+          <div className="flex justify-between items-center pt-6 border-t border-[var(--paper-line)]">
+            <span className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.28em] font-semibold group-hover:text-[var(--amber)] transition-colors">Modificar Parámetros →</span>
+            <div className="w-12 h-1 bg-[var(--paper-line)] rounded-full group-hover:bg-[var(--amber)] transition-colors"></div>
+          </div>
         </Link>
       </div>
     </div>

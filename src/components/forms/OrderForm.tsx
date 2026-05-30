@@ -5,8 +5,6 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 import dynamic from "next/dynamic";
-import ZHeightRail from "@/components/landing/ZHeightRail";
-import DimensionOverlay from "./DimensionOverlay";
 
 const ThreeDViewer = dynamic(() => import("../ThreeDViewer"), {
   ssr: false,
@@ -72,18 +70,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
   const [purpose, setPurpose] = useState("aesthetic");
   const [desiredDate, setDesiredDate] = useState("");
   const [deliveryNotes, setDeliveryNotes] = useState("");
-  const [fileDimensions, setFileDimensions] = useState<Record<string, { x: number; y: number; z: number }>>({});
-
-  const formProgress = useMemo(() => {
-    const fields = [
-      fileConfigs.length > 0,
-      fileConfigs.every(f => f.materialId !== ""),
-      fileConfigs.every(f => f.colorId !== "" || f.customColor !== ""),
-      purpose !== "",
-    ];
-    const done = fields.filter(Boolean).length;
-    return Math.round((done / fields.length) * 100);
-  }, [fileConfigs, purpose]);
 
   // Determine active file being displayed in the 3D Viewer
   const activeFileConfig = useMemo(() => {
@@ -110,17 +96,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
     };
   }, [activeHexColor]);
 
-  // Parse scale string and apply scaling to dimensions
-  const getScaledDimensions = (dims: { x: number; y: number; z: number } | null, scaleStr: string) => {
-    if (!dims) return null;
-    const numeric = parseFloat(scaleStr);
-    const pct = isNaN(numeric) ? 1 : numeric / 100;
-    return {
-      x: Math.round(dims.x * pct * 10) / 10,
-      y: Math.round(dims.y * pct * 10) / 10,
-      z: Math.round(dims.z * pct * 10) / 10,
-    };
-  };
 
   if (status === "loading") return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -225,8 +200,6 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
 
   return (
     <>
-      <ZHeightRail mode="form" formProgress={formProgress} className="lg:right-[41.5%] right-5" />
-      
       <div className="full-bleed -mt-8 md:-mt-12 flex flex-col lg:flex-row min-h-[calc(100vh-64px)] bg-[var(--paper)]">
         
         {/* Left column: 3D Viewer or placeholder (60% width on desktop, 50vh height on mobile) */}
@@ -235,19 +208,17 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
           {activeFileConfig ? (
             <div className="w-full h-full relative">
               <ThreeDViewer
-                file={activeFileConfig.file}
-                hexColor={activeHexColor}
-                onDimensionsComputed={(dims) => {
-                  setFileDimensions(prev => ({ ...prev, [activeFileConfig.id]: dims }));
-                }}
+                files={fileConfigs.filter(f => /\.(stl|obj|3mf)$/i.test(f.file.name)).map(f => {
+                  const mat = materials.find(m => m.id === f.materialId);
+                  const color = mat?.colors.find(c => c.id === f.colorId);
+                  return {
+                    id: f.id,
+                    file: f.file,
+                    hexColor: color?.hexCode || f.customColor || null
+                  };
+                })}
+                activeFileId={activeFileConfig?.id}
               />
-              
-              {/* Dimension Overlay (SVG Engineering Cotas) */}
-              {fileDimensions[activeFileConfig.id] && (
-                <DimensionOverlay
-                  dimensions={getScaledDimensions(fileDimensions[activeFileConfig.id], activeFileConfig.scaleFactor) || fileDimensions[activeFileConfig.id]}
-                />
-              )}
               
               {/* Floating current file indicator */}
               <div className="absolute top-6 right-6 bg-[var(--graphite)]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-[var(--graphite-line)] mono text-[10px] uppercase tracking-[0.2em] text-[var(--paper)] z-10">

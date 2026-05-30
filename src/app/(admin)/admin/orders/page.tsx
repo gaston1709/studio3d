@@ -21,63 +21,85 @@ export default async function AdminOrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "PENDING_QUOTE": return "bg-white text-slate-400 border-slate-200";
-      case "QUOTED": return "bg-white text-slate-900 border-slate-900";
-      case "PAYMENT_PENDING_VERIFICATION": return "bg-amber-50 text-amber-600 border-amber-500";
-      case "ACCEPTED": return "bg-blue-50 text-blue-600 border-blue-500";
-      case "PRINTING": return "bg-black text-white border-black";
-      case "FINISHED": return "bg-orange-50 text-[#FF4F00] border-[#FF4F00]";
-      case "SHIPPED": return "bg-purple-50 text-purple-600 border-purple-500";
-      case "DELIVERED": return "bg-emerald-50 text-emerald-600 border-emerald-500";
-      case "CANCELLED": return "bg-red-50 text-red-600 border-red-500";
-      default: return "bg-slate-50 text-slate-400 border-slate-200";
+      case "PENDING_QUOTE":
+        return "bg-white border-[var(--paper-line)] text-[var(--ink-soft)]";
+      case "QUOTED":
+        return "bg-white border-[var(--ink)] text-[var(--ink)]";
+      case "PAYMENT_PENDING_VERIFICATION":
+        return "bg-[color-mix(in_srgb,var(--amber)_8%,white)] border-[var(--amber)] text-[var(--ink)]";
+      case "ACCEPTED":
+        return "bg-[var(--graphite)] border-transparent text-white";
+      case "PRINTING":
+        return "bg-[var(--amber)] border-transparent text-[var(--graphite)] animate-pulse";
+      case "FINISHED":
+        return "bg-emerald-50 border-emerald-200 text-emerald-700";
+      case "SHIPPED":
+        return "bg-purple-50 border-purple-200 text-purple-700";
+      case "DELIVERED":
+        return "bg-emerald-100 border-transparent text-emerald-800";
+      case "CANCELLED":
+        return "bg-red-50 border-red-200 text-red-700";
+      default:
+        return "bg-[var(--paper)] border-[var(--paper-line)] text-[var(--ink-soft)]";
     }
   };
 
   const translateStatus = (status: string) => {
     switch (status) {
-      case "PENDING_QUOTE": return "Análisis";
-      case "QUOTED": return "Cotizado";
-      case "PAYMENT_PENDING_VERIFICATION": return "Verificando Pago";
-      case "ACCEPTED": return "En Cola";
-      case "PRINTING": return "Imprimiendo";
-      case "FINISHED": return "Listo p/ Entregar";
-      case "SHIPPED": return "Enviado";
-      case "DELIVERED": return "Entregado";
-      case "CANCELLED": return "Cancelado";
-      default: return status;
+      case "PENDING_QUOTE":
+        return "Análisis";
+      case "QUOTED":
+        return "Cotizado";
+      case "PAYMENT_PENDING_VERIFICATION":
+        return "Verificando Pago";
+      case "ACCEPTED":
+        return "En Cola";
+      case "PRINTING":
+        return "Imprimiendo";
+      case "FINISHED":
+        return "Listo p/ Retiro";
+      case "SHIPPED":
+        return "Enviado";
+      case "DELIVERED":
+        return "Entregado";
+      case "CANCELLED":
+        return "Cancelado";
+      default:
+        return status;
     }
   };
 
   return (
-    <div className="space-y-12 bg-slate-100 min-h-screen pb-20">
-      <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end pb-6 border-b border-[var(--paper-line)] gap-4">
         <div>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Log de Producción</h1>
-          <p className="text-[10px] font-black text-[#FF4F00] uppercase tracking-[0.4em] mt-4">Sistema de Gestión de Activos</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink)]">Log de Producción</h1>
+          <p className="mono text-[10px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-2">Sistema de Gestión de Activos</p>
         </div>
-        <div className="bg-white px-8 py-4 rounded-2xl border-2 border-slate-200 text-right shadow-sm">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Registros</p>
-          <p className="text-3xl font-black text-slate-900 leading-none">{orders.length}</p>
+        <div className="bg-white/80 border border-[var(--paper-line)] px-6 py-3 rounded-2xl text-right shadow-sm font-mono">
+          <p className="text-[9px] text-[var(--ink-soft)] uppercase tracking-widest leading-none mb-1">Total Registros</p>
+          <p className="text-2xl font-semibold text-[var(--ink)] leading-none">{orders.length}</p>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-4">
+      {/* Table */}
+      <div className="overflow-x-auto -mx-8 px-8">
+        <table className="w-full text-left border-separate border-spacing-y-3">
           <thead>
-            <tr className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
-              <th className="pb-2 px-8">Registro</th>
+            <tr className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.25em]">
+              <th className="pb-2 px-6">Registro</th>
               <th className="pb-2 px-6">Usuario / Cliente</th>
               <th className="pb-2 px-6">Configuración</th>
               <th className="pb-2 px-6">Estado</th>
-              <th className="pb-2 px-8 text-right">Acción</th>
+              <th className="pb-2 px-6 text-right">Acción</th>
             </tr>
           </thead>
           <tbody>
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-40 text-center bg-white rounded-[3rem] border-4 border-dashed border-slate-200">
-                  <p className="text-slate-300 font-black uppercase tracking-[0.5em] italic">Cero registros encontrados</p>
+                <td colSpan={5} className="py-24 text-center bg-white/40 border border-dashed border-[var(--paper-line)] rounded-3xl">
+                  <p className="mono text-xs text-[var(--ink-soft)] uppercase tracking-[0.3em] italic">Cero registros encontrados</p>
                 </td>
               </tr>
             ) : (
@@ -92,60 +114,60 @@ export default async function AdminOrdersPage() {
                 const isMultiMaterial = uniqueMaterials.length > 1;
 
                 return (
-                  <tr key={order.id} className="group hover:translate-x-1 transition-transform duration-300">
-                    <td className="py-8 px-8 bg-white border-y border-l border-slate-200 rounded-l-3xl shadow-sm">
-                      <p className="text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
-                      <p className="text-lg font-black text-slate-900 uppercase tracking-tighter truncate max-w-[200px]" title={firstFileName}>
+                  <tr key={order.id} className="group transition-transform duration-200">
+                    <td className="py-5 px-6 bg-white/60 border-y border-l border-[var(--paper-line)] rounded-l-2xl shadow-sm">
+                      <p className="mono text-[8px] text-[var(--ink-soft)] mb-1 uppercase tracking-widest">{new Date(order.createdAt).toLocaleDateString()}</p>
+                      <p className="text-sm font-semibold text-[var(--ink)] truncate max-w-[180px]" title={firstFileName}>
                         {firstFileName}
                       </p>
                       {totalFiles > 1 && (
-                        <p className="text-[9px] font-black text-[#FF4F00] uppercase tracking-widest mt-1">
+                        <p className="mono text-[8px] text-[var(--amber)] uppercase tracking-wider mt-1">
                           + {totalFiles - 1} archivo(s)
                         </p>
                       )}
                     </td>
-                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
-                      <p className="text-sm font-black text-slate-900 tracking-tight">{order.user.email}</p>
-                      <p className="text-[10px] font-bold text-slate-400 tracking-widest mt-2">{order.user.phone || "---"}</p>
+                    <td className="py-5 px-6 bg-white/60 border-y border-[var(--paper-line)] shadow-sm">
+                      <p className="text-xs font-semibold text-[var(--ink)]">{order.user.email}</p>
+                      <p className="mono text-[9px] text-[var(--ink-soft)] tracking-wider mt-1">{order.user.phone || "---"}</p>
                     </td>
-                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
+                    <td className="py-5 px-6 bg-white/60 border-y border-[var(--paper-line)] shadow-sm">
                       {isMultiMaterial ? (
-                        <div className="flex items-center gap-3">
-                          <span className="w-2 h-2 bg-[#FF4F00] rounded-full animate-pulse"></span>
-                          <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest italic font-bold">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-[var(--amber)] rounded-full animate-pulse"></span>
+                          <span className="mono text-[9px] text-[var(--ink)] uppercase tracking-widest italic font-bold">
                             Varios
                           </span>
                         </div>
                       ) : firstFile?.materialId ? (
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                           {firstFile.color?.hexCode && (
                             <div 
-                              className="w-4 h-4 rounded-full border border-slate-200 shadow-inner" 
+                              className="w-3.5 h-3.5 rounded-full border border-[var(--paper-line)] shadow-inner" 
                               style={{ backgroundColor: firstFile.color.hexCode }}
                             />
                           )}
-                          <span className="text-[11px] font-black text-slate-900 uppercase tracking-widest">
+                          <span className="mono text-[9px] text-[var(--ink)] uppercase tracking-widest">
                             {firstFile.material?.name}
                           </span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-3">
-                          <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                          <span className="text-[11px] font-black text-amber-600 uppercase tracking-widest italic">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-[var(--amber)] rounded-full animate-pulse"></span>
+                          <span className="mono text-[9px] text-[var(--amber)] uppercase tracking-widest italic font-bold">
                             {firstFile?.customMaterial || "Especial"}
                           </span>
                         </div>
                       )}
                     </td>
-                    <td className="py-8 px-6 bg-white border-y border-slate-200 shadow-sm">
-                      <span className={`text-[9px] font-black px-4 py-1.5 rounded-lg border uppercase tracking-[0.2em] shadow-sm ${getStatusColor(order.status)}`}>
+                    <td className="py-5 px-6 bg-white/60 border-y border-[var(--paper-line)] shadow-sm">
+                      <span className={`mono text-[8px] px-2.5 py-1 rounded-lg border uppercase tracking-[0.15em] font-medium shadow-sm inline-block ${getStatusColor(order.status)}`}>
                         {translateStatus(order.status)}
                       </span>
                     </td>
-                    <td className="py-8 px-8 bg-white border-y border-r border-slate-200 rounded-r-3xl shadow-sm text-right">
+                    <td className="py-5 px-6 bg-white/60 border-y border-r border-[var(--paper-line)] rounded-r-2xl shadow-sm text-right">
                       <Link 
                         href={`/admin/orders/${order.id}`}
-                        className="inline-block bg-slate-900 text-white px-6 py-3 rounded-xl text-[10px] font-black hover:bg-[#FF4F00] transition-all uppercase tracking-widest shadow-lg shadow-slate-900/10"
+                        className="inline-block bg-[var(--graphite)] text-white hover:bg-[var(--amber)] hover:text-[var(--graphite)] px-4 py-2 rounded-xl mono text-[9px] uppercase tracking-wider transition-all font-semibold active:scale-95 shadow-md"
                       >
                         Gestionar
                       </Link>

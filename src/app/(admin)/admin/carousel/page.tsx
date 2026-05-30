@@ -86,62 +86,62 @@ export default function CarouselManagerPage() {
     }
   };
 
+  const labelClass = "mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]";
+  const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30";
+
   return (
-    <div className="space-y-12 bg-slate-100 min-h-screen pb-20">
-      <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
-        <div>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Gestor de <span className="text-[#FF4F00]">Showcase</span></h1>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-4">Carrusel de imágenes de la Home</p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="pb-6 border-b border-[var(--paper-line)]">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink)]">Gestor de Showcase</h1>
+        <p className="mono text-[10px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-2">Carrusel de imágenes de la Home</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Upload Form */}
-        <div className="lg:col-span-4 space-y-8">
-          <form onSubmit={handleUpload} className="bg-white p-8 rounded-[2rem] border-2 border-slate-200 shadow-sm space-y-6">
-            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-6">Subir Nueva Pieza</h2>
+        <div className="lg:col-span-4 space-y-6">
+          <form onSubmit={handleUpload} className="panel-paper p-6 rounded-2xl border border-[var(--paper-line)] bg-white/40 warm-shadow space-y-5">
+            <h2 className="mono text-[10px] text-[var(--ink-soft)] uppercase tracking-[0.25em] mb-4">Subir Nueva Pieza</h2>
             
-            <div className="space-y-4">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Archivo (.jpg, .png)</label>
-              <div className="relative border-2 border-dashed border-slate-300 rounded-xl p-8 hover:border-[#FF4F00] transition-all text-center group bg-slate-50">
+            <div className="space-y-3">
+              <label className={labelClass}>Archivo (.jpg, .png)</label>
+              <div className="relative border border-dashed border-[var(--paper-line)] rounded-xl p-6 hover:border-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_3%,white)] transition-all text-center group bg-white/20">
                 <input
                   id="file-input"
                   type="file"
                   required
                   accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
                 <div className="space-y-2">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center mx-auto group-hover:bg-orange-50 transition-colors shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500 group-hover:text-[#FF4F00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-8 h-8 bg-white border border-[var(--paper-line)] rounded-lg flex items-center justify-center mx-auto group-hover:bg-[color-mix(in_srgb,var(--amber)_8%,white)] transition-colors shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--ink-soft)] group-hover:text-[var(--amber)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                    {file ? <span className="text-[#FF4F00] truncate block max-w-full px-4">{file.name}</span> : "Seleccionar Foto"}
+                  <p className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-wider">
+                    {file ? <span className="text-[var(--amber)] truncate block max-w-full px-2">{file.name}</span> : "Seleccionar Foto"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block">Pie de Foto (Opcional)</label>
+            <div className="space-y-3">
+              <label className={labelClass}>Pie de Foto (Opcional)</label>
               <input
                 type="text"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Ej: Engranaje Helicoidal en PETG"
-                className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900"
+                className={inputClass}
               />
             </div>
 
             <button
               type="submit"
               disabled={isUploading || !file}
-              className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl active:scale-95 ${
-                isUploading || !file ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-black text-white hover:bg-[#FF4F00] shadow-black/10"
-              }`}
+              className="w-full py-4 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {isUploading ? "Subiendo..." : "Agregar al Carrusel"}
             </button>
@@ -152,32 +152,32 @@ export default function CarouselManagerPage() {
         <div className="lg:col-span-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {images.length === 0 ? (
-              <div className="col-span-2 py-20 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-                <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Galería vacía</p>
+              <div className="col-span-2 py-20 text-center bg-white/20 border border-dashed border-[var(--paper-line)] rounded-3xl">
+                <p className="mono text-xs text-[var(--ink-soft)] uppercase tracking-widest italic">Galería vacía</p>
               </div>
             ) : (
               images.map((img) => (
-                <div key={img.id} className="bg-white rounded-[2rem] border-2 border-slate-200 overflow-hidden shadow-sm group">
-                  <div className="relative aspect-video bg-slate-100">
+                <div key={img.id} className="panel-paper rounded-2xl border border-[var(--paper-line)] overflow-hidden bg-white/40 warm-shadow group">
+                  <div className="relative aspect-video bg-[var(--paper)]">
                     <Image
                       src={`/uploads/carousel/${img.fileName}`}
                       alt={img.caption || "Showcase image"}
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[var(--graphite)]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <button
                         onClick={() => handleDelete(img.id)}
                         disabled={isDeleting === img.id}
-                        className="bg-red-600 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-colors shadow-xl"
+                        className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-xl mono text-[9px] uppercase tracking-wider font-semibold transition-all active:scale-95 cursor-pointer shadow-md"
                       >
                         {isDeleting === img.id ? "Borrando..." : "Eliminar Foto"}
                       </button>
                     </div>
                   </div>
                   {img.caption && (
-                    <div className="p-5 border-t border-slate-100">
-                      <p className="text-xs font-black text-slate-900 uppercase tracking-widest truncate">{img.caption}</p>
+                    <div className="p-4 border-t border-[var(--paper-line)] bg-white/40">
+                      <p className="mono text-[10px] text-[var(--ink)] uppercase tracking-wider truncate" title={img.caption}>{img.caption}</p>
                     </div>
                   )}
                 </div>

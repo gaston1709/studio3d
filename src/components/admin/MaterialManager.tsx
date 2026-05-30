@@ -100,65 +100,84 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
     }
   }
 
+  const labelClass = "mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]";
+  const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30";
+
   return (
-    <div className="space-y-16 pb-32">
-      <div className="flex flex-col md:flex-row justify-between items-end border-b border-slate-100 pb-10 gap-8">
+    <div className="space-y-12">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-[var(--paper-line)] pb-8 gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Inventario de <span className="text-[#FF4F00]">Polímeros</span></h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-2">Control de Materia Prima y Catálogo</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--ink)]">Inventario de Polímeros</h1>
+          <p className="mono text-[10px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-1.5">Control de Materia Prima y Catálogo</p>
         </div>
         <button 
           onClick={() => { setEditingMaterial({ name: "", description: "", isActive: true }); setIsMaterialModalOpen(true); }}
-          className="bg-[#0F1115] text-white px-8 py-4 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-[#FF4F00] transition-all shadow-xl shadow-orange-500/10 active:scale-95"
+          className="bg-[var(--graphite)] text-white hover:bg-[var(--amber)] hover:text-[var(--graphite)] px-6 py-3 rounded-xl mono text-[10px] uppercase tracking-wider font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
         >
           + Registrar Material
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-12">
+      {/* Materials List */}
+      <div className="grid grid-cols-1 gap-8">
         {materials.map((material) => (
-          <div key={material.id} className={`bg-white border rounded-[2rem] overflow-hidden shadow-sm transition-all ${material.isActive ? 'border-slate-200 hover:border-slate-300' : 'border-red-100 opacity-60 grayscale'}`}>
-            <div className="bg-slate-50 p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div 
+            key={material.id} 
+            className={`panel-paper rounded-3xl border overflow-hidden warm-shadow transition-all ${
+              material.isActive 
+                ? 'border-[var(--paper-line)] bg-white/40' 
+                : 'border-red-200 opacity-60 grayscale bg-red-50/10'
+            }`}
+          >
+            <div className="bg-[color-mix(in_srgb,var(--paper)_60%,white)] p-6 border-b border-[var(--paper-line)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                   <div className={`w-2 h-2 rounded-full ${material.isActive ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
-                   <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">{material.name}</h2>
+                <div className="flex items-center gap-2.5 mb-1.5">
+                   <div className={`w-2 h-2 rounded-full ${material.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                   <h2 className="text-xl font-semibold tracking-tight text-[var(--ink)] uppercase">{material.name}</h2>
                 </div>
-                <p className="text-sm font-medium text-slate-500 max-w-2xl leading-relaxed">{material.description}</p>
+                <p className="text-xs text-[var(--ink-soft)] max-w-2xl leading-relaxed">{material.description}</p>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 <button 
                   onClick={() => { setEditingMaterial(material); setIsMaterialModalOpen(true); }}
-                  className="text-[10px] font-bold bg-white border border-slate-200 px-5 py-2.5 rounded-lg hover:bg-slate-900 hover:text-white transition-all uppercase tracking-widest active:scale-95 shadow-sm"
+                  className="bg-white border border-[var(--paper-line)] px-4 py-2 rounded-xl mono text-[9px] uppercase tracking-widest text-[var(--ink)] hover:border-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_8%,white)] transition-all font-semibold active:scale-95 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button 
                   onClick={() => toggleMaterialStatus(material.id, material.isActive)}
-                  className={`text-[10px] font-bold bg-white border px-5 py-2.5 rounded-lg transition-all uppercase tracking-widest active:scale-95 shadow-sm ${material.isActive ? 'border-red-100 hover:bg-red-600 hover:text-white text-red-500' : 'border-emerald-100 hover:bg-emerald-600 hover:text-white text-emerald-500'}`}
+                  className={`px-4 py-2 rounded-xl mono text-[9px] uppercase tracking-widest transition-all font-semibold active:scale-95 cursor-pointer ${
+                    material.isActive 
+                      ? 'bg-red-50 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-transparent' 
+                      : 'bg-emerald-50 border border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white hover:border-transparent'
+                  }`}
                 >
                   {material.isActive ? "Suspender" : "Activar"}
                 </button>
               </div>
             </div>
             
-            <div className="p-10 bg-white">
-              <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-10 flex items-center gap-4">
-                <span className="h-[1px] w-12 bg-slate-200"></span>
+            <div className="p-6 bg-white/20">
+              <h3 className="mono text-[9px] text-[var(--ink-soft)] uppercase tracking-[0.25em] mb-6 flex items-center gap-3">
+                <span className="h-[1px] w-6 bg-[var(--paper-line)]" />
                 Gama de Colores Disponibles
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {material.colors.filter(c => c.isActive).map((color) => (
-                  <div key={color.id} className="flex flex-col items-center gap-4 p-6 rounded-2xl bg-slate-50 border border-transparent hover:border-slate-200 hover:bg-white transition-all group relative">
+                  <div 
+                    key={color.id} 
+                    className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white/60 border border-[var(--paper-line)] hover:border-[var(--amber)] hover:bg-white/90 transition-all group relative"
+                  >
                     <div 
-                      className="w-16 h-16 rounded-full border-4 border-white shadow-xl group-hover:scale-110 transition-transform cursor-pointer" 
+                      className="w-12 h-12 rounded-full border border-[var(--paper-line)] shadow-md group-hover:scale-105 transition-transform cursor-pointer" 
                       style={{ backgroundColor: color.hexCode }}
                       onClick={() => { setEditingColor({ ...color, materialId: material.id }); setIsColorModalOpen(true); }}
                     />
-                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest text-center">{color.name}</span>
+                    <span className="mono text-[8px] text-[var(--ink)] uppercase tracking-wider text-center font-medium truncate w-full px-1">{color.name}</span>
                     <button 
                       onClick={() => deleteColor(color.id)}
-                      className="absolute top-2 right-2 text-slate-300 hover:text-red-600 font-bold text-xl transition-colors opacity-0 group-hover:opacity-100"
+                      className="absolute top-1 right-1.5 text-[var(--ink-soft)] hover:text-red-600 font-medium text-lg transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                     >
                       ×
                     </button>
@@ -166,10 +185,10 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
                 ))}
                 <button 
                   onClick={() => { setEditingColor({ name: "", hexCode: "#000000", materialId: material.id, isActive: true }); setIsColorModalOpen(true); }}
-                  className="flex flex-col items-center justify-center gap-4 border-2 border-dashed border-slate-200 p-6 rounded-2xl text-slate-400 hover:border-[#FF4F00] hover:text-[#FF4F00] hover:bg-orange-50 transition-all group"
+                  className="flex flex-col items-center justify-center gap-3 border border-dashed border-[var(--paper-line)] bg-white/20 p-4 rounded-2xl text-[var(--ink-soft)] hover:border-[var(--amber)] hover:text-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_5%,white)] transition-all group cursor-pointer"
                 >
-                  <div className="w-12 h-12 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center text-2xl group-hover:border-[#FF4F00] transition-colors">+</div>
-                  <span className="text-[9px] font-black uppercase tracking-widest">Nuevo Color</span>
+                  <div className="w-8 h-8 rounded-full border border-dashed border-[var(--paper-line)] flex items-center justify-center text-lg group-hover:border-[var(--amber)] transition-colors">+</div>
+                  <span className="mono text-[8px] uppercase tracking-wider font-semibold">Nuevo Color</span>
                 </button>
               </div>
             </div>
@@ -179,44 +198,44 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
 
       {/* MODAL MATERIAL */}
       {isMaterialModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="bg-[#0F1115] p-8 text-white">
-               <h2 className="text-2xl font-black tracking-tighter uppercase">{editingMaterial?.id ? "Editar Material" : "Nuevo Material"}</h2>
-               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Configuración de Base Polimérica</p>
+        <div className="fixed inset-0 bg-[var(--graphite)]/85 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-[var(--paper)] rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-[var(--paper-line)] animate-in zoom-in-95 duration-200">
+            <div className="bg-[var(--graphite)] p-6 border-b border-[var(--graphite-line)] text-white">
+               <span className="mono text-[8px] text-[var(--amber)] uppercase tracking-[0.25em]">MÓDULO DE INVENTARIO</span>
+               <h2 className="text-xl font-semibold tracking-tight uppercase mt-1">{editingMaterial?.id ? "Editar Material" : "Nuevo Material"}</h2>
             </div>
-            <form onSubmit={saveMaterial} className="p-8 space-y-6">
+            <form onSubmit={saveMaterial} className="p-6 space-y-6">
               <div>
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nombre del Material</label>
+                <label className={labelClass}>Nombre del Material</label>
                 <input 
                   type="text" required 
                   value={editingMaterial?.name || ""} 
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, name: e.target.value })}
                   placeholder="Ej: Carbon Fiber Nylon" 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900" 
+                  className={inputClass} 
                 />
               </div>
               <div>
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Descripción Técnica</label>
+                <label className={labelClass}>Descripción Técnica</label>
                 <textarea 
                   required rows={3}
                   value={editingMaterial?.description || ""} 
                   onChange={(e) => setEditingMaterial({ ...editingMaterial, description: e.target.value })}
                   placeholder="Propiedades mecánicas y acabado..." 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900 resize-none" 
+                  className={inputClass + " resize-none"} 
                 />
               </div>
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-2">
                 <button 
                   type="button" 
                   onClick={() => setIsMaterialModalOpen(false)}
-                  className="flex-1 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-900"
+                  className="flex-1 py-3 text-xs font-semibold mono uppercase tracking-wider text-[var(--ink-soft)] hover:text-[var(--ink)] cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" disabled={isLoading}
-                  className="flex-[2] bg-[#0F1115] text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#FF4F00] transition-all shadow-xl"
+                  className="flex-[2] py-3.5 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isLoading ? "Guardando..." : "Guardar Cambios"}
                 </button>
@@ -228,54 +247,55 @@ export default function MaterialManager({ initialMaterials }: { initialMaterials
 
       {/* MODAL COLOR */}
       {isColorModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="bg-[#0F1115] p-8 text-white text-center">
-               <h2 className="text-xl font-black tracking-tighter uppercase">{editingColor?.id ? "Editar Color" : "Nuevo Color"}</h2>
+        <div className="fixed inset-0 bg-[var(--graphite)]/85 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-[var(--paper)] rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-[var(--paper-line)] animate-in zoom-in-95 duration-200">
+            <div className="bg-[var(--graphite)] p-6 border-b border-[var(--graphite-line)] text-white text-center">
+               <span className="mono text-[8px] text-[var(--amber)] uppercase tracking-[0.25em]">MÓDULO DE COLORES</span>
+               <h2 className="text-xl font-semibold tracking-tight uppercase mt-1">{editingColor?.id ? "Editar Color" : "Nuevo Color"}</h2>
                <div 
-                 className="w-16 h-16 rounded-full border-4 border-white/20 mx-auto mt-6 shadow-2xl transition-all" 
+                 className="w-12 h-12 rounded-full border border-white/20 mx-auto mt-4 shadow-md transition-all" 
                  style={{ backgroundColor: editingColor?.hexCode }} 
                />
             </div>
-            <form onSubmit={saveColor} className="p-8 space-y-6">
+            <form onSubmit={saveColor} className="p-6 space-y-6">
               <div>
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nombre del Color</label>
+                <label className={labelClass}>Nombre del Color</label>
                 <input 
                   type="text" required 
                   value={editingColor?.name || ""} 
                   onChange={(e) => setEditingColor({ ...editingColor, name: e.target.value })}
                   placeholder="Ej: Industrial Grey" 
-                  className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900" 
+                  className={inputClass} 
                 />
               </div>
               <div>
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Código Hexadecimal</label>
+                <label className={labelClass}>Código Hexadecimal</label>
                 <div className="flex gap-3">
                   <input 
                     type="color" 
                     value={editingColor?.hexCode || "#000000"} 
                     onChange={(e) => setEditingColor({ ...editingColor, hexCode: e.target.value })}
-                    className="h-14 w-14 rounded-xl cursor-pointer border-none bg-transparent" 
+                    className="h-12 w-12 rounded-xl cursor-pointer border border-[var(--paper-line)] shrink-0" 
                   />
                   <input 
                     type="text" required 
                     value={editingColor?.hexCode || ""} 
                     onChange={(e) => setEditingColor({ ...editingColor, hexCode: e.target.value })}
-                    className="flex-grow px-5 py-4 border border-slate-200 rounded-xl focus:border-[#FF4F00] outline-none font-bold text-slate-900 uppercase" 
+                    className={inputClass + " uppercase font-mono"} 
                   />
                 </div>
               </div>
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-2">
                 <button 
                   type="button" 
                   onClick={() => setIsColorModalOpen(false)}
-                  className="flex-1 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-900"
+                  className="flex-1 py-3 text-xs font-semibold mono uppercase tracking-wider text-[var(--ink-soft)] hover:text-[var(--ink)] cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit" disabled={isLoading}
-                  className="flex-[2] bg-[#FF4F00] text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-orange-500/20"
+                  className="flex-[2] py-3.5 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   {isLoading ? "Guardando..." : "Confirmar"}
                 </button>

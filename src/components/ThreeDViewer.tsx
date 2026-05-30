@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
+export interface ViewerFile {
+  id: string;
+  file?: File;
+  filePath?: string;
+  hexColor?: string | null;
+}
+
 interface ThreeDViewerProps {
+  files?: ViewerFile[];
+  activeFileId?: string | null;
+  // Compatibility fallback
   file?: File;
   filePath?: string;
   hexColor?: string | null;
@@ -55,47 +65,56 @@ function BootSequence({ onComplete }: { onComplete: () => void }) {
 }
 
 export default function ThreeDViewer({
+  files,
+  activeFileId,
   file,
   filePath,
   hexColor,
   onDimensionsComputed,
 }: ThreeDViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const wrappersRef = useRef<Map<string, THREE.Group>>(new Map());
   const [booting, setBooting] = useState(false);
   const [modelLoaded, setModelLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dimensions, setDimensions] = useState<{ x: number; y: number; z: number } | null>(null);
+
+  // Unify single and multi-file rendering inputs
+  const filesToLoad = useMemo(() => {
+    const list: ViewerFile[] = [];
+    if (files && files.length > 0) {
+      list.push(...files);
+    } else if (file) {
+      list.push({ id: "single", file, hexColor });
+    } else if (filePath) {
+      list.push({ id: "single", filePath, hexColor });
+    }
+    return list;
+  }, [files, file, filePath, hexColor]);
+
+  // Compute cache-busting key/hash for loaded files
+  const filesHash = useMemo(() => {
+    return filesToLoad
+      .map((f) => `${f.id}-${f.file?.name || ""}-${f.file?.size || 0}-${f.filePath || ""}-${f.hexColor || ""}`)
+      .join("|");
+  }, [filesToLoad]);
 
   // Trigger boot sequence on file change
   useEffect(() => {
-    if (file || filePath) {
+    if (filesHash) {
       setBooting(true);
       setModelLoaded(false);
       setError(null);
     }
-  }, [file, filePath]);
-
-  // Update material color if hexColor changes
-  useEffect(() => {
-    if (materialRef.current) {
-      const colorToSet = hexColor || "var(--amber)";
-      if (colorToSet.startsWith("var(")) {
-        materialRef.current.color.set(0xff7a1a);
-      } else {
-        materialRef.current.color.set(colorToSet);
-      }
-    }
-  }, [hexColor]);
+  }, [filesHash]);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    if (booting || (!file && !filePath)) return;
+    if (booting || filesToLoad.length === 0) return;
 
     let animationFrameId: number;
     const container = containerRef.current;
 
-    // Create scene (no background color to keep it transparent)
+    // Create scene
     const scene = new THREE.Scene();
 
     // Create camera
@@ -106,7 +125,7 @@ export default function ThreeDViewer({
       1000
     );
 
-    // Create renderer with alpha true to support CSS background gradients
+    // Create renderer with alpha support
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -119,7 +138,7 @@ export default function ThreeDViewer({
     controls.dampingFactor = 0.05;
     controls.maxPolarAngle = Math.PI / 2;
 
-    // Add lighting - premium studio lighting with camera headlight & rim light
+    // Add studio lighting
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
     scene.add(hemiLight);
 
@@ -127,165 +146,190 @@ export default function ThreeDViewer({
     dirLight1.position.set(100, 200, 100);
     scene.add(dirLight1);
 
-    // Rim light from behind to make edges pop
     const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
     rimLight.position.set(-100, 200, -100);
     scene.add(rimLight);
 
-    // Headlight attached to camera so the visible face is never in full shadow
     const headlight = new THREE.PointLight(0xffffff, 0.5, 0);
     camera.add(headlight);
     scene.add(camera);
 
-    // Grid Floor - match 320mm build plate
+    // 320mm Bed grid helper
     const gridHelper = new THREE.GridHelper(320, 32, 0x2e2822, 0xff7a1a);
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
-    // Initial material color setup - DoubleSided and shiny parameters for edge highlights
-    let initialColor = 0xff7a1a;
-    if (hexColor && !hexColor.startsWith("var(")) {
-      initialColor = parseInt(hexColor.replace("#", "0x"), 16);
-    }
-    const material = new THREE.MeshStandardMaterial({
-      color: initialColor,
-      roughness: 0.3,
-      metalness: 0.2,
-      side: THREE.DoubleSide,
-    });
-    materialRef.current = material;
+    // Promise-based file loader
+    const loadFileGeometry = (vf: ViewerFile): Promise<THREE.Object3D> => {
+      return new Promise((resolve, reject) => {
+        const name = vf.file?.name || vf.filePath || "";
+        const isOBJ = name.toLowerCase().endsWith(".obj");
+        const is3MF = name.toLowerCase().endsWith(".3mf");
 
-    const processLoadedObject = (object: THREE.Object3D) => {
-      const box = new THREE.Box3().setFromObject(object);
-      const size = new THREE.Vector3();
-      box.getSize(size);
+        let initialColor = 0xff7a1a;
+        if (vf.hexColor && !vf.hexColor.startsWith("var(")) {
+          initialColor = parseInt(vf.hexColor.replace("#", "0x"), 16);
+        }
+        const material = new THREE.MeshStandardMaterial({
+          color: initialColor,
+          roughness: 0.3,
+          metalness: 0.2,
+          side: THREE.DoubleSide,
+        });
 
-      const dims = {
-        x: Math.round(size.x * 10) / 10,
-        y: Math.round(size.y * 10) / 10,
-        z: Math.round(size.z * 10) / 10,
-      };
+        const setupObject = (object: THREE.Object3D) => {
+          object.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.material = material;
+            }
+          });
+          resolve(object);
+        };
 
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-      object.position.sub(center);
+        const setupGeometry = (geometry: THREE.BufferGeometry) => {
+          geometry.computeVertexNormals();
+          const mesh = new THREE.Mesh(geometry, material);
+          resolve(mesh);
+        };
 
-      scene.add(object);
-
-      const sphere = new THREE.Sphere();
-      box.getBoundingSphere(sphere);
-      const radius = sphere.radius;
-      camera.position.set(radius * 2, radius * 1.5, radius * 2);
-      camera.lookAt(new THREE.Vector3(0, 0, 0));
-      controls.target.set(0, 0, 0);
-
-      setDimensions(dims);
-      if (onDimensionsComputed) {
-        onDimensionsComputed(dims);
-      }
-      setModelLoaded(true);
-    };
-
-    const loadSTLGeometry = (geometry: THREE.BufferGeometry) => {
-      geometry.computeVertexNormals(); // Ensure proper lighting on facets
-      const mesh = new THREE.Mesh(geometry, material);
-      processLoadedObject(mesh);
-    };
-
-    const loadOBJObject = (group: THREE.Group) => {
-      group.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = material;
+        if (vf.file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              if (isOBJ) {
+                const text = e.target?.result as string;
+                const objLoader = new OBJLoader();
+                const group = objLoader.parse(text);
+                setupObject(group);
+              } else if (is3MF) {
+                const buffer = e.target?.result as ArrayBuffer;
+                const loader3mf = new ThreeMFLoader();
+                const group = loader3mf.parse(buffer);
+                setupObject(group);
+              } else {
+                const buffer = e.target?.result as ArrayBuffer;
+                const stlLoader = new STLLoader();
+                const geometry = stlLoader.parse(buffer);
+                setupGeometry(geometry);
+              }
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = () => reject(new Error("Error leyendo archivo"));
+          if (isOBJ) {
+            reader.readAsText(vf.file);
+          } else {
+            reader.readAsArrayBuffer(vf.file);
+          }
+        } else if (vf.filePath) {
+          if (isOBJ) {
+            const objLoader = new OBJLoader();
+            objLoader.load(vf.filePath, setupObject, undefined, reject);
+          } else if (is3MF) {
+            const loader3mf = new ThreeMFLoader();
+            loader3mf.load(vf.filePath, setupObject, undefined, reject);
+          } else {
+            const stlLoader = new STLLoader();
+            stlLoader.load(vf.filePath, setupGeometry, undefined, reject);
+          }
+        } else {
+          reject(new Error("Falta archivo o filePath"));
         }
       });
-      processLoadedObject(group);
     };
 
-    const fileName = file?.name || filePath || "";
-    const isOBJ = fileName.toLowerCase().endsWith(".obj");
-    const is3MF = fileName.toLowerCase().endsWith(".3mf");
-
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
+    // Load all files
+    Promise.all(
+      filesToLoad.map(async (vf) => {
         try {
-          if (isOBJ) {
-            const text = e.target?.result as string;
-            const objLoader = new OBJLoader();
-            const group = objLoader.parse(text);
-            loadOBJObject(group);
-          } else if (is3MF) {
-            const buffer = e.target?.result as ArrayBuffer;
-            const loader3mf = new ThreeMFLoader();
-            const group = loader3mf.parse(buffer);
-            loadOBJObject(group);
-          } else {
-            const buffer = e.target?.result as ArrayBuffer;
-            const stlLoader = new STLLoader();
-            const geometry = stlLoader.parse(buffer);
-            loadSTLGeometry(geometry);
-          }
+          const obj = await loadFileGeometry(vf);
+          return { vf, obj };
         } catch (err) {
-          console.error(err);
-          setError(`No se pudo parsear el archivo ${isOBJ ? "OBJ" : is3MF ? "3MF" : "STL"}`);
-          setModelLoaded(true);
+          console.error("Error loading model: ", vf.file?.name || vf.filePath, err);
+          return null;
         }
-      };
-      reader.onerror = () => {
-        setError("Error leyendo el archivo");
-        setModelLoaded(true);
-      };
+      })
+    )
+      .then((results) => {
+        const validResults = results.filter(
+          (r): r is { vf: ViewerFile; obj: THREE.Object3D } => r !== null
+        );
 
-      if (isOBJ) {
-        reader.readAsText(file);
-      } else {
-        reader.readAsArrayBuffer(file);
-      }
-    } else if (filePath) {
-      if (isOBJ) {
-        const objLoader = new OBJLoader();
-        objLoader.load(
-          filePath,
-          (group) => {
-            loadOBJObject(group);
-          },
-          () => {},
-          (err) => {
-            console.error(err);
-            setError("Error cargando el archivo OBJ");
-            setModelLoaded(true);
+        if (validResults.length === 0) {
+          setError("No se pudo cargar ninguna de las piezas.");
+          setModelLoaded(true);
+          return;
+        }
+
+        const sceneGroup = new THREE.Group();
+        wrappersRef.current.clear();
+
+        // Wrap meshes and compute sizes
+        const items = validResults.map(({ vf, obj }) => {
+          const box = new THREE.Box3().setFromObject(obj);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
+
+          // Center the object inside its own container, rest bottom at Y=0
+          obj.position.copy(center).negate();
+          obj.position.y += size.y / 2;
+
+          const wrapper = new THREE.Group();
+          wrapper.add(obj);
+
+          // Compute individual dimensions for callback
+          const dims = {
+            x: Math.round(size.x * 10) / 10,
+            y: Math.round(size.y * 10) / 10,
+            z: Math.round(size.z * 10) / 10,
+          };
+
+          if (onDimensionsComputed && validResults.length === 1) {
+            onDimensionsComputed(dims);
           }
-        );
-      } else if (is3MF) {
-        const loader3mf = new ThreeMFLoader();
-        loader3mf.load(
-          filePath,
-          (group) => {
-            loadOBJObject(group);
-          },
-          () => {},
-          (err) => {
-            console.error(err);
-            setError("Error cargando el archivo 3MF");
-            setModelLoaded(true);
-          }
-        );
-      } else {
-        const stlLoader = new STLLoader();
-        stlLoader.load(
-          filePath,
-          (geometry) => {
-            loadSTLGeometry(geometry);
-          },
-          () => {},
-          (err) => {
-            console.error(err);
-            setError("Error cargando el archivo STL");
-            setModelLoaded(true);
-          }
-        );
-      }
-    }
+
+          wrappersRef.current.set(vf.id, wrapper);
+          return { vf, wrapper, size };
+        });
+
+        // Arrange wrappers side-by-side along the X-axis
+        const gap = 20; // 20mm gap between models
+        const totalWidth =
+          items.reduce((sum, item) => sum + item.size.x, 0) + gap * (items.length - 1);
+
+        let currentX = -totalWidth / 2;
+        items.forEach((item) => {
+          item.wrapper.position.x = currentX + item.size.x / 2;
+          item.wrapper.position.y = 0;
+          item.wrapper.position.z = 0;
+          sceneGroup.add(item.wrapper);
+          currentX += item.size.x + gap;
+        });
+
+        scene.add(sceneGroup);
+
+        // Frame the camera to view the entire layout
+        const groupBounds = new THREE.Box3().setFromObject(sceneGroup);
+        const groupCenter = new THREE.Vector3();
+        groupBounds.getCenter(groupCenter);
+        const groupSphere = new THREE.Sphere();
+        groupBounds.getBoundingSphere(groupSphere);
+        const radius = Math.max(groupSphere.radius, 40);
+
+        camera.position.set(radius * 2, radius * 1.5, radius * 2);
+        camera.lookAt(groupCenter);
+        controls.target.copy(groupCenter);
+
+        setModelLoaded(true);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Error cargando los modelos 3D");
+        setModelLoaded(true);
+      });
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -311,9 +355,35 @@ export default function ThreeDViewer({
         container.removeChild(renderer.domElement);
       }
     };
-  }, [file, filePath, booting]);
+  }, [filesHash, booting]);
 
-  const showLoading = (file || filePath) && (booting || !modelLoaded);
+  // Handle live updates to the highlighted/inspected file wrapper (adds BoxHelper)
+  useEffect(() => {
+    if (!modelLoaded) return;
+
+    wrappersRef.current.forEach((wrapper) => {
+      const helpers = wrapper.children.filter((c) => c instanceof THREE.BoxHelper);
+      helpers.forEach((h) => wrapper.remove(h));
+    });
+
+    if (activeFileId) {
+      const activeWrapper = wrappersRef.current.get(activeFileId);
+      if (activeWrapper) {
+        let firstMesh: THREE.Object3D | null = null;
+        activeWrapper.traverse((child) => {
+          if (child instanceof THREE.Mesh && !firstMesh) {
+            firstMesh = child;
+          }
+        });
+        if (firstMesh) {
+          const boxHelper = new THREE.BoxHelper(firstMesh, 0xff7a1a);
+          activeWrapper.add(boxHelper);
+        }
+      }
+    }
+  }, [activeFileId, modelLoaded]);
+
+  const showLoading = filesToLoad.length > 0 && (booting || !modelLoaded);
 
   return (
     <div
@@ -322,14 +392,12 @@ export default function ThreeDViewer({
         background: "radial-gradient(circle at center, #2E2822 0%, #1A1613 100%)",
       }}
     >
-      {showLoading && (
-        <BootSequence onComplete={() => setBooting(false)} />
-      )}
+      {showLoading && <BootSequence onComplete={() => setBooting(false)} />}
 
       {error && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--graphite)] z-10 px-6 text-center">
           <span className="text-3xl mb-4">⚠️</span>
-          <p className="mono text-[10px] uppercase tracking-[0.2em] text-red-500">{error}</p>
+          <p className="mono text-[10px] uppercase tracking-[0.28em] text-red-500">{error}</p>
         </div>
       )}
 
@@ -342,3 +410,4 @@ export default function ThreeDViewer({
     </div>
   );
 }
+
