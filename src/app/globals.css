@@ -4,6 +4,17 @@
   --foreground-rgb: 15, 23, 42;
   --background-rgb: 241, 245, 249; /* Slate 100: #F1F5F9 */
   --accent-orange: #FF4F00;
+
+  /* "Capa por capa" landing palette — evolved warm graphite + filament amber.
+     Additive: used only by the new landing/chrome classes below. */
+  --paper: #F7F3EC;        /* warm cream panel */
+  --paper-line: #E7DFD2;   /* hairline on paper */
+  --graphite: #1A1613;     /* warm near-black panel */
+  --graphite-line: #2E2822;/* hairline on graphite */
+  --ink: #2A2722;          /* text on paper (≈12:1 on --paper) */
+  --ink-soft: #6B6359;     /* muted text on paper (≈4.7:1 on --paper) */
+  --amber: #FF7A1A;        /* filament glow */
+  --amber-glow: #FFB066;   /* lighter amber for accents on graphite */
 }
 
 body {
@@ -66,4 +77,119 @@ h1, h2, h3, h4, h5, h6 {
 }
 ::-webkit-scrollbar-thumb {
   @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
+
+/* ============================================================
+   "Capa por capa" landing — additive only.
+   None of the classes below override existing site utilities.
+   ============================================================ */
+
+/* Full-bleed breakout from the centered <main> container in layout.tsx */
+.full-bleed {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+/* Print-bed / material texture: real horizontal layer lines */
+.layer-lines {
+  background-image: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 5px,
+    color-mix(in srgb, var(--amber) 14%, transparent) 5px,
+    color-mix(in srgb, var(--amber) 14%, transparent) 6px
+  );
+}
+.layer-lines-dark {
+  background-image: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 5px,
+    color-mix(in srgb, var(--amber-glow) 12%, transparent) 5px,
+    color-mix(in srgb, var(--amber-glow) 12%, transparent) 6px
+  );
+}
+
+/* Alternating "layer" panels */
+.panel-paper {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+.panel-graphite {
+  background-color: var(--graphite);
+  color: var(--paper);
+}
+
+/* Layer seam: thin amber hairline divider between stacked sections */
+.layer-seam {
+  position: relative;
+  height: 1px;
+  background: color-mix(in srgb, var(--amber) 55%, transparent);
+}
+.seam-label {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  /* Burnt amber reads on the cream paper panels (≥ 4.5:1). */
+  color: color-mix(in srgb, var(--amber) 60%, var(--ink));
+}
+/* Lighter amber for seams sitting on the dark graphite panels. */
+.panel-graphite .seam-label {
+  color: var(--amber-glow);
+}
+
+/* Monospace technical micro-text */
+.mono {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+}
+
+/* Hero "material being laid down" — bottom→top build */
+@keyframes layer-build {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.layer-build {
+  opacity: 0;
+  animation: layer-build 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Section entrance, toggled by ScrollReveal */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal {
+  opacity: 0;
+}
+.reveal.is-visible {
+  animation: reveal-up 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Z-height rail nozzle marker glow */
+.nozzle-marker {
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--amber) 70%, transparent);
+}
+
+/* Reduced-motion: degrade every landing animation to its final, static state */
+@media (prefers-reduced-motion: reduce) {
+  .layer-build,
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
 }

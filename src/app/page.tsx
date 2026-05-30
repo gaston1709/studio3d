@@ -4,12 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import ZHeightRail from "@/components/landing/ZHeightRail";
+import ScrollReveal from "@/components/landing/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  
+
   // If user is admin, redirect to admin dashboard directly
   if (session?.user?.role === "ADMIN") {
     redirect("/admin");
@@ -17,10 +19,10 @@ export default async function Home() {
 
   const materials = await prisma.material.findMany({
     where: { isActive: true },
-    include: { 
+    include: {
       colors: {
         where: { isActive: true }
-      } 
+      }
     },
     take: 3,
   });
@@ -30,198 +32,235 @@ export default async function Home() {
   });
 
   return (
-    <div className="space-y-24 sm:space-y-40 pb-20 bg-slate-100">
-      {/* HERO SECTION - INDUSTRIAL TECH: LOGO LEFT, TEXT RIGHT */}
-      <section className="relative pt-12 md:pt-24 min-h-[70vh] flex items-center overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-            
-            {/* LEFT: BIG LOGO */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-end animate-in fade-in slide-in-from-left-8 duration-1000">
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-[400px] md:h-[400px] lg:w-[450px] lg:h-[450px]">
-                <Image 
-                  src="/logo.png" 
-                  alt="S3D Logo" 
-                  fill 
+    // Full-bleed warm wrapper. Negative margins neutralise the <main>
+    // container's vertical padding so the panels touch navbar and footer.
+    <div className="full-bleed -mt-8 md:-mt-12 -mb-8 md:-mb-12">
+      <ZHeightRail />
+
+      {/* ===================== CAPA 01 · HERO (paper) ===================== */}
+      <section className="panel-paper relative overflow-hidden">
+        <div className="absolute inset-0 layer-lines opacity-70 pointer-events-none" aria-hidden="true" />
+        <div className="relative z-10 container mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32 min-h-[80vh] flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center w-full">
+
+            {/* Text */}
+            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
+              <p className="mono text-[11px] tracking-[0.28em] uppercase text-[color-mix(in_srgb,var(--amber)_60%,var(--ink))] layer-build" style={{ animationDelay: "0ms" }}>
+                Capa 01 · El taller
+              </p>
+              <h1
+                className="text-5xl sm:text-7xl md:text-8xl font-semibold text-[var(--ink)] tracking-tight leading-[0.95] layer-build"
+                style={{ animationDelay: "90ms" }}
+              >
+                Imprimí <span className="text-[var(--amber)]">tus</span> ideas.
+              </h1>
+              <p
+                className="max-w-xl text-lg sm:text-xl text-[var(--ink-soft)] leading-relaxed layer-build"
+                style={{ animationDelay: "180ms" }}
+              >
+                Un taller. Una impresora. Lo hacemos nosotros, capa por capa.
+              </p>
+
+              <div className="layer-build w-full sm:w-auto" style={{ animationDelay: "270ms" }}>
+                {!session ? (
+                  <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                    <Link
+                      href="/auth/signin"
+                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                    >
+                      Entrar
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      className="inline-flex items-center justify-center rounded-xl border border-[color-mix(in_srgb,var(--ink)_30%,transparent)] text-[var(--ink)] px-8 py-4 font-medium transition-colors duration-200 hover:border-[var(--ink)] hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                    >
+                      Crear cuenta
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                    <Link
+                      prefetch={false}
+                      href="/orders/new"
+                      className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-8 py-4 font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                    >
+                      Pedir una pieza
+                    </Link>
+                    <Link
+                      prefetch={false}
+                      href="/orders"
+                      className="inline-flex items-center justify-center rounded-xl border border-[color-mix(in_srgb,var(--ink)_30%,transparent)] text-[var(--ink)] px-8 py-4 font-medium transition-colors duration-200 hover:border-[var(--ink)] hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)] active:scale-95 cursor-pointer"
+                    >
+                      Mis pedidos
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Logo */}
+            <div className="lg:col-span-5 flex justify-center lg:justify-end layer-build" style={{ animationDelay: "150ms" }}>
+              <div className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80">
+                <Image
+                  src="/logo.png"
+                  alt="S3D Logo"
+                  fill
                   className="object-contain"
                   priority
                 />
               </div>
             </div>
 
-            {/* RIGHT: INDUSTRIAL TECH MESSAGING */}
-            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-10 animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-              <h1 className="text-5xl sm:text-7xl md:text-8xl xl:text-[9.5rem] font-black text-slate-900 tracking-tighter leading-[0.85] uppercase">
-                IMPRIMÍ <br />
-                <span className="italic text-[#FF4F00]">TUS</span> IDEAS.
-              </h1>
-              
-              <div className="max-w-xl space-y-8">
-                <p className="text-lg sm:text-xl md:text-2xl text-slate-600 font-medium leading-relaxed">
-                  Manufactura aditiva de alta precisión. <br />
-                  Convertimos activos digitales en piezas físicas de calidad.
-                </p>
-
-                {!session ? (
-                  <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full sm:w-auto">
-                    <Link 
-                      href="/auth/signin" 
-                      className="bg-[#FF4F00] text-white px-8 py-5 sm:px-12 sm:py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-2xl shadow-orange-900/20 active:scale-95 text-center"
-                    >
-                      Iniciar Terminal
-                    </Link>
-                    <Link 
-                      href="/auth/signup" 
-                      className="bg-transparent text-slate-900 border-4 border-slate-900 px-8 py-4 sm:px-12 sm:py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all active:scale-95 text-center"
-                    >
-                      Registrar Nodo
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="flex flex-col sm:flex-row gap-6 pt-4 w-full sm:w-auto">
-                    <Link 
-                      prefetch={false}
-                      href="/orders/new" 
-                      className="bg-[#FF4F00] text-white px-8 py-5 sm:px-12 sm:py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-black transition-all shadow-2xl shadow-orange-900/20 active:scale-95 text-center"
-                    >
-                      Nueva Cotización
-                    </Link>
-                    <Link 
-                      prefetch={false}
-                      href="/orders" 
-                      className="bg-white text-slate-900 border-4 border-slate-200 px-8 py-4 sm:px-12 sm:py-6 rounded-2xl font-black text-sm uppercase tracking-widest hover:border-slate-900 transition-all active:scale-95 text-center"
-                    >
-                      Mis Pedidos
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
-        </div>
-
-        {/* Technical Grid Background Decor */}
-        <div className="absolute top-0 left-0 w-full h-full -z-0 opacity-[0.03] pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
         </div>
       </section>
 
-      {/* TECHNICAL SHOWCASE CAROUSEL */}
-      {carouselImages.length > 0 && (
-        <section className="container mx-auto px-6">
-          <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8 mb-12">
-            <div>
-              <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Showcase</h2>
-              <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Galería de Manufactura</p>
+      {/* ===================== CAPA 02 · MATERIALES (graphite) ===================== */}
+      <section className="panel-graphite">
+        <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
+          <span className="layer-seam flex-1" />
+          <span className="seam-label whitespace-nowrap">— Capa 02 · Materiales —</span>
+          <span className="layer-seam flex-1" />
+        </div>
+
+        <ScrollReveal>
+          <div className="container mx-auto px-6 py-16 md:py-24 space-y-12">
+            <div className="flex flex-wrap justify-between items-end gap-6">
+              <div className="space-y-3">
+                <h2 className="text-3xl sm:text-5xl font-semibold text-[var(--paper)] tracking-tight leading-none">Materiales</h2>
+                <p className="mono text-[10px] tracking-[0.28em] uppercase text-[var(--amber-glow)]">Lo que tenemos en el taller</p>
+              </div>
+              <Link
+                prefetch={false}
+                href="/orders/new"
+                className="mono text-xs uppercase tracking-[0.2em] text-[var(--amber-glow)] hover:opacity-70 transition-opacity duration-200 cursor-pointer"
+              >
+                Ver todos →
+              </Link>
             </div>
-          </div>
-          
-          <div className="relative w-full group/carousel">
-            <div 
-              id="showcase-scroll"
-              className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth gap-8 pb-10"
-            >
-              {carouselImages.map((img) => (
-                <div key={img.id} className="w-[85vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
-                  <div className="bg-white border-2 border-slate-100 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all shadow-sm h-full flex flex-col">
-                    <div className="aspect-square bg-slate-50 relative overflow-hidden">
-                      <Image
-                        src={`/uploads/carousel/${img.fileName}`}
-                        alt={img.caption || "Showcase"}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 85vw, (max-width: 1024px) 40vw, 28vw"
-                      />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {materials.map((m) => (
+                <div key={m.id} className="bg-[var(--paper)] text-[var(--ink)] rounded-2xl overflow-hidden flex flex-col shadow-xl shadow-black/30 group">
+                  <div className="p-8 space-y-5 flex-grow flex flex-col">
+                    <h3 className="text-2xl font-semibold tracking-tight">{m.name}</h3>
+                    <p className="text-sm text-[var(--ink-soft)] leading-relaxed italic flex-grow">&quot;{m.description}&quot;</p>
+                    <div className="flex flex-wrap gap-2.5 pt-2">
+                      {m.colors.map((c) => (
+                        <div
+                          key={c.id}
+                          className="w-7 h-7 rounded-full border border-[var(--paper-line)] shadow-inner group-hover:scale-110 transition-transform duration-200"
+                          style={{ backgroundColor: c.hexCode }}
+                          title={c.name}
+                        />
+                      ))}
                     </div>
-                    {img.caption && (
-                      <div className="p-6 sm:p-8 flex-grow flex items-center justify-center border-t border-slate-50">
-                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed italic text-center">
-                          &quot;{img.caption}&quot;
-                        </p>
-                      </div>
-                    )}
                   </div>
+                  {/* Printed bottom edge — layer lines */}
+                  <div className="layer-lines h-4 w-full" aria-hidden="true" />
                 </div>
               ))}
             </div>
-
-            {/* Auto-scroll script */}
-            <script dangerouslySetInnerHTML={{ __html: `
-              (function() {
-                const el = document.getElementById('showcase-scroll');
-                let direction = 1;
-                setInterval(() => {
-                  if (!el) return;
-                  if (el.scrollLeft + el.offsetWidth >= el.scrollWidth - 50) {
-                    el.scrollTo({ left: 0, behavior: 'smooth' });
-                    return;
-                  }
-                  el.scrollBy({ left: el.offsetWidth * 0.4, behavior: 'smooth' });
-                }, 5000);
-              })();
-            `}} />
           </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ===================== CAPA 03 · SHOWCASE (paper) ===================== */}
+      {carouselImages.length > 0 && (
+        <section className="panel-paper">
+          <div className="container mx-auto px-6 pt-12 flex items-center gap-4">
+            <span className="layer-seam flex-1" />
+            <span className="seam-label whitespace-nowrap">— Capa 03 · Hecho por nosotros —</span>
+            <span className="layer-seam flex-1" />
+          </div>
+
+          <ScrollReveal>
+            <div className="container mx-auto px-6 py-16 md:py-24 space-y-12">
+              <div className="space-y-3">
+                <h2 className="text-3xl sm:text-5xl font-semibold text-[var(--ink)] tracking-tight leading-none">Piezas reales</h2>
+                <p className="mono text-[10px] tracking-[0.28em] uppercase text-[color-mix(in_srgb,var(--amber)_60%,var(--ink))]">Cosas que salieron de la impresora</p>
+              </div>
+
+              <div className="relative w-full">
+                <div
+                  id="showcase-scroll"
+                  className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar scroll-smooth gap-6 pb-6"
+                >
+                  {carouselImages.map((img) => (
+                    <div key={img.id} className="w-[85vw] md:w-[40vw] lg:w-[28vw] flex-shrink-0 snap-center">
+                      <div className="bg-white rounded-2xl overflow-hidden shadow-lg shadow-black/5 h-full flex flex-col border border-[var(--paper-line)]">
+                        <div className="aspect-square bg-[color-mix(in_srgb,var(--paper)_60%,white)] relative overflow-hidden">
+                          <Image
+                            src={`/uploads/carousel/${img.fileName}`}
+                            alt={img.caption || "Showcase"}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 85vw, (max-width: 1024px) 40vw, 28vw"
+                          />
+                        </div>
+                        {img.caption && (
+                          <div className="p-6 flex-grow flex items-center justify-center">
+                            <p className="text-[13px] text-[var(--ink-soft)] leading-relaxed italic text-center">
+                              &quot;{img.caption}&quot;
+                            </p>
+                          </div>
+                        )}
+                        {/* Printed bottom edge */}
+                        <div className="layer-lines h-3 w-full" aria-hidden="true" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Auto-scroll script — paused under reduced motion */}
+                <script dangerouslySetInnerHTML={{ __html: `
+                  (function() {
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                    const el = document.getElementById('showcase-scroll');
+                    setInterval(() => {
+                      if (!el) return;
+                      if (el.scrollLeft + el.offsetWidth >= el.scrollWidth - 50) {
+                        el.scrollTo({ left: 0, behavior: 'smooth' });
+                        return;
+                      }
+                      el.scrollBy({ left: el.offsetWidth * 0.4, behavior: 'smooth' });
+                    }, 5000);
+                  })();
+                `}} />
+              </div>
+            </div>
+          </ScrollReveal>
         </section>
       )}
 
-      {/* MATERIALS PREVIEW */}
-      <section className="space-y-16 container mx-auto px-6">
-        <div className="flex justify-between items-end border-b-4 border-slate-900 pb-8">
-          <div>
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">Biblioteca de Polímeros</h2>
-            <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-[10px] mt-4">Inventario disponible</p>
-          </div>
-          <Link prefetch={false} href="/orders/new" className="text-xs font-black text-[#FF4F00] uppercase tracking-widest hover:opacity-50 mb-1">Ver todos →</Link>
+      {/* ===================== CAPA 04 · CTA (graphite) ===================== */}
+      <section className="panel-graphite relative overflow-hidden">
+        <div className="absolute inset-0 layer-lines-dark opacity-60 pointer-events-none" aria-hidden="true" />
+        <div className="container mx-auto px-6 pt-12 flex items-center gap-4 relative z-10">
+          <span className="layer-seam flex-1" />
+          <span className="seam-label whitespace-nowrap">— Capa 04 · Tu pieza —</span>
+          <span className="layer-seam flex-1" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {materials.map((m) => (
-            <div key={m.id} className="bg-white border-2 border-slate-100 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden hover:border-slate-300 transition-all group shadow-sm flex flex-col">
-              <div className="p-6 sm:p-10 border-b border-slate-50">
-                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter leading-none">{m.name}</h3>
-              </div>
-              <div className="p-6 sm:p-10 space-y-8 flex-grow flex flex-col justify-between">
-                <p className="text-[13px] text-slate-500 font-medium leading-relaxed line-clamp-5 italic">&quot;{m.description}&quot;</p>
-                <div className="flex flex-wrap gap-3 pt-4">
-                  {m.colors.map((c) => (
-                    <div 
-                      key={c.id} 
-                      className="w-8 h-8 rounded-full border-2 border-slate-200 shadow-inner group-hover:scale-110 transition-transform" 
-                      style={{ backgroundColor: c.hexCode }}
-                      title={c.name}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA SECTION */}
-      <section className="container mx-auto px-6">
-        <div className="bg-slate-900 rounded-[2rem] sm:rounded-[4rem] p-8 sm:p-16 md:p-24 lg:p-32 text-center space-y-12 relative overflow-hidden shadow-2xl border-b-8 border-[#FF4F00]">
-            <div className="relative z-10">
-            <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-none">¿Listo para fabricar?</h2>
-            <p className="text-slate-400 font-medium text-lg sm:text-xl max-w-xl mx-auto mt-8 leading-relaxed">
-                Subí tus archivos y recibí una cotización en el día.
+        <ScrollReveal>
+          <div className="container mx-auto px-6 py-20 md:py-32 text-center space-y-8 relative z-10">
+            <h2 className="text-4xl sm:text-6xl md:text-7xl font-semibold text-[var(--paper)] tracking-tight leading-[0.95]">
+              ¿Hacemos tu pieza?
+            </h2>
+            <p className="text-lg sm:text-xl text-[color-mix(in_srgb,var(--paper)_70%,transparent)] max-w-xl mx-auto leading-relaxed">
+              Contanos qué necesitás y lo imprimimos, capa por capa. Te pasamos un presupuesto sin vueltas.
             </p>
-            <div className="pt-10">
-                <Link 
-                  prefetch={false}
-                  href="/orders/new" 
-                  className="inline-block bg-[#FF4F00] text-white px-8 py-5 sm:px-16 sm:py-8 rounded-2xl sm:rounded-3xl font-black text-sm uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl shadow-orange-950/40 active:scale-95"
-                >
-                  Nueva Cotización
-                </Link>
+            <div className="pt-4">
+              <Link
+                prefetch={false}
+                href="/orders/new"
+                className="inline-flex items-center justify-center rounded-xl bg-[var(--amber)] text-[var(--graphite)] px-10 py-5 text-lg font-semibold transition-colors duration-200 hover:bg-[var(--amber-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--graphite)] active:scale-95 cursor-pointer"
+              >
+                Empezar mi pieza
+              </Link>
             </div>
-            </div>
-            
-            {/* Background Graphic */}
-            <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none select-none">
-            <span className="text-[25rem] font-black tracking-tighter text-white/5">S3D</span>
-            </div>
-        </div>
+          </div>
+        </ScrollReveal>
       </section>
     </div>
   );

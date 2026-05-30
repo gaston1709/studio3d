@@ -11,14 +11,14 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-slate-100/90 text-black border-b border-slate-200 py-4 md:py-6 px-6 sticky top-0 z-50 backdrop-blur-md">
+    <nav className="bg-[var(--paper)]/85 text-[var(--ink)] border-b border-[var(--paper-line)] py-4 md:py-5 px-6 sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center group">
-          <div className="relative w-32 md:w-40 h-12 md:h-16 overflow-hidden">
-            <Image 
-              src="/logo.png" 
-              alt="S3D Logo" 
-              fill 
+        <Link href="/" className="flex items-center group cursor-pointer">
+          <div className="relative w-28 md:w-36 h-11 md:h-14 overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="S3D Logo"
+              fill
               className="object-contain transition-transform group-hover:scale-105"
               priority
             />
@@ -26,11 +26,12 @@ export default function Navbar() {
         </Link>
 
         {/* Botón Hamburguesa Celu */}
-        <button 
+        <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 text-slate-900"
+          aria-label="Abrir menú"
+          className="md:hidden p-2 text-[var(--ink)] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--amber)] cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {isMenuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -40,53 +41,53 @@ export default function Navbar() {
         </button>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-10">
+        <div className="hidden md:flex items-center space-x-8">
           {!isAdmin && (
             <>
-              <Link prefetch={false} href="/orders" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
+              <Link prefetch={false} href="/orders" className="text-sm font-medium text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors duration-200">
                 Mis Pedidos
               </Link>
-              <Link prefetch={false} href="/orders/new" className="text-[10px] font-black text-slate-500 hover:text-black uppercase tracking-widest transition-colors">
+              <Link prefetch={false} href="/orders/new" className="text-sm font-medium text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors duration-200">
                 Cotizar Pieza
               </Link>
             </>
           )}
-          
+
           {status === "authenticated" ? (
-            <div className="flex items-center gap-8 border-l border-slate-200 pl-8">
+            <div className="flex items-center gap-6 border-l border-[var(--paper-line)] pl-8">
               <Link href="/profile" className="text-right group/user">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 group-hover/user:text-[#FF4F00]">Mi Perfil</p>
-                <p className="text-[11px] font-black text-slate-900 leading-none">{session.user?.email}</p>
+                <p className="mono text-[9px] uppercase tracking-[0.2em] text-[var(--ink-soft)] leading-none mb-1 group-hover/user:text-[var(--amber)] transition-colors duration-200">Mi Perfil</p>
+                <p className="text-xs font-medium text-[var(--ink)] leading-none">{session.user?.email}</p>
               </Link>
 
               {isAdmin && (
-                <Link 
+                <Link
                   prefetch={false}
-                  href="/admin" 
-                  className="bg-[#FF4F00] text-white text-[9px] font-black px-4 py-2.5 rounded-lg hover:bg-black transition-all uppercase tracking-widest"
+                  href="/admin"
+                  className="bg-[var(--amber)] text-[var(--graphite)] text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-[var(--amber-glow)] transition-colors duration-200 cursor-pointer"
                 >
                   Admin Panel
                 </Link>
               )}
 
-              <button 
+              <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-red-600 transition-colors"
+                className="text-xs font-medium text-[var(--ink-soft)] hover:text-red-600 transition-colors duration-200 cursor-pointer"
               >
                 Salir
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-6">
-              <Link 
-                href="/auth/signup" 
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-black"
+              <Link
+                href="/auth/signup"
+                className="text-sm font-medium text-[var(--ink-soft)] hover:text-[var(--ink)] transition-colors duration-200"
               >
                 Registro
               </Link>
-              <Link 
-                href="/auth/signin" 
-                className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-6 py-3 rounded-xl hover:bg-[#FF4F00] transition-all shadow-lg shadow-black/10"
+              <Link
+                href="/auth/signin"
+                className="text-sm font-semibold bg-[var(--amber)] text-[var(--graphite)] px-6 py-2.5 rounded-xl hover:bg-[var(--amber-glow)] transition-colors duration-200 cursor-pointer"
               >
                 Ingresar
               </Link>
@@ -97,36 +98,36 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-slate-100 border-b border-slate-200 p-8 space-y-8 animate-in slide-in-from-top-4 duration-300 shadow-2xl">
+        <div className="md:hidden absolute top-full left-0 w-full bg-[var(--paper)] border-b border-[var(--paper-line)] p-8 space-y-7 shadow-2xl">
           {!isAdmin && (
             <>
-              <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Mis Pedidos</Link>
-              <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Cotizar Pieza</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders" className="block text-base font-medium text-[var(--ink)]">Mis Pedidos</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/orders/new" className="block text-base font-medium text-[var(--ink)]">Cotizar Pieza</Link>
             </>
           )}
-          
-          <div className="h-px bg-slate-100 w-full"></div>
+
+          <div className="h-px bg-[var(--paper-line)] w-full"></div>
 
           {status === "authenticated" ? (
             <div className="space-y-6">
               <Link onClick={() => setIsMenuOpen(false)} href="/profile" className="block">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Mi Perfil</p>
-                <p className="text-xs font-black text-slate-900">{session.user?.email}</p>
+                <p className="mono text-[9px] uppercase tracking-[0.2em] text-[var(--ink-soft)] mb-1">Mi Perfil</p>
+                <p className="text-sm font-medium text-[var(--ink)]">{session.user?.email}</p>
               </Link>
               {isAdmin && (
-                <Link onClick={() => setIsMenuOpen(false)} href="/admin" className="block bg-[#FF4F00] text-white text-[10px] font-black py-4 rounded-xl text-center uppercase tracking-widest">Admin Panel</Link>
+                <Link onClick={() => setIsMenuOpen(false)} href="/admin" className="block bg-[var(--amber)] text-[var(--graphite)] text-sm font-semibold py-4 rounded-xl text-center">Admin Panel</Link>
               )}
-              <button 
+              <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full text-left text-xs font-black text-red-600 uppercase tracking-widest"
+                className="w-full text-left text-sm font-medium text-red-600 cursor-pointer"
               >
                 Cerrar Sesión
               </button>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signin" className="bg-black text-white py-5 rounded-xl font-black text-center uppercase tracking-widest text-xs">Ingresar</Link>
-              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signup" className="border-4 border-slate-900 py-4 rounded-xl font-black text-center uppercase tracking-widest text-xs text-slate-900">Crear Cuenta</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signin" className="bg-[var(--amber)] text-[var(--graphite)] py-4 rounded-xl font-semibold text-center text-sm">Ingresar</Link>
+              <Link onClick={() => setIsMenuOpen(false)} href="/auth/signup" className="border border-[color-mix(in_srgb,var(--ink)_30%,transparent)] py-4 rounded-xl font-medium text-center text-sm text-[var(--ink)]">Crear Cuenta</Link>
             </div>
           )}
         </div>
