@@ -19,7 +19,7 @@ export default function Navbar() {
               src="/logo.png"
               alt="S3D Logo"
               fill
-              className="object-contain transition-transform group-hover:scale-105"
+              className="object-contain mix-blend-multiply transition-transform group-hover:scale-105"
               priority
             />
           </div>

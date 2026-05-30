@@ -105,7 +105,7 @@ export default async function Home() {
                   src="/logo.png"
                   alt="S3D Logo"
                   fill
-                  className="object-contain"
+                  className="object-contain mix-blend-multiply"
                   priority
                 />
               </div>
