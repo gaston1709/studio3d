@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { ThreeMFLoader } from "three/examples/jsm/loaders/3MFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 interface ThreeDViewerProps {
@@ -79,9 +80,7 @@ export default function ThreeDViewer({
   useEffect(() => {
     if (materialRef.current) {
       const colorToSet = hexColor || "var(--amber)";
-      // Handle CSS variables or plain hex
       if (colorToSet.startsWith("var(")) {
-        // Fallback to amber color
         materialRef.current.color.set(0xff7a1a);
       } else {
         materialRef.current.color.set(colorToSet);
@@ -96,9 +95,8 @@ export default function ThreeDViewer({
     let animationFrameId: number;
     const container = containerRef.current;
 
-    // Create scene
+    // Create scene (no background color to keep it transparent)
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#1A1613"); // Match panel-graphite background
 
     // Create camera
     const camera = new THREE.PerspectiveCamera(
@@ -108,7 +106,7 @@ export default function ThreeDViewer({
       1000
     );
 
-    // Create renderer
+    // Create renderer with alpha true to support CSS background gradients
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -119,34 +117,41 @@ export default function ThreeDViewer({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2; // Don't let users look below grid level
+    controls.maxPolarAngle = Math.PI / 2;
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
+    // Add lighting - premium studio lighting with camera headlight & rim light
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.4);
+    scene.add(hemiLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight1.position.set(1, 2, 3);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+    dirLight1.position.set(100, 200, 100);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
-    dirLight2.position.set(-1, -2, -1);
-    scene.add(dirLight2);
+    // Rim light from behind to make edges pop
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    rimLight.position.set(-100, 200, -100);
+    scene.add(rimLight);
 
-    // Grid Floor - match warm printer theme
-    const gridHelper = new THREE.GridHelper(200, 50, 0x2e2822, 0xff7a1a);
+    // Headlight attached to camera so the visible face is never in full shadow
+    const headlight = new THREE.PointLight(0xffffff, 0.5, 0);
+    camera.add(headlight);
+    scene.add(camera);
+
+    // Grid Floor - match 320mm build plate
+    const gridHelper = new THREE.GridHelper(320, 32, 0x2e2822, 0xff7a1a);
     gridHelper.position.y = -0.01;
     scene.add(gridHelper);
 
-    // Initial material color setup
-    let initialColor = 0xff7a1a; // var(--amber)
+    // Initial material color setup - DoubleSided and shiny parameters for edge highlights
+    let initialColor = 0xff7a1a;
     if (hexColor && !hexColor.startsWith("var(")) {
       initialColor = parseInt(hexColor.replace("#", "0x"), 16);
     }
     const material = new THREE.MeshStandardMaterial({
       color: initialColor,
-      roughness: 0.4,
-      metalness: 0.1,
+      roughness: 0.3,
+      metalness: 0.2,
+      side: THREE.DoubleSide,
     });
     materialRef.current = material;
 
@@ -182,6 +187,7 @@ export default function ThreeDViewer({
     };
 
     const loadSTLGeometry = (geometry: THREE.BufferGeometry) => {
+      geometry.computeVertexNormals(); // Ensure proper lighting on facets
       const mesh = new THREE.Mesh(geometry, material);
       processLoadedObject(mesh);
     };
@@ -197,6 +203,7 @@ export default function ThreeDViewer({
 
     const fileName = file?.name || filePath || "";
     const isOBJ = fileName.toLowerCase().endsWith(".obj");
+    const is3MF = fileName.toLowerCase().endsWith(".3mf");
 
     if (file) {
       const reader = new FileReader();
@@ -207,6 +214,11 @@ export default function ThreeDViewer({
             const objLoader = new OBJLoader();
             const group = objLoader.parse(text);
             loadOBJObject(group);
+          } else if (is3MF) {
+            const buffer = e.target?.result as ArrayBuffer;
+            const loader3mf = new ThreeMFLoader();
+            const group = loader3mf.parse(buffer);
+            loadOBJObject(group);
           } else {
             const buffer = e.target?.result as ArrayBuffer;
             const stlLoader = new STLLoader();
@@ -215,8 +227,8 @@ export default function ThreeDViewer({
           }
         } catch (err) {
           console.error(err);
-          setError(`No se pudo parsear el archivo ${isOBJ ? "OBJ" : "STL"}`);
-          setModelLoaded(true); // stop loading screen on error
+          setError(`No se pudo parsear el archivo ${isOBJ ? "OBJ" : is3MF ? "3MF" : "STL"}`);
+          setModelLoaded(true);
         }
       };
       reader.onerror = () => {
@@ -241,6 +253,20 @@ export default function ThreeDViewer({
           (err) => {
             console.error(err);
             setError("Error cargando el archivo OBJ");
+            setModelLoaded(true);
+          }
+        );
+      } else if (is3MF) {
+        const loader3mf = new ThreeMFLoader();
+        loader3mf.load(
+          filePath,
+          (group) => {
+            loadOBJObject(group);
+          },
+          () => {},
+          (err) => {
+            console.error(err);
+            setError("Error cargando el archivo 3MF");
             setModelLoaded(true);
           }
         );
@@ -290,7 +316,12 @@ export default function ThreeDViewer({
   const showLoading = (file || filePath) && (booting || !modelLoaded);
 
   return (
-    <div className="relative w-full h-full min-h-[300px] sm:min-h-[450px] bg-[var(--graphite)] rounded-3xl overflow-hidden border border-[var(--graphite-line)] shadow-inner flex flex-col justify-between">
+    <div
+      className="relative w-full h-full min-h-[300px] sm:min-h-[450px] rounded-3xl overflow-hidden border border-[var(--graphite-line)] shadow-inner flex flex-col justify-between"
+      style={{
+        background: "radial-gradient(circle at center, #2E2822 0%, #1A1613 100%)",
+      }}
+    >
       {showLoading && (
         <BootSequence onComplete={() => setBooting(false)} />
       )}

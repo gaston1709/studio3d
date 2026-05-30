@@ -1,0 +1,26 @@
+{
+  "paymentAlias": "3D.PRINT.HUB.CBA",
+  "paymentCbu": "0000000000000000000000",
+  "shippingOptions": [
+    {
+      "id": "local",
+      "label": "Retiro en local (CBA Capital)",
+      "desc": "Sin costo adicional"
+    },
+    {
+      "id": "point_nv",
+      "label": "Punto Retiro: Nueva Córdoba",
+      "desc": "Zona Buen Pastor"
+    },
+    {
+      "id": "point_ga",
+      "label": "Punto Retiro: General Paz",
+      "desc": "Plaza principal"
+    },
+    {
+      "id": "moto",
+      "label": "Envío en Moto / Uber",
+      "desc": "Costo a cargo del cliente al recibir"
+    }
+  ]
+}

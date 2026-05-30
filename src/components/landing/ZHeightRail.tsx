@@ -9,6 +9,7 @@ interface ZHeightRailProps {
   formProgress?: number; // 0-100, only used in "form" mode
   counterValue?: number; // only used in "counter" mode
   counterLabel?: string;
+  className?: string; // custom positioning classes (defaults to right-5)
 }
 
 export default function ZHeightRail({
@@ -16,6 +17,7 @@ export default function ZHeightRail({
   formProgress = 0,
   counterValue = 0,
   counterLabel = "PIEZAS",
+  className = "",
 }: ZHeightRailProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const frame = useRef<number | null>(null);
@@ -109,7 +111,7 @@ export default function ZHeightRail({
       {/* Desktop Rail */}
       <div
         aria-hidden="true"
-        className="hidden md:flex fixed right-5 top-28 bottom-16 z-40 flex-col items-center pointer-events-none select-none"
+        className={`hidden md:flex fixed top-28 bottom-16 z-40 flex-col items-center pointer-events-none select-none ${className || "right-5"}`}
       >
         <span className="mono text-[9px] tracking-[0.2em] text-[var(--amber)] mb-3 whitespace-nowrap">
           {label}

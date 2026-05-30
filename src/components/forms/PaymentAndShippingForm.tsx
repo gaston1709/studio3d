@@ -18,6 +18,12 @@ export default function PaymentAndShippingForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [paymentInfo, setPaymentInfo] = useState({ alias: "3D.PRINT.HUB.CBA", cbu: "0000000000000000000000" });
+  const [shippingOptions, setShippingOptions] = useState<Array<{ id: string; label: string; desc: string }>>([
+    { id: "local", label: "Retiro en local (CBA Capital)", desc: "Sin costo adicional" },
+    { id: "point_nv", label: "Punto Retiro: Nueva Córdoba", desc: "Zona Buen Pastor" },
+    { id: "point_ga", label: "Punto Retiro: General Paz", desc: "Plaza principal" },
+    { id: "moto", label: "Envío en Moto / Uber", desc: "Costo a cargo del cliente al recibir" },
+  ]);
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -26,16 +32,12 @@ export default function PaymentAndShippingForm({
         if (data.paymentAlias) {
           setPaymentInfo({ alias: data.paymentAlias, cbu: data.paymentCbu });
         }
+        if (data.shippingOptions && Array.isArray(data.shippingOptions)) {
+          setShippingOptions(data.shippingOptions);
+        }
       })
       .catch(err => console.error("Error loading payment info:", err));
   }, []);
-
-  const shippingOptions = [
-    { id: "local", label: "Retiro en local (CBA Capital)", desc: "Sin costo adicional" },
-    { id: "point_nv", label: "Punto Retiro: Nueva Córdoba", desc: "Zona Buen Pastor" },
-    { id: "point_ga", label: "Punto Retiro: General Paz", desc: "Plaza principal" },
-    { id: "moto", label: "Envío en Moto / Uber", desc: "Costo a cargo del cliente al recibir" },
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

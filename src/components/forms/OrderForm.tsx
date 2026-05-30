@@ -225,7 +225,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
 
   return (
     <>
-      <ZHeightRail mode="form" formProgress={formProgress} />
+      <ZHeightRail mode="form" formProgress={formProgress} className="lg:right-[41.5%] right-5" />
       
       <div className="full-bleed -mt-8 md:-mt-12 flex flex-col lg:flex-row min-h-[calc(100vh-64px)] bg-[var(--paper)]">
         
@@ -277,11 +277,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
               </div>
             </div>
           )}
-          
-          {/* Bottom technical label */}
-          <div className="absolute bottom-4 left-4 z-10 bg-[var(--graphite)]/50 backdrop-blur-sm border border-[var(--graphite-line)] px-3 py-1.5 rounded-lg mono text-[8px] uppercase tracking-[0.25em] text-[var(--paper)]/60">
-            VISOR 3D V2 · MOTOR: THREE.JS
-          </div>
+
         </div>
 
         {/* Right column: scrolleable form (40% width on desktop) */}
@@ -343,7 +339,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                           <p className="text-sm font-medium text-[var(--ink)] truncate max-w-[120px] sm:max-w-[200px]" title={f.file.name}>{f.file.name}</p>
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
-                          {/\.(stl|obj|step|3mf)$/i.test(f.file.name) && (
+                          {/\.(stl|obj|3mf)$/i.test(f.file.name) ? (
                             <button
                               type="button"
                               onClick={() => setViewingFileId(f.id)}
@@ -355,6 +351,10 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                             >
                               {activeFileConfig?.id === f.id ? "● Visualizando" : "Inspeccionar"}
                             </button>
+                          ) : (
+                            <span className="mono text-[8px] text-[var(--ink-soft)]/60 uppercase tracking-widest border border-[var(--paper-line)] bg-[var(--paper)] px-2.5 py-1.5 rounded-lg select-none">
+                              Vista 3D no disp.
+                            </span>
                           )}
                           <button type="button" onClick={() => removeFile(f.id)} className="text-[var(--ink-soft)] hover:text-red-500 transition-colors cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -483,7 +483,7 @@ export default function OrderForm({ materials }: { materials: Material[] }) {
                 </WarmInput>
                 <div>
                   <WarmInput label="Notas adicionales">
-                    <textarea rows={3} value={deliveryNotes} onChange={(e) => setDeliveryNotes(e.target.value)} placeholder="Instrucciones especiales, requerimientos de ensamblado..." className="w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--accent)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors resize-none" />
+                    <textarea rows={3} value={deliveryNotes} onChange={(e) => setDeliveryNotes(e.target.value)} placeholder="Instrucciones especiales o especificaciones de impresión..." className="w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--accent)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors resize-none" />
                   </WarmInput>
                 </div>
               </div>

@@ -2,21 +2,36 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+interface ShippingOption {
+  id: string;
+  label: string;
+  desc: string;
+}
 
 export default function PaymentSettingsPage() {
   const [alias, setAlias] = useState("");
   const [cbu, setCbu] = useState("");
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const router = useRouter();
+
+  // Temporary state for adding a new shipping option
+  const [newId, setNewId] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+  const [newDesc, setNewDesc] = useState("");
 
   const fetchSettings = async () => {
     try {
       const res = await fetch("/api/admin/settings");
       if (res.ok) {
         const data = await res.json();
-        setAlias(data.paymentAlias);
-        setCbu(data.paymentCbu);
+        setAlias(data.paymentAlias || "");
+        setCbu(data.paymentCbu || "");
+        setShippingOptions(data.shippingOptions || []);
       }
     } catch (err) {
       console.error("Error fetching settings:", err);
@@ -31,6 +46,38 @@ export default function PaymentSettingsPage() {
     }, 0);
   }, []);
 
+  const handleAddShippingOption = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!newLabel.trim()) {
+      alert("La etiqueta de la dirección es requerida.");
+      return;
+    }
+
+    // Auto generate id if empty
+    const idToUse = newId.trim() || `point_${Date.now()}`;
+    
+    // Check duplicates
+    if (shippingOptions.some(opt => opt.id === idToUse)) {
+      alert("Ya existe una opción con ese ID técnico.");
+      return;
+    }
+
+    const newOption: ShippingOption = {
+      id: idToUse,
+      label: newLabel.trim(),
+      desc: newDesc.trim() || "Sin costo adicional",
+    };
+
+    setShippingOptions([...shippingOptions, newOption]);
+    setNewId("");
+    setNewLabel("");
+    setNewDesc("");
+  };
+
+  const handleRemoveShippingOption = (id: string) => {
+    setShippingOptions(shippingOptions.filter(opt => opt.id !== id));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -40,11 +87,16 @@ export default function PaymentSettingsPage() {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentAlias: alias, paymentCbu: cbu }),
+        body: JSON.stringify({
+          paymentAlias: alias,
+          paymentCbu: cbu,
+          shippingOptions: shippingOptions,
+        }),
       });
 
       if (res.ok) {
         setMessage("Configuración guardada correctamente");
+        router.refresh();
       } else {
         setMessage("Error al guardar la configuración");
       }
@@ -55,82 +107,176 @@ export default function PaymentSettingsPage() {
     }
   };
 
-  if (loading) return <div className="p-20 text-center font-black animate-pulse uppercase tracking-widest text-slate-400">Sincronizando...</div>;
+  if (loading) {
+    return (
+      <div className="p-20 text-center flex flex-col items-center justify-center min-h-[60vh]">
+        <span className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)] animate-pulse">Sincronizando...</span>
+      </div>
+    );
+  }
+
+  const labelClass = "mono block text-[9px] text-[var(--ink-soft)] mb-2 uppercase tracking-[0.28em]";
+  const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
+    <div className="max-w-4xl mx-auto py-12 px-6 space-y-8">
+      {/* Header seam */}
       <div className="flex items-center gap-4">
         <Link 
           href="/admin" 
-          className="bg-slate-200 p-2 rounded-full hover:bg-slate-300 transition-colors"
+          className="bg-[var(--paper-line)]/50 p-2 rounded-full hover:bg-[var(--paper-line)] hover:scale-105 transition-all cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-900" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--ink)]" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
         </Link>
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">
-          Configuración <span className="opacity-30 italic">de Pagos</span>
-        </h1>
+        <div className="flex-1 flex items-center gap-4">
+          <span className="layer-seam flex-grow" />
+          <span className="seam-label whitespace-nowrap">— Control del Taller —</span>
+          <span className="layer-seam flex-grow" />
+        </div>
       </div>
 
-      <div className="bg-white border-4 border-slate-900 p-12 rounded-[3rem] shadow-2xl">
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 gap-8">
+      <div className="pb-4">
+        <h1 className="text-3xl sm:text-4xl font-semibold text-[var(--ink)] tracking-tight">Configuración del Sistema</h1>
+        <p className="mono text-[10px] uppercase tracking-[0.28em] text-[var(--ink-soft)] mt-2">Parámetros de Cobro y Métodos de Retiro</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        
+        {/* Sección 01: Configuración de Cobro */}
+        <section className="bg-[var(--paper)] border border-[var(--paper-line)] p-8 md:p-10 rounded-2xl warm-shadow layer-press space-y-6">
+          <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)] flex items-center gap-3">
+            <span className="w-6 h-px bg-[var(--paper-line)]" /> 01 · Datos de Transferencia (Seña)
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 block ml-2">Alias de CBU/CVU</label>
+              <label className={labelClass}>Alias de Cobro</label>
               <input
                 type="text"
                 required
                 value={alias}
                 onChange={(e) => setAlias(e.target.value.toUpperCase())}
                 placeholder="STUDIO3D.CBA"
-                className="w-full px-8 py-6 border-2 border-black/5 rounded-2xl focus:border-black outline-none bg-slate-50 font-black text-xl text-slate-900 transition-all uppercase"
+                className={inputClass + " uppercase font-semibold"}
               />
-              <p className="text-[9px] text-slate-400 font-bold uppercase mt-3 ml-2 italic">Se mostrará tal cual al cliente en el checkout.</p>
+              <p className="text-[9px] text-[var(--ink-soft)] mt-2 italic">Se mostrará al cliente en la pantalla de seña.</p>
             </div>
 
             <div>
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4 block ml-2">Número de CBU / CVU</label>
+              <label className={labelClass}>Número de CBU / CVU</label>
               <input
                 type="text"
                 required
                 value={cbu}
                 onChange={(e) => setCbu(e.target.value)}
                 placeholder="0000000000000000000000"
-                className="w-full px-8 py-6 border-2 border-black/5 rounded-2xl focus:border-black outline-none bg-slate-50 font-black text-xl text-slate-900 transition-all"
+                className={inputClass + " font-mono"}
               />
             </div>
           </div>
+        </section>
 
-          {message && (
-            <div className={`p-6 rounded-2xl font-black text-[10px] uppercase tracking-widest text-center border-2 ${
-              message.includes("Error") ? "bg-red-50 text-red-700 border-red-100" : "bg-emerald-50 text-emerald-700 border-emerald-100"
-            }`}>
-              {message}
+        {/* Sección 02: Direcciones y Retiros */}
+        <section className="bg-[var(--paper)] border border-[var(--paper-line)] p-8 md:p-10 rounded-2xl warm-shadow layer-press space-y-6">
+          <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)] flex items-center gap-3">
+            <span className="w-6 h-px bg-[var(--paper-line)]" /> 02 · Direcciones y Métodos de Retiro
+          </h2>
+
+          {/* List of current options */}
+          <div className="space-y-3">
+            <label className={labelClass}>Opciones Activas</label>
+            {shippingOptions.length === 0 ? (
+              <p className="text-xs text-[var(--ink-soft)] italic p-4 bg-white/40 border border-dashed border-[var(--paper-line)] rounded-xl text-center">No hay métodos de retiro configurados.</p>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {shippingOptions.map((opt) => (
+                  <div 
+                    key={opt.id}
+                    className="flex justify-between items-center p-4 border border-[var(--paper-line)] bg-white/60 rounded-xl hover:border-[var(--ink-soft)] transition-colors"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--ink)]">{opt.label}</p>
+                      <p className="text-xs text-[var(--ink-soft)] mt-0.5">{opt.desc}</p>
+                      <span className="mono text-[7px] text-[var(--ink-soft)]/50 uppercase tracking-widest mt-1 block">ID: {opt.id}</span>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => handleRemoveShippingOption(opt.id)}
+                      className="text-red-500 hover:text-red-700 transition-colors p-2 text-xs mono uppercase tracking-wider cursor-pointer"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Add option fields */}
+          <div className="pt-4 border-t border-[var(--paper-line)] space-y-4">
+            <label className={labelClass}>Agregar Nueva Dirección / Método</label>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <input
+                  type="text"
+                  value={newLabel}
+                  onChange={(e) => setNewLabel(e.target.value)}
+                  placeholder="Etiqueta (ej: Punto Retiro: Centro)"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                  placeholder="Descripción (ej: Zona Buen Pastor)"
+                  className={inputClass}
+                />
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newId}
+                  onChange={(e) => setNewId(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
+                  placeholder="ID técnico (opcional)"
+                  className={inputClass + " font-mono"}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddShippingOption}
+                  className="bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--amber)] hover:text-[var(--graphite)] px-5 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0"
+                >
+                  + Añadir
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        </section>
 
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full bg-black text-white py-6 rounded-2xl font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-black/20 active:scale-95 disabled:bg-slate-300"
-          >
-            {isSaving ? "Guardando..." : "Actualizar Datos de Pago"}
-          </button>
-        </form>
-      </div>
+        {/* Status display */}
+        {message && (
+          <div className={`p-4 rounded-xl text-center mono text-[10px] uppercase tracking-[0.2em] border layer-press ${
+            message.includes("Error") 
+              ? "bg-red-50 text-red-700 border-red-200" 
+              : "bg-[color-mix(in_srgb,var(--amber)_10%,white)] text-[var(--ink)] border-[color-mix(in_srgb,var(--amber)_30%,var(--paper-line))]"
+          }`}>
+            {message}
+          </div>
+        )}
 
-      <div className="bg-amber-50 border-2 border-amber-200 p-8 rounded-[2.5rem]">
-         <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-           </svg>
-           Información Importante
-         </p>
-         <p className="text-xs font-bold text-slate-700 leading-relaxed uppercase">
-           Los cambios realizados en este panel se reflejarán inmediatamente en la pantalla de pago de todos los clientes. Asegúrese de que los datos sean correctos para evitar confusiones en las transferencias.
-         </p>
-      </div>
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="w-full py-4 rounded-xl font-semibold text-sm text-[var(--graphite)] bg-[var(--amber)] hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 disabled:opacity-50"
+        >
+          {isSaving ? "Guardando..." : "Actualizar Datos del Taller"}
+        </button>
+
+      </form>
     </div>
   );
 }
