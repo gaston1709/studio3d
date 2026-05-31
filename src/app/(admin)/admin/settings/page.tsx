@@ -14,6 +14,10 @@ export default function PaymentSettingsPage() {
   const [alias, setAlias] = useState("");
   const [cbu, setCbu] = useState("");
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [machineHourRate, setMachineHourRate] = useState<string>("500");
+  const [materialPricePerGram, setMaterialPricePerGram] = useState<string>("30");
+  const [materialPrices, setMaterialPrices] = useState<Record<string, string>>({});
+  const [materials, setMaterials] = useState<{ id: string; name: string; isActive: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,15 +30,34 @@ export default function PaymentSettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/admin/settings");
-      if (res.ok) {
-        const data = await res.json();
+      const [settingsRes, materialsRes] = await Promise.all([
+        fetch("/api/admin/settings"),
+        fetch("/api/admin/materials")
+      ]);
+
+      if (settingsRes.ok) {
+        const data = await settingsRes.json();
         setAlias(data.paymentAlias || "");
         setCbu(data.paymentCbu || "");
         setShippingOptions(data.shippingOptions || []);
+        if (data.machineHourRate !== undefined) setMachineHourRate(String(data.machineHourRate));
+        if (data.materialPricePerGram !== undefined) setMaterialPricePerGram(String(data.materialPricePerGram));
+        
+        const pricesObj: Record<string, string> = {};
+        if (data.materialPrices) {
+          Object.entries(data.materialPrices).forEach(([k, v]) => {
+            pricesObj[k] = String(v);
+          });
+        }
+        setMaterialPrices(pricesObj);
+      }
+
+      if (materialsRes.ok) {
+        const materialsData = await materialsRes.json();
+        setMaterials(materialsData || []);
       }
     } catch (err) {
-      console.error("Error fetching settings:", err);
+      console.error("Error fetching settings and materials:", err);
     } finally {
       setLoading(false);
     }
@@ -83,6 +106,13 @@ export default function PaymentSettingsPage() {
     setIsSaving(true);
     setMessage("");
 
+    const parsedPrices: Record<string, number> = {};
+    Object.entries(materialPrices).forEach(([k, v]) => {
+      if (v.trim() !== "") {
+        parsedPrices[k] = parseFloat(v) || 0;
+      }
+    });
+
     try {
       const res = await fetch("/api/admin/settings", {
         method: "POST",
@@ -91,6 +121,9 @@ export default function PaymentSettingsPage() {
           paymentAlias: alias,
           paymentCbu: cbu,
           shippingOptions: shippingOptions,
+          machineHourRate: parseFloat(machineHourRate) || 0,
+          materialPricePerGram: parseFloat(materialPricePerGram) || 0,
+          materialPrices: parsedPrices,
         }),
       });
 
@@ -255,6 +288,92 @@ export default function PaymentSettingsPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Sección 03: Parámetros de Cotización */}
+        <section className="bg-[var(--paper)] border border-[var(--paper-line)] p-8 md:p-10 rounded-2xl warm-shadow layer-press space-y-6">
+          <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)] flex items-center gap-3">
+            <span className="w-6 h-px bg-[var(--paper-line)]" /> 03 · Parámetros de Cotización Automática
+          </h2>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className={labelClass}>Costo por Hora de Máquina ($/h)</label>
+              <input
+                type="number"
+                step="any"
+                required
+                value={machineHourRate}
+                onChange={(e) => setMachineHourRate(e.target.value)}
+                placeholder="500"
+                className={inputClass}
+              />
+              <p className="text-[9px] text-[var(--ink-soft)] mt-2 italic">Tarifa de amortización y consumo eléctrico por hora.</p>
+            </div>
+
+            <div>
+              <label className={labelClass}>Costo por Gramo de Filamento ($/g)</label>
+              <input
+                type="number"
+                step="any"
+                required
+                value={materialPricePerGram}
+                onChange={(e) => setMaterialPricePerGram(e.target.value)}
+                placeholder="30"
+                className={inputClass}
+              />
+              <p className="text-[9px] text-[var(--ink-soft)] mt-2 italic">Costo de polímero básico (PLA/PETG) por gramo.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Sección 04: Tarifas por Material Específico */}
+        <section className="bg-[var(--paper)] border border-[var(--paper-line)] p-8 md:p-10 rounded-2xl warm-shadow layer-press space-y-6">
+          <h2 className="mono text-[11px] uppercase tracking-[0.28em] text-[var(--amber)] flex items-center gap-3">
+            <span className="w-6 h-px bg-[var(--paper-line)]" /> 04 · Tarifas por Gramo por Material Específico ($/g)
+          </h2>
+          <p className="text-xs text-[var(--ink-soft)] leading-relaxed">
+            Configura un precio por gramo personalizado para cada tipo de material. Si un material no tiene un valor asignado o se deja vacío, el cotizador usará el costo por gramo de filamento básico configurado arriba (${materialPricePerGram || "0"}/g).
+          </p>
+
+          {materials.length === 0 ? (
+            <p className="text-xs text-[var(--ink-soft)] italic p-4 bg-white/40 border border-dashed border-[var(--paper-line)] rounded-xl text-center">
+              No hay materiales registrados en el sistema. Créalos en la sección de Materiales primero.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {materials.map((mat) => (
+                <div key={mat.id} className="bg-white/40 p-4 rounded-xl border border-[var(--paper-line)] flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <span className="mono text-[10px] text-[var(--ink)] font-bold uppercase tracking-wider block">
+                      {mat.name}
+                    </span>
+                    <span className={`mono text-[7px] uppercase tracking-widest mt-1 inline-block px-1.5 py-0.5 rounded ${
+                      mat.isActive ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"
+                    }`}>
+                      {mat.isActive ? "Activo" : "Inactivo"}
+                    </span>
+                  </div>
+                  <div className="w-32 shrink-0">
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3 text-xs text-[var(--ink-soft)]/50">$</span>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder={materialPricePerGram}
+                        value={materialPrices[mat.id] || ""}
+                        onChange={(e) => setMaterialPrices({
+                          ...materialPrices,
+                          [mat.id]: e.target.value
+                        })}
+                        className={inputClass + " pl-7 py-2 text-xs"}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Status display */}

@@ -13,6 +13,9 @@ export interface AppSettingsData {
   paymentAlias: string;
   paymentCbu: string;
   shippingOptions: ShippingOption[];
+  machineHourRate: number;
+  materialPricePerGram: number;
+  materialPrices: Record<string, number>;
 }
 
 const defaultSettings: AppSettingsData = {
@@ -23,7 +26,10 @@ const defaultSettings: AppSettingsData = {
     { id: "point_nv", label: "Punto Retiro: Nueva Córdoba", desc: "Zona Buen Pastor" },
     { id: "point_ga", label: "Punto Retiro: General Paz", desc: "Plaza principal" },
     { id: "moto", label: "Envío en Moto / Uber", desc: "Costo a cargo del cliente al recibir" }
-  ]
+  ],
+  machineHourRate: 500,
+  materialPricePerGram: 30,
+  materialPrices: {},
 };
 
 export function getSettings(): AppSettingsData {

@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import OrderRatingForm from "@/components/forms/OrderRatingForm";
+import CancelOrderButton from "@/components/forms/CancelOrderButton";
 
 export const dynamic = "force-dynamic";
 
@@ -308,17 +309,23 @@ export default async function OrdersPage() {
                             {translateStatus(order.status)}
                           </span>
 
-                          {order.status === "QUOTED" && (
-                            <Link
-                              href={`/orders/${order.id}/pay`}
-                              className="bg-[var(--amber)] text-[var(--graphite)] px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95"
-                            >
-                              Confirmar pedido
-                            </Link>
-                          )}
+                          <div className="flex flex-wrap gap-2 items-center justify-start lg:justify-end mt-2">
+                            {order.status === "QUOTED" && (
+                              <Link
+                                href={`/orders/${order.id}/pay`}
+                                className="bg-[var(--amber)] text-[var(--graphite)] px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-[var(--amber-glow)] transition-colors warm-interactive active:scale-95 whitespace-nowrap"
+                              >
+                                Confirmar pedido
+                              </Link>
+                            )}
+
+                            {["PENDING_QUOTE", "QUOTED", "PAYMENT_PENDING_VERIFICATION"].includes(order.status) && (
+                              <CancelOrderButton orderId={order.id} orderStatus={order.status} />
+                            )}
+                          </div>
 
                           {order.price && order.status !== "QUOTED" && (
-                            <div className="text-left lg:text-right">
+                            <div className="text-left lg:text-right mt-1">
                               <span className="mono text-[8px] text-[var(--ink-soft)] uppercase tracking-[0.3em] block mb-0.5">Total</span>
                               <p className="text-xl font-semibold text-[var(--ink)]">${order.price.toFixed(2)}</p>
                             </div>

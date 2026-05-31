@@ -41,3 +41,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Error al procesar material" }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const materials = await prisma.material.findMany({
+      orderBy: { name: "asc" },
+    });
+    return NextResponse.json(materials);
+  } catch (error) {
+    console.error("Fetch Materials Error:", error);
+    return NextResponse.json({ error: "Error al obtener materiales" }, { status: 500 });
+  }
+}

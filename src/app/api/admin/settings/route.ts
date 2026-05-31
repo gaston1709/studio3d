@@ -21,9 +21,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { paymentAlias, paymentCbu, shippingOptions } = await req.json();
+    const { paymentAlias, paymentCbu, shippingOptions, machineHourRate, materialPricePerGram, materialPrices } = await req.json();
 
-    const settings = saveSettings({ paymentAlias, paymentCbu, shippingOptions });
+    const settings = saveSettings({ paymentAlias, paymentCbu, shippingOptions, machineHourRate, materialPricePerGram, materialPrices });
 
     return NextResponse.json(settings);
   } catch {
