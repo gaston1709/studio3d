@@ -13,9 +13,17 @@ export default function CancelOrderButton({ orderId, orderStatus }: CancelOrderB
   const router = useRouter();
 
   const handleCancel = async () => {
-    const isPaid = orderStatus === "PAYMENT_PENDING_VERIFICATION";
+    const paidStatuses = [
+      "PAYMENT_PENDING_VERIFICATION",
+      "ACCEPTED",
+      "PRINTING",
+      "FINISHED",
+      "SHIPPED",
+      "DELIVERED"
+    ];
+    const isPaid = paidStatuses.includes(orderStatus);
     const message = isPaid
-      ? "⚠️ ¡Atención! Este pedido ya cuenta con una seña cargada en verificación. Si lo cancelas, NO habrá devolución del dinero.\n\n¿Estás seguro de que deseas cancelar este pedido?"
+      ? "⚠️ ¡Atención! Este pedido ya cuenta con una seña en proceso de verificación o ya está en cola/producción. Si lo cancelas, NO habrá devolución del dinero.\n\n¿Estás seguro de que deseas cancelar este pedido?"
       : "¿Estás seguro de que deseas cancelar este pedido?";
 
     const confirmCancel = confirm(message);

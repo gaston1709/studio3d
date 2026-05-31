@@ -319,7 +319,7 @@ export default async function OrdersPage() {
                               </Link>
                             )}
 
-                            {["PENDING_QUOTE", "QUOTED", "PAYMENT_PENDING_VERIFICATION"].includes(order.status) && (
+                            {["PENDING_QUOTE", "QUOTED", "PAYMENT_PENDING_VERIFICATION", "ACCEPTED"].includes(order.status) && (
                               <CancelOrderButton orderId={order.id} orderStatus={order.status} />
                             )}
                           </div>

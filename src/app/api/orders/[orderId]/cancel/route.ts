@@ -33,10 +33,10 @@ export async function POST(
       }
 
       // Check if order is in a cancelable state for client
-      const cancelableStatuses = ["PENDING_QUOTE", "QUOTED", "PAYMENT_PENDING_VERIFICATION"];
+      const cancelableStatuses = ["PENDING_QUOTE", "QUOTED", "PAYMENT_PENDING_VERIFICATION", "ACCEPTED"];
       if (!cancelableStatuses.includes(order.status)) {
         return NextResponse.json(
-          { error: "No se puede cancelar un pedido que ya está en cola o impresión." },
+          { error: "No se puede cancelar un pedido que ya está en proceso de impresión o finalizado." },
           { status: 400 }
         );
       }
