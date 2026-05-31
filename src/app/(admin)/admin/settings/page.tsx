@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CustomDialog from "@/components/ui/CustomDialog";
 
 interface ShippingOption {
   id: string;
@@ -21,6 +22,17 @@ export default function PaymentSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    type: "alert" | "confirm" | "danger";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    type: "alert",
+  });
   const router = useRouter();
 
   // Temporary state for adding a new shipping option
@@ -72,7 +84,12 @@ export default function PaymentSettingsPage() {
   const handleAddShippingOption = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!newLabel.trim()) {
-      alert("La etiqueta de la dirección es requerida.");
+      setDialog({
+        isOpen: true,
+        title: "Dato Requerido",
+        description: "La etiqueta de la dirección es requerida.",
+        type: "alert",
+      });
       return;
     }
 
@@ -81,7 +98,12 @@ export default function PaymentSettingsPage() {
     
     // Check duplicates
     if (shippingOptions.some(opt => opt.id === idToUse)) {
-      alert("Ya existe una opción con ese ID técnico.");
+      setDialog({
+        isOpen: true,
+        title: "Opción Duplicada",
+        description: "Ya existe una opción con ese ID técnico.",
+        type: "alert",
+      });
       return;
     }
 
@@ -152,7 +174,8 @@ export default function PaymentSettingsPage() {
   const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30";
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-6 space-y-8">
+    <>
+      <div className="max-w-4xl mx-auto py-12 px-6 space-y-8">
       {/* Header seam */}
       <div className="flex items-center gap-4">
         <Link 
@@ -397,5 +420,14 @@ export default function PaymentSettingsPage() {
 
       </form>
     </div>
+
+    <CustomDialog
+      isOpen={dialog.isOpen}
+      title={dialog.title}
+      description={dialog.description}
+      type={dialog.type}
+      onCancel={() => setDialog((prev) => ({ ...prev, isOpen: false }))}
+    />
+  </>
   );
 }

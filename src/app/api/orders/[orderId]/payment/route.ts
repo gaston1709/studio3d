@@ -29,6 +29,10 @@ export async function POST(
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
     }
 
+    if (orderBefore.status === "CANCELLED") {
+      return NextResponse.json({ error: "No se puede registrar pago en un pedido cancelado" }, { status: 400 });
+    }
+
     const isAdmin = session.user.role === "ADMIN";
     const isOwner = orderBefore.user.email === session.user.email;
 

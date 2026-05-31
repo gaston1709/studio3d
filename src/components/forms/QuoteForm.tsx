@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import CustomDialog from "@/components/ui/CustomDialog";
 
 interface QuoteFormProps {
   order: {
@@ -34,6 +35,21 @@ export default function QuoteForm({ order }: QuoteFormProps) {
   const [trackingLink, setTrackingLink] = useState(order.trackingLink || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  // Dialog state
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    type: "alert" | "confirm" | "danger";
+    confirmText?: string;
+    onConfirm?: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    type: "alert",
+  });
 
   // Cost calculator state
   const [showCalc, setShowCalc] = useState(false);
@@ -85,11 +101,91 @@ export default function QuoteForm({ order }: QuoteFormProps) {
       });
 
       if (res.ok) {
-        router.refresh();
-        alert("Pedido actualizado correctamente");
+        setDialog({
+          isOpen: true,
+          title: "Pedido Actualizado",
+          description: "El pedido ha sido actualizado correctamente.",
+          type: "alert",
+          onConfirm: () => {
+            router.refresh();
+          }
+        });
+      } else {
+        setDialog({
+          isOpen: true,
+          title: "Error al Actualizar",
+          description: "No se pudo actualizar el pedido. Intenta nuevamente.",
+          type: "alert"
+        });
       }
     } catch {
-      alert("Error al actualizar");
+      setDialog({
+        isOpen: true,
+        title: "Error al Actualizar",
+        description: "Error de conexión. Intenta nuevamente.",
+        type: "alert"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAdminCancelClick = () => {
+    const paidStatuses = [
+      "PAYMENT_PENDING_VERIFICATION",
+      "ACCEPTED",
+      "PRINTING",
+      "FINISHED",
+      "SHIPPED",
+      "DELIVERED"
+    ];
+    const isPaid = paidStatuses.includes(order.status);
+
+    setDialog({
+      isOpen: true,
+      title: isPaid ? "Cancelar Pedido Señado" : "Cancelar Pedido",
+      description: isPaid
+        ? `⚠️ ¡Atención! Este pedido ya cuenta con una seña registrada/en verificación (Estado: ${order.status}). Si lo cancelas, recordá que NO hay devolución de dinero.\n\n¿Estás seguro de que deseas cancelar este pedido?`
+        : "¿Estás seguro de que deseas cancelar este pedido?",
+      type: isPaid ? "danger" : "confirm",
+      confirmText: "Sí, cancelar",
+      onConfirm: executeAdminCancel,
+    });
+  };
+
+  const executeAdminCancel = async () => {
+    setDialog((prev) => ({ ...prev, isOpen: false }));
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/cancel`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        setDialog({
+          isOpen: true,
+          title: "Pedido Cancelado",
+          description: "El pedido ha sido cancelado con éxito.",
+          type: "alert",
+          onConfirm: () => {
+            router.refresh();
+          },
+        });
+      } else {
+        const data = await res.json();
+        setDialog({
+          isOpen: true,
+          title: "Error al Cancelar",
+          description: data.error || "Ocurrió un error.",
+          type: "alert",
+        });
+      }
+    } catch {
+      setDialog({
+        isOpen: true,
+        title: "Error de Conexión",
+        description: "Error de conexión al intentar comunicarse con el servidor.",
+        type: "alert",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -99,7 +195,8 @@ export default function QuoteForm({ order }: QuoteFormProps) {
   const inputClass = "w-full px-4 py-3 border border-[var(--paper-line)] rounded-xl focus:border-[var(--amber)] outline-none text-[var(--ink)] bg-white/60 text-sm transition-colors placeholder:text-[var(--ink-soft)]/30 appearance-none";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label className={labelClass}>Estado del Pedido</label>
         <div className="relative">
@@ -303,45 +400,23 @@ export default function QuoteForm({ order }: QuoteFormProps) {
         <button
           type="button"
           disabled={isSubmitting}
-          onClick={async () => {
-            const paidStatuses = [
-              "PAYMENT_PENDING_VERIFICATION",
-              "ACCEPTED",
-              "PRINTING",
-              "FINISHED",
-              "SHIPPED",
-              "DELIVERED"
-            ];
-            const isPaid = paidStatuses.includes(order.status);
-            const message = isPaid
-              ? `⚠️ ¡Atención! Este pedido ya cuenta con una seña registrada/en verificación (Estado: ${order.status}). Si lo cancelas, recordá que NO hay devolución de dinero.\n\n¿Estás seguro de que deseas cancelar este pedido?`
-              : "¿Estás seguro de que deseas cancelar este pedido?";
-
-            const confirmCancel = confirm(message);
-            if (!confirmCancel) return;
-            setIsSubmitting(true);
-            try {
-              const res = await fetch(`/api/orders/${order.id}/cancel`, {
-                method: "POST",
-              });
-              if (res.ok) {
-                alert("Pedido cancelado correctamente.");
-                router.refresh();
-              } else {
-                const data = await res.json();
-                alert(data.error || "Ocurrió un error.");
-              }
-            } catch {
-              alert("Error de conexión.");
-            } finally {
-              setIsSubmitting(false);
-            }
-          }}
+          onClick={handleAdminCancelClick}
           className="w-full py-2.5 rounded-xl font-semibold text-xs text-red-600 border border-red-200 hover:bg-red-50/50 hover:border-red-300 transition-colors active:scale-95 disabled:opacity-50 mt-2 cursor-pointer text-center"
         >
           Cancelar Pedido
         </button>
       )}
     </form>
+
+    <CustomDialog
+      isOpen={dialog.isOpen}
+      title={dialog.title}
+      description={dialog.description}
+      type={dialog.type}
+      confirmText={dialog.confirmText}
+      onConfirm={dialog.onConfirm}
+      onCancel={() => setDialog((prev) => ({ ...prev, isOpen: false }))}
+    />
+  </>
   );
 }
